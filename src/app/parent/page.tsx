@@ -1,23 +1,39 @@
-"use client";
-
-import { useState } from "react";
+import Link from "next/link";
 import { PageShell } from "@/components/PageShell";
 import { Card } from "@/components/Card";
 import { Button } from "@/components/Button";
-import { ProgressRing } from "@/components/ProgressRing";
 import { EmptyState } from "@/components/EmptyState";
-import { MoodIcon } from "@/components/icons/MoodIcons";
-import { children, chatThread, upcomingSessions } from "@/lib/mock-data";
-import { revisionItems, learnerAchievements, achievements } from "@/lib/seed-data";
 import { RevisionItemCard } from "@/components/RevisionItemCard";
 import { AchievementBadge } from "@/components/AchievementBadge";
-import Link from "next/link";
+import { MoodIcon } from "@/components/icons/MoodIcons";
+import {
+  getMyLearners,
+  getLatestResult,
+  getMoodTrend,
+  getUpcomingSessions,
+  getRecentMessages,
+  getRevisionItems,
+  getLearnerAchievements,
+} from "@/features/parent/queries";
 
-export default function ParentDashboard() {
-  const [activeChildId, setActiveChildId] = useState<string | null>(children[0].id);
-  const child = children.find((c) => c.id === activeChildId) ?? null;
+const dbMoodToIcon = {
+  happy: "great",
+  excited: "great",
+  okay: "okay",
+  tired: "low",
+  worried: "tough",
+  frustrated: "tough",
+} as const;
 
-  if (!child) {
+export default async function ParentDashboard({
+  searchParams,
+}: {
+  searchParams: Promise<{ childId?: string }>;
+}) {
+  const { childId } = await searchParams;
+  const learners = await getMyLearners();
+
+  if (learners.length === 0) {
     return (
       <PageShell>
         <main className="max-w-3xl mx-auto px-6 py-16">
@@ -27,15 +43,23 @@ export default function ParentDashboard() {
             description="Add your child's details to start seeing their mock exams, sessions, and progress here."
           />
           <div className="flex justify-center">
-            <Button variant="primary">Add a child</Button>
+            <Button href="/register/parent" variant="primary">Add a child</Button>
           </div>
         </main>
       </PageShell>
     );
   }
 
-  const latestExam = child.examHistory[0];
-  const sessionsForChild = upcomingSessions.filter((s) => s.child === child.name);
+  const child = learners.find((l) => l.id === childId) ?? learners[0];
+
+  const [latestResult, moodTrend, sessions, messages, revisionItems, achievements] = await Promise.all([
+    getLatestResult(child.id),
+    getMoodTrend(child.id),
+    getUpcomingSessions(child.id),
+    getRecentMessages(child.id),
+    getRevisionItems(child.id),
+    getLearnerAchievements(child.id),
+  ]);
 
   return (
     <PageShell>
@@ -46,28 +70,25 @@ export default function ParentDashboard() {
             <h1 className="font-display font-bold text-3xl">Family dashboard</h1>
           </div>
           <div className="flex gap-2">
-            {children.map((c) => (
-              <button
-                key={c.id}
-                onClick={() => setActiveChildId(c.id)}
+            {learners.map((l) => (
+              <Link
+                key={l.id}
+                href={`/parent?childId=${l.id}`}
                 className={`flex items-center gap-2 px-4 py-2 rounded-full font-semibold min-h-[44px] transition-colors ${
-                  c.id === activeChildId
-                    ? "bg-teal-900 text-white"
-                    : "bg-teal-100 text-teal-900 hover:bg-teal-100/70"
+                  l.id === child.id ? "bg-teal-900 text-white" : "bg-teal-100 text-teal-900 hover:bg-teal-100/70"
                 }`}
               >
-                <span aria-hidden>{c.avatarEmoji}</span> {c.name}
-              </button>
+                <span aria-hidden>{l.avatar_emoji}</span> {l.preferred_name}
+              </Link>
             ))}
           </div>
         </div>
 
-        {latestExam ? (
+        {latestResult ? (
           <Card tint="coral" className="mb-8">
-            <p className="font-semibold text-charcoal-teal/70 text-sm">Since last month</p>
+            <p className="font-semibold text-charcoal-teal/70 text-sm">Latest result</p>
             <p className="font-display font-bold text-xl mt-1">
-              {child.name} completed her {latestExam.subject} mock today — {latestExam.score}%, up from{" "}
-              {latestExam.prevScore}% last month.
+              {child.preferred_name} scored {latestResult.score}% on her most recent mock.
             </p>
           </Card>
         ) : (
@@ -75,43 +96,47 @@ export default function ParentDashboard() {
             <EmptyState
               emoji="📝"
               title="No mock exams completed yet"
-              description={`Once ${child.name} completes a mock exam, results will appear here.`}
+              description={`Once ${child.preferred_name} completes a mock exam, results will appear here.`}
             />
           </Card>
         )}
 
         <section className="grid md:grid-cols-2 gap-6 mb-10">
           <Card>
-            <h2 className="font-display font-bold text-lg mb-4">Subject progress</h2>
-            <div className="grid grid-cols-2 gap-4">
-              {child.subjects.map((s) => (
-                <div key={s.key} className="flex flex-col items-center gap-2">
-                  <ProgressRing progress={s.progress} color={s.color} size={72} />
-                  <span className="text-xs font-semibold text-center">{s.name}</span>
-                  <span className="text-[11px] text-sage-600 font-semibold">
-                    +{s.progress - s.lastWeekProgress} since last week
-                  </span>
-                </div>
-              ))}
-            </div>
+            <h2 className="font-display font-bold text-lg mb-4">Topic performance</h2>
+            {latestResult?.topic_performance?.length ? (
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                {latestResult.topic_performance.map((t) => (
+                  <div key={t.id} className="bg-teal-100 rounded-2xl px-4 py-3">
+                    <p className="font-semibold">{t.topic_key}</p>
+                    <p className="text-charcoal-teal/70">{t.score}%</p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-charcoal-teal/70">No topic data yet.</p>
+            )}
           </Card>
 
           <Card>
             <h2 className="font-display font-bold text-lg mb-4">Mood check-in trend</h2>
-            <div className="flex justify-between items-end h-24">
-              {child.moodTrend.map((m) => {
-                const Icon = MoodIcon[m.mood];
-                return (
-                  <div key={m.date} className="flex flex-col items-center gap-2">
-                    <Icon />
-                    <span className="text-xs text-charcoal-teal/70">{m.date}</span>
-                  </div>
-                );
-              })}
-            </div>
-            <p className="text-sm text-charcoal-teal/70 mt-3">
-              A calm, steady week — mostly good and great days.
-            </p>
+            {moodTrend.length ? (
+              <div className="flex justify-between items-end h-24">
+                {moodTrend.map((m) => {
+                  const Icon = MoodIcon[dbMoodToIcon[m.mood]];
+                  return (
+                    <div key={m.id} className="flex flex-col items-center gap-2">
+                      <Icon />
+                      <span className="text-xs text-charcoal-teal/70">
+                        {new Date(m.created_at).toLocaleDateString("en-GB", { weekday: "short" })}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="text-sm text-charcoal-teal/70">No mood check-ins yet.</p>
+            )}
           </Card>
         </section>
 
@@ -123,18 +148,17 @@ export default function ParentDashboard() {
                 View full thread →
               </Link>
             </div>
-            {chatThread.length ? (
+            {messages.length ? (
               <>
                 <div className="space-y-3">
-                  {chatThread.slice(0, 3).map((m) => (
+                  {messages.map((m) => (
                     <div key={m.id} className="text-sm">
-                      <span className="font-semibold">{m.senderName}:</span>{" "}
                       <span className="text-charcoal-teal/80">{m.content}</span>
                     </div>
                   ))}
                 </div>
                 <p className="text-xs text-charcoal-teal/50 mt-4">
-                  Every message involving {child.name} is visible here, in full, always.
+                  Every message involving {child.preferred_name} is visible here, in full, always.
                 </p>
               </>
             ) : (
@@ -149,41 +173,72 @@ export default function ParentDashboard() {
           <Card>
             <h2 className="font-display font-bold text-lg mb-4">Upcoming sessions</h2>
             <div className="space-y-3">
-              {sessionsForChild.length ? (
-                sessionsForChild.map((s) => (
+              {sessions.length ? (
+                sessions.map((s) => (
                   <div key={s.id} className="flex justify-between items-center text-sm">
-                    <span className="font-semibold">{s.subject} with {s.tutor}</span>
-                    <span className="text-charcoal-teal/70">{s.date}, {s.time}</span>
+                    <span className="font-semibold">{s.subject ?? "Session"}</span>
+                    <span className="text-charcoal-teal/70">
+                      {new Date(s.scheduled_at).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
+                    </span>
                   </div>
                 ))
               ) : (
                 <p className="text-charcoal-teal/70 text-sm">No sessions scheduled yet.</p>
               )}
             </div>
-            <Button href="/parent/chat" variant="outline" className="mt-6">Message the tutor</Button>
+            <Button href="/parent/tutors" variant="outline" className="mt-6">Browse tutors</Button>
           </Card>
         </section>
 
         <section className="grid md:grid-cols-2 gap-6 mt-10">
           <Card>
             <h2 className="font-display font-bold text-lg mb-4">Revision plan</h2>
-            <div className="space-y-3">
-              {revisionItems.filter((r) => r.learnerId === child.id).map((r) => (
-                <RevisionItemCard key={r.id} item={r} />
-              ))}
-            </div>
+            {revisionItems.length ? (
+              <div className="space-y-3">
+                {revisionItems.map((r) => (
+                  <RevisionItemCard
+                    key={r.id}
+                    item={{
+                      id: r.id,
+                      learnerId: r.learner_id,
+                      subject: r.subject ?? "",
+                      topic: r.topic ?? "",
+                      reason: r.reason ?? "",
+                      priority: (r.priority as "high" | "medium" | "low") ?? "medium",
+                      recommendedActivity: r.recommended_activity ?? "",
+                      dueDate: r.due_date ?? "",
+                      status: r.status as "not_started" | "in_progress" | "done",
+                    }}
+                  />
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-charcoal-teal/70">Nothing to revise right now — all caught up!</p>
+            )}
           </Card>
           <Card>
             <h2 className="font-display font-bold text-lg mb-4">Achievements</h2>
-            <div className="grid grid-cols-3 gap-3">
-              {learnerAchievements
-                .filter((la) => la.learnerId === child.id)
-                .map((la) => achievements.find((a) => a.id === la.achievementId))
-                .filter(Boolean)
-                .map((a) => (
-                  <AchievementBadge key={a!.id} achievement={a!} earned />
-                ))}
-            </div>
+            {achievements.length ? (
+              <div className="grid grid-cols-3 gap-3">
+                {achievements.map((la) =>
+                  la.achievements ? (
+                    <AchievementBadge
+                      key={la.id}
+                      achievement={{
+                        id: la.achievements.id,
+                        name: la.achievements.name,
+                        icon: la.achievements.icon ?? "🏅",
+                        description: la.achievements.description ?? "",
+                        category: (la.achievements.category as "academic" | "effort" | "consistency" | "brain_training" | "craft" | "competition") ?? "effort",
+                      }}
+                      earned
+                    />
+                  ) : null
+                )}
+              </div>
+            ) : (
+              <p className="text-sm text-charcoal-teal/70">No achievements earned yet — keep going!</p>
+            )}
           </Card>
         </section>
       </main>

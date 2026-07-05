@@ -1,66 +1,51 @@
-"use client";
-
-import { useState } from "react";
 import { PageShell } from "@/components/PageShell";
 import { Card } from "@/components/Card";
 import { Button } from "@/components/Button";
-import { MoodCheckIn } from "@/components/MoodCheckIn";
-import { BrainWarmupCard } from "@/components/BrainWarmupCard";
 import { AchievementBadge } from "@/components/AchievementBadge";
+import { EmptyState } from "@/components/EmptyState";
 import {
-  learners,
-  achievements,
-  learnerAchievements,
-  revisionItems,
-  lessonSessions,
-} from "@/lib/seed-data";
+  getMyLearnerProfile,
+  getRevisionItemsForLearner,
+  getNextSession,
+  getLatestBadge,
+} from "@/features/child/queries";
+import { TodayInteractive } from "./TodayInteractive";
 
-const activeLearner = learners[0];
+export default async function ChildToday() {
+  const learner = await getMyLearnerProfile();
 
-export default function ChildToday() {
-  const [warmupDone, setWarmupDone] = useState(false);
+  if (!learner) {
+    return (
+      <PageShell>
+        <main className="max-w-2xl mx-auto px-6 py-16">
+          <EmptyState emoji="🧒" title="No profile found" description="Ask your parent to check your account." />
+        </main>
+      </PageShell>
+    );
+  }
 
-  const learnerRevision = revisionItems.filter((r) => r.learnerId === activeLearner.id);
-  const nextSession = lessonSessions.find((s) => s.learnerId === activeLearner.id && s.status === "upcoming");
-  const latestBadge = achievements.find(
-    (a) => a.id === learnerAchievements.filter((la) => la.learnerId === activeLearner.id).slice(-1)[0]?.achievementId
-  );
+  const [revisionItems, nextSession, latestBadge] = await Promise.all([
+    getRevisionItemsForLearner(learner.id),
+    getNextSession(learner.id),
+    getLatestBadge(learner.id),
+  ]);
 
   return (
     <PageShell>
       <main className="max-w-4xl mx-auto px-6 py-10">
-        <p className="text-lg text-charcoal-teal/70">Hiya {activeLearner.avatarEmoji}</p>
+        <p className="text-lg text-charcoal-teal/70">Hiya {learner.avatar_emoji}</p>
         <h1 className="font-display font-bold text-3xl sm:text-4xl mt-1">
-          Ready for today&apos;s challenge, {activeLearner.preferredName}?
+          Ready for today&apos;s challenge, {learner.preferred_name}?
         </h1>
 
-        <div className="grid md:grid-cols-2 gap-6 mt-8">
-          <Card>
-            <MoodCheckIn />
-          </Card>
-          <BrainWarmupCard onComplete={() => setWarmupDone(true)} />
-        </div>
-
-        <Card tint="coral" className="mt-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <p className="font-display font-bold text-lg">Today&apos;s mock exam</p>
-            <p className="text-charcoal-teal/70 text-sm mt-1">
-              {warmupDone
-                ? "Your brain is warmed up — you're ready to go!"
-                : "Complete your brain warm-up above first — it's a quick step before every mock."}
-            </p>
-          </div>
-          <Button href="/child/mock-exams" variant="secondary" disabled={!warmupDone}>
-            Start today&apos;s challenge ⚡
-          </Button>
-        </Card>
+        <TodayInteractive />
 
         <section className="grid md:grid-cols-2 gap-6 mt-8">
           <Card>
             <h2 className="font-display font-bold text-lg mb-3">Your revision today</h2>
-            {learnerRevision.length ? (
+            {revisionItems.length ? (
               <ul className="space-y-2 text-sm">
-                {learnerRevision.map((r) => (
+                {revisionItems.map((r) => (
                   <li key={r.id} className="flex justify-between">
                     <span className="font-semibold">{r.topic}</span>
                     <span className="text-charcoal-teal/60">{r.status.replace("_", " ")}</span>
@@ -77,22 +62,31 @@ export default function ChildToday() {
             <h2 className="font-display font-bold text-lg mb-3">Coming up</h2>
             {nextSession ? (
               <p className="text-sm text-charcoal-teal/80">
-                {nextSession.subject} session on{" "}
-                {new Date(nextSession.scheduledAt).toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" })}
+                {nextSession.subject ?? "Session"} on{" "}
+                {new Date(nextSession.scheduled_at).toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" })}
               </p>
             ) : (
               <p className="text-sm text-charcoal-teal/70">No sessions scheduled yet.</p>
             )}
-            {latestBadge && (
+            {latestBadge?.achievements && (
               <div className="mt-4 max-w-[160px]">
-                <AchievementBadge achievement={latestBadge} earned />
+                <AchievementBadge
+                  achievement={{
+                    id: latestBadge.achievements.id,
+                    name: latestBadge.achievements.name,
+                    icon: latestBadge.achievements.icon ?? "🏅",
+                    description: latestBadge.achievements.description ?? "",
+                    category: (latestBadge.achievements.category as "academic" | "effort" | "consistency" | "brain_training" | "craft" | "competition") ?? "effort",
+                  }}
+                  earned
+                />
               </div>
             )}
           </Card>
         </section>
 
         <Card tint="teal" className="mt-8 text-center">
-          <p className="font-display font-bold">You&apos;re doing brilliantly, {activeLearner.preferredName}. Keep it up! 🌟</p>
+          <p className="font-display font-bold">You&apos;re doing brilliantly, {learner.preferred_name}. Keep it up! 🌟</p>
         </Card>
       </main>
     </PageShell>

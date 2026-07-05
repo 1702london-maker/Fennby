@@ -5,12 +5,83 @@ import { useRouter } from "next/navigation";
 import { PageShell } from "@/components/PageShell";
 import { Card } from "@/components/Card";
 import { Button } from "@/components/Button";
-import { usePreviewRole } from "@/lib/role-context";
+import { signUp, login } from "@/features/auth/actions";
+import { createLearner } from "@/features/learners/actions";
 
 export default function RegisterParentPage() {
   const router = useRouter();
-  const { setRole } = usePreviewRole();
   const [step, setStep] = useState<"parent" | "child">("parent");
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const [account, setAccount] = useState({ fullName: "", email: "", password: "" });
+  const [child, setChild] = useState({
+    firstName: "",
+    preferredName: "",
+    dateOfBirth: "",
+    yearGroup: "",
+    currentSchool: "",
+    targetExam: "",
+    targetSchool: "",
+    examBoard: "",
+    learningGoals: "",
+    sendNotes: "",
+    accessibilityNeeds: "",
+    consent: false,
+  });
+
+  const onAccountSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+    const signUpResult = await signUp({
+      email: account.email,
+      password: account.password,
+      fullName: account.fullName,
+      intendedRole: "parent",
+    });
+    if (!signUpResult.ok) {
+      setLoading(false);
+      setError(signUpResult.error);
+      return;
+    }
+    // Sign-up establishes a session directly (email confirmation disabled in dev);
+    // if confirmation is required, this login call is a harmless no-op retry.
+    await login({ email: account.email, password: account.password });
+    setLoading(false);
+    setStep("child");
+  };
+
+  const onChildSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!child.consent) {
+      setError("Please confirm consent to continue.");
+      return;
+    }
+    setError(null);
+    setLoading(true);
+    const result = await createLearner({
+      firstName: child.firstName,
+      preferredName: child.preferredName || child.firstName,
+      dateOfBirth: child.dateOfBirth,
+      yearGroup: child.yearGroup,
+      currentSchool: child.currentSchool || undefined,
+      targetExam: child.targetExam || undefined,
+      targetSchool: child.targetSchool || undefined,
+      examBoard: child.examBoard || undefined,
+      learningGoals: child.learningGoals || undefined,
+      sendNotes: child.sendNotes || undefined,
+      accessibilityNeeds: child.accessibilityNeeds || undefined,
+      consent: true,
+    });
+    setLoading(false);
+    if (!result.ok) {
+      setError(result.error);
+      return;
+    }
+    router.push("/parent");
+    router.refresh();
+  };
 
   return (
     <PageShell>
@@ -26,99 +97,88 @@ export default function RegisterParentPage() {
 
         {step === "parent" ? (
           <Card>
-            <form
-              className="grid gap-4"
-              onSubmit={(e) => {
-                e.preventDefault();
-                setStep("child");
-              }}
-            >
+            <form className="grid gap-4" onSubmit={onAccountSubmit}>
               <div>
                 <label className="block text-sm font-semibold mb-1">Full name</label>
-                <input required className="w-full rounded-2xl border-2 border-teal-100 px-4 py-3 min-h-[44px] focus:border-teal-700 outline-none" placeholder="Ade Okafor" />
+                <input required value={account.fullName} onChange={(e) => setAccount({ ...account, fullName: e.target.value })} className="w-full rounded-2xl border-2 border-teal-100 px-4 py-3 min-h-[44px] focus:border-teal-700 outline-none" placeholder="Ade Okafor" />
               </div>
               <div>
                 <label className="block text-sm font-semibold mb-1">Email</label>
-                <input type="email" required className="w-full rounded-2xl border-2 border-teal-100 px-4 py-3 min-h-[44px] focus:border-teal-700 outline-none" placeholder="you@example.com" />
+                <input type="email" required value={account.email} onChange={(e) => setAccount({ ...account, email: e.target.value })} className="w-full rounded-2xl border-2 border-teal-100 px-4 py-3 min-h-[44px] focus:border-teal-700 outline-none" placeholder="you@example.com" />
               </div>
               <div>
                 <label className="block text-sm font-semibold mb-1">Password</label>
-                <input type="password" required className="w-full rounded-2xl border-2 border-teal-100 px-4 py-3 min-h-[44px] focus:border-teal-700 outline-none" />
+                <input type="password" required value={account.password} onChange={(e) => setAccount({ ...account, password: e.target.value })} className="w-full rounded-2xl border-2 border-teal-100 px-4 py-3 min-h-[44px] focus:border-teal-700 outline-none" />
               </div>
-              <Button type="submit" variant="primary" className="justify-center mt-2">Continue</Button>
+              {error && <p className="text-sm text-brick-600 font-semibold">{error}</p>}
+              <Button type="submit" variant="primary" className="justify-center mt-2" disabled={loading}>
+                {loading ? "Creating account…" : "Continue"}
+              </Button>
             </form>
           </Card>
         ) : (
           <Card>
-            <form
-              className="grid gap-4"
-              onSubmit={(e) => {
-                e.preventDefault();
-                setRole("parent");
-                router.push("/parent");
-              }}
-            >
+            <form className="grid gap-4" onSubmit={onChildSubmit}>
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-semibold mb-1">First name</label>
-                  <input required className="w-full rounded-2xl border-2 border-teal-100 px-4 py-3 min-h-[44px] focus:border-teal-700 outline-none" />
+                  <input required value={child.firstName} onChange={(e) => setChild({ ...child, firstName: e.target.value })} className="w-full rounded-2xl border-2 border-teal-100 px-4 py-3 min-h-[44px] focus:border-teal-700 outline-none" />
                 </div>
                 <div>
                   <label className="block text-sm font-semibold mb-1">Preferred name</label>
-                  <input className="w-full rounded-2xl border-2 border-teal-100 px-4 py-3 min-h-[44px] focus:border-teal-700 outline-none" />
+                  <input value={child.preferredName} onChange={(e) => setChild({ ...child, preferredName: e.target.value })} className="w-full rounded-2xl border-2 border-teal-100 px-4 py-3 min-h-[44px] focus:border-teal-700 outline-none" />
                 </div>
               </div>
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-semibold mb-1">Date of birth</label>
-                  <input type="date" required className="w-full rounded-2xl border-2 border-teal-100 px-4 py-3 min-h-[44px] focus:border-teal-700 outline-none" />
+                  <input type="date" required value={child.dateOfBirth} onChange={(e) => setChild({ ...child, dateOfBirth: e.target.value })} className="w-full rounded-2xl border-2 border-teal-100 px-4 py-3 min-h-[44px] focus:border-teal-700 outline-none" />
                 </div>
                 <div>
                   <label className="block text-sm font-semibold mb-1">School year</label>
-                  <input className="w-full rounded-2xl border-2 border-teal-100 px-4 py-3 min-h-[44px] focus:border-teal-700 outline-none" placeholder="Year 5" />
+                  <input required value={child.yearGroup} onChange={(e) => setChild({ ...child, yearGroup: e.target.value })} className="w-full rounded-2xl border-2 border-teal-100 px-4 py-3 min-h-[44px] focus:border-teal-700 outline-none" placeholder="Year 5" />
                 </div>
               </div>
               <div>
                 <label className="block text-sm font-semibold mb-1">Current school</label>
-                <input className="w-full rounded-2xl border-2 border-teal-100 px-4 py-3 min-h-[44px] focus:border-teal-700 outline-none" />
+                <input value={child.currentSchool} onChange={(e) => setChild({ ...child, currentSchool: e.target.value })} className="w-full rounded-2xl border-2 border-teal-100 px-4 py-3 min-h-[44px] focus:border-teal-700 outline-none" />
               </div>
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-semibold mb-1">Target exam</label>
-                  <input className="w-full rounded-2xl border-2 border-teal-100 px-4 py-3 min-h-[44px] focus:border-teal-700 outline-none" placeholder="11+ Grammar Entrance" />
+                  <input value={child.targetExam} onChange={(e) => setChild({ ...child, targetExam: e.target.value })} className="w-full rounded-2xl border-2 border-teal-100 px-4 py-3 min-h-[44px] focus:border-teal-700 outline-none" placeholder="11+ Grammar Entrance" />
                 </div>
                 <div>
                   <label className="block text-sm font-semibold mb-1">Target school</label>
-                  <input className="w-full rounded-2xl border-2 border-teal-100 px-4 py-3 min-h-[44px] focus:border-teal-700 outline-none" />
+                  <input value={child.targetSchool} onChange={(e) => setChild({ ...child, targetSchool: e.target.value })} className="w-full rounded-2xl border-2 border-teal-100 px-4 py-3 min-h-[44px] focus:border-teal-700 outline-none" />
                 </div>
               </div>
               <div>
                 <label className="block text-sm font-semibold mb-1">Exam board</label>
-                <input className="w-full rounded-2xl border-2 border-teal-100 px-4 py-3 min-h-[44px] focus:border-teal-700 outline-none" placeholder="GL Assessment" />
+                <input value={child.examBoard} onChange={(e) => setChild({ ...child, examBoard: e.target.value })} className="w-full rounded-2xl border-2 border-teal-100 px-4 py-3 min-h-[44px] focus:border-teal-700 outline-none" placeholder="GL Assessment" />
               </div>
               <div>
                 <label className="block text-sm font-semibold mb-1">Learning goals</label>
-                <textarea rows={2} className="w-full rounded-2xl border-2 border-teal-100 p-4 focus:border-teal-700 outline-none" />
+                <textarea rows={2} value={child.learningGoals} onChange={(e) => setChild({ ...child, learningGoals: e.target.value })} className="w-full rounded-2xl border-2 border-teal-100 p-4 focus:border-teal-700 outline-none" />
               </div>
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-semibold mb-1">SEND notes</label>
-                  <textarea rows={2} className="w-full rounded-2xl border-2 border-teal-100 p-4 focus:border-teal-700 outline-none" />
+                  <textarea rows={2} value={child.sendNotes} onChange={(e) => setChild({ ...child, sendNotes: e.target.value })} className="w-full rounded-2xl border-2 border-teal-100 p-4 focus:border-teal-700 outline-none" />
                 </div>
                 <div>
                   <label className="block text-sm font-semibold mb-1">Accessibility needs</label>
-                  <textarea rows={2} className="w-full rounded-2xl border-2 border-teal-100 p-4 focus:border-teal-700 outline-none" />
+                  <textarea rows={2} value={child.accessibilityNeeds} onChange={(e) => setChild({ ...child, accessibilityNeeds: e.target.value })} className="w-full rounded-2xl border-2 border-teal-100 p-4 focus:border-teal-700 outline-none" />
                 </div>
               </div>
-              <div>
-                <label className="block text-sm font-semibold mb-1">Emergency contact</label>
-                <input className="w-full rounded-2xl border-2 border-teal-100 px-4 py-3 min-h-[44px] focus:border-teal-700 outline-none" />
-              </div>
               <label className="flex items-start gap-3 cursor-pointer">
-                <input type="checkbox" required className="mt-1 w-5 h-5 accent-teal-900" />
+                <input type="checkbox" required checked={child.consent} onChange={(e) => setChild({ ...child, consent: e.target.checked })} className="mt-1 w-5 h-5 accent-teal-900" />
                 <span className="text-sm">I confirm I am this child&apos;s parent or legal guardian and consent to Fennby&apos;s data handling as described in the Trust &amp; Safeguarding framework.</span>
               </label>
-              <Button type="submit" variant="primary" className="justify-center mt-2">Create child profile &amp; go to dashboard</Button>
+              {error && <p className="text-sm text-brick-600 font-semibold">{error}</p>}
+              <Button type="submit" variant="primary" className="justify-center mt-2" disabled={loading}>
+                {loading ? "Saving…" : "Create child profile & go to dashboard"}
+              </Button>
             </form>
           </Card>
         )}
