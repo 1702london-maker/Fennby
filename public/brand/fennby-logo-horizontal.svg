@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 200">
+  <!-- Mark -->
+  <circle cx="100" cy="100" r="65" fill="none" stroke="#146B6B" stroke-width="22"
+    stroke-linecap="round" stroke-dasharray="317.6 90.8" transform="rotate(310 100 100)"/>
+  <path d="M100,102 C82,80 78,57 88,40 C92,32 100,28 100,28 C100,28 108,32 112,40 C122,57 118,80 100,102 Z"
+    fill="#F2896B"/>
+  <!-- Wordmark -->
+  <text x="210" y="125" font-family="Quicksand, Poppins, 'Segoe UI Rounded', 'Helvetica Neue', Arial, sans-serif"
+    font-weight="700" font-size="58" fill="#146B6B" letter-spacing="-1">fennby</text>
+  <circle cx="416" cy="108" r="7" fill="#F2896B"/>
+</svg>
