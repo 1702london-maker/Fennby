@@ -67,8 +67,12 @@ export default function SummerCampsPage() {
           <h2 className="font-display font-bold text-3xl mb-4">Book your child&apos;s place</h2>
           <p className="text-charcoal-teal/80 mb-8">
             Spaces are limited to keep supervision ratios safe and personal.
+            Create a parent account to register interest for your child.
           </p>
-          <Button variant="secondary">Start booking</Button>
+          <div className="flex flex-wrap gap-4 justify-center">
+            <Button href="/register/parent" variant="secondary">Create account &amp; book</Button>
+            <Button href="/parent/activities" variant="outline">View activities dashboard</Button>
+          </div>
         </section>
       </main>
     </PageShell>

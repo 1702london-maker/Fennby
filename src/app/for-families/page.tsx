@@ -18,7 +18,7 @@ export default function ForFamiliesPage() {
         <p className="text-charcoal-teal/80 max-w-2xl mb-10">
           Everything your child needs to prepare — and everything you need to see it happening.
         </p>
-        <div className="grid sm:grid-cols-2 gap-4">
+        <div className="grid sm:grid-cols-2 gap-4 mb-10">
           {features.map((f) => (
             <Card key={f.title}>
               <p className="font-display font-bold text-lg">{f.title}</p>
@@ -26,6 +26,10 @@ export default function ForFamiliesPage() {
               <Button href={f.href} variant="outline">Explore</Button>
             </Card>
           ))}
+        </div>
+        <div className="flex flex-wrap gap-4">
+          <Button href="/register/parent" variant="primary">Create a parent account</Button>
+          <Button href="/pricing" variant="secondary">See pricing</Button>
         </div>
       </main>
     </PageShell>

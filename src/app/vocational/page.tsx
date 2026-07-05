@@ -60,8 +60,12 @@ export default function VocationalPage() {
           <h2 className="font-display font-bold text-3xl mb-4">Ready to enrol?</h2>
           <p className="text-charcoal-teal/80 mb-8">
             Places are limited per supervised session to keep ratios safe and attention high.
+            Create a parent account to register interest for your child.
           </p>
-          <Button variant="secondary">Start enrolment</Button>
+          <div className="flex flex-wrap gap-4 justify-center">
+            <Button href="/register/parent" variant="secondary">Create account &amp; enrol</Button>
+            <Button href="/trust" variant="outline">Read our safety framework</Button>
+          </div>
         </section>
       </main>
     </PageShell>
