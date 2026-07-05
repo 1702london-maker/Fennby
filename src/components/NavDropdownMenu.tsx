@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { NavDropdown } from "@/lib/nav-config";
 
@@ -8,11 +8,32 @@ export function NavDropdownMenu({ dropdown }: { dropdown: NavDropdown }) {
   const [open, setOpen] = useState(false);
   const itemRefs = useRef<(HTMLAnchorElement | null)[]>([]);
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const close = () => {
     setOpen(false);
     buttonRef.current?.focus();
   };
+
+  // Close on outside click or Escape — NOT on mouseleave, which was closing
+  // the menu while the cursor crossed the gap between the button and panel.
+  useEffect(() => {
+    if (!open) return;
+    const onClickOutside = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    const onEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") close();
+    };
+    document.addEventListener("mousedown", onClickOutside);
+    document.addEventListener("keydown", onEscape);
+    return () => {
+      document.removeEventListener("mousedown", onClickOutside);
+      document.removeEventListener("keydown", onEscape);
+    };
+  }, [open]);
 
   const onButtonKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" || e.key === " " || e.key === "ArrowDown") {
@@ -37,11 +58,7 @@ export function NavDropdownMenu({ dropdown }: { dropdown: NavDropdown }) {
   };
 
   return (
-    <div
-      className="relative"
-      onMouseEnter={() => setOpen(true)}
-      onMouseLeave={() => setOpen(false)}
-    >
+    <div ref={containerRef} className="relative" onMouseEnter={() => setOpen(true)}>
       <button
         ref={buttonRef}
         aria-expanded={open}
@@ -58,23 +75,25 @@ export function NavDropdownMenu({ dropdown }: { dropdown: NavDropdown }) {
       {open && (
         <div
           role="menu"
-          className="absolute left-0 top-full mt-1 min-w-[220px] rounded-2xl bg-white shadow-lg border border-teal-100 p-2 z-50"
+          className="absolute left-0 top-full pt-2 min-w-[220px] z-50"
         >
-          {dropdown.items.map((item, i) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              role="menuitem"
-              ref={(el) => {
-                itemRefs.current[i] = el;
-              }}
-              onKeyDown={(e) => onItemKeyDown(e, i)}
-              onClick={close}
-              className="block px-4 py-2 rounded-xl text-sm font-medium text-charcoal-teal hover:bg-teal-100 min-h-[40px] flex items-center"
-            >
-              {item.label}
-            </Link>
-          ))}
+          <div className="rounded-2xl bg-white shadow-lg border border-teal-100 p-2">
+            {dropdown.items.map((item, i) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                role="menuitem"
+                ref={(el) => {
+                  itemRefs.current[i] = el;
+                }}
+                onKeyDown={(e) => onItemKeyDown(e, i)}
+                onClick={close}
+                className="block px-4 py-2 rounded-xl text-sm font-medium text-charcoal-teal hover:bg-teal-100 min-h-[40px] flex items-center"
+              >
+                {item.label}
+              </Link>
+            ))}
+          </div>
         </div>
       )}
     </div>

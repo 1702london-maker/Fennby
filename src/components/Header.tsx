@@ -4,21 +4,34 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { usePreviewRole } from "@/lib/role-context";
 import { publicNavDropdowns, publicTopLinks, roleNav, publicPathPrefixes } from "@/lib/nav-config";
 import { NavDropdownMenu } from "@/components/NavDropdownMenu";
 import { Button } from "@/components/Button";
+import type { Role } from "@/lib/types";
 
 function isPublicPath(pathname: string) {
   return pathname === "/" || publicPathPrefixes.some((p) => pathname.startsWith(p));
 }
 
+// Derived from the actual URL section — matches the same prefixes the
+// server-side middleware enforces, so the nav shown always matches which
+// role-scoped area the signed-in user is really in.
+function sectionRoleFromPath(pathname: string): Role {
+  if (pathname.startsWith("/child")) return "child";
+  if (pathname.startsWith("/tutor")) return "tutor";
+  if (pathname.startsWith("/school")) return "school_admin";
+  if (pathname.startsWith("/teacher")) return "teacher";
+  if (pathname.startsWith("/admin")) return "admin";
+  if (pathname.startsWith("/safeguarding")) return "safeguarding";
+  if (pathname.startsWith("/authority")) return "authority";
+  return "parent";
+}
+
 export function Header() {
   const pathname = usePathname();
-  const { role } = usePreviewRole();
   const [mobileOpen, setMobileOpen] = useState(false);
   const publicMode = isPublicPath(pathname);
-  const links = roleNav[role];
+  const links = roleNav[sectionRoleFromPath(pathname)];
 
   return (
     <header className="sticky top-0 z-40 bg-mist-50/95 backdrop-blur border-b border-teal-100">

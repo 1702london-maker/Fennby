@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { Quicksand, Inter } from "next/font/google";
 import "./globals.css";
-import { RoleProvider } from "@/lib/role-context";
-import RoleSwitcher from "@/components/RoleSwitcher";
 
 const quicksand = Quicksand({
   subsets: ["latin"],
@@ -30,10 +28,7 @@ export default function RootLayout({
       <body
         className={`${quicksand.variable} ${inter.variable} font-body antialiased bg-mist-50 text-charcoal-teal`}
       >
-        <RoleProvider>
-          {children}
-          <RoleSwitcher />
-        </RoleProvider>
+        {children}
       </body>
     </html>
   );
