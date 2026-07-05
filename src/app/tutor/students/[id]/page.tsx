@@ -1,92 +1,100 @@
 import { notFound } from "next/navigation";
 import { PageShell } from "@/components/PageShell";
 import { Card } from "@/components/Card";
-import { Button } from "@/components/Button";
 import { TopicHeatmap } from "@/components/TopicHeatmap";
 import { RevisionItemCard } from "@/components/RevisionItemCard";
-import {
-  learners,
-  assessmentResults,
-  revisionItems,
-  lessonNotes,
-  messages,
-  messageThreads,
-} from "@/lib/seed-data";
+import { getMyTutorProfile, getStudentDetail } from "@/features/tutors/queries";
 
-export default function TutorStudentDetail({ params }: { params: { id: string } }) {
-  const learner = learners.find((l) => l.id === params.id);
-  if (!learner) notFound();
+export default async function TutorStudentDetail({ params }: { params: { id: string } }) {
+  const tutorProfile = await getMyTutorProfile();
+  if (!tutorProfile) notFound();
 
-  const results = assessmentResults.filter((r) => r.learnerId === learner.id);
-  const revision = revisionItems.filter((r) => r.learnerId === learner.id);
-  const notes = lessonNotes.filter((n) => n.learnerId === learner.id);
-  const thread = messageThreads.find((t) => t.learnerId === learner.id);
-  const threadMessages = messages.filter((m) => m.threadId === thread?.id);
+  const detail = await getStudentDetail(tutorProfile.id, params.id);
+  if (!detail) notFound();
 
-  const strengths = results[0]?.topicBreakdown.filter((t) => t.score >= 75).map((t) => t.topic) ?? [];
-  const weaknesses = results[0]?.topicBreakdown.filter((t) => t.score < 75).map((t) => t.topic) ?? [];
+  const { learner, results, revision, notes } = detail;
+  const latestResult = results[0];
 
   return (
     <PageShell>
       <main className="max-w-3xl mx-auto px-6 py-10">
         <div className="flex items-center gap-3 mb-8">
-          <span className="text-4xl" aria-hidden>{learner.avatarEmoji}</span>
+          <span className="text-4xl" aria-hidden>{learner.avatar_emoji}</span>
           <div>
-            <h1 className="font-display font-bold text-3xl">{learner.preferredName}</h1>
-            <p className="text-charcoal-teal/70">{learner.yearGroup} · {learner.targetExam}</p>
+            <h1 className="font-display font-bold text-3xl">{learner.preferred_name}</h1>
+            <p className="text-charcoal-teal/70">{learner.year_group} · {learner.target_exam ?? "No target exam set"}</p>
           </div>
         </div>
 
-        <Card tint="teal" className="mb-6">
-          <h2 className="font-display font-bold text-lg mb-2">AI lesson briefing (placeholder)</h2>
-          <p className="text-sm text-charcoal-teal/80">
-            {learner.preferredName} is strongest in {strengths.join(", ") || "several areas"} and would benefit from
-            focused time on {weaknesses.join(", ") || "consolidation practice"} this session.
-          </p>
-        </Card>
-
         <section className="mb-6">
           <h2 className="font-display font-bold text-lg mb-3">Assessment history</h2>
-          {results.map((r) => (
-            <Card key={r.id} className="mb-3">
-              <div className="flex items-center justify-between mb-3">
-                <p className="font-semibold">{r.assessmentTitle}</p>
-                <p className="text-sm font-bold text-teal-900">{r.score}%</p>
-              </div>
-              <TopicHeatmap topics={r.topicBreakdown} />
-            </Card>
-          ))}
+          {results.length ? (
+            results.map((r) => (
+              <Card key={r.id} className="mb-3">
+                <div className="flex items-center justify-between mb-3">
+                  <p className="font-semibold">Mock result</p>
+                  <p className="text-sm font-bold text-teal-900">{r.score}%</p>
+                </div>
+                {r.topic_performance?.length ? (
+                  <TopicHeatmap topics={r.topic_performance.map((t) => ({ topic: t.topic_key ?? "Topic", score: t.score }))} />
+                ) : (
+                  <p className="text-sm text-charcoal-teal/60">No topic breakdown recorded.</p>
+                )}
+              </Card>
+            ))
+          ) : (
+            <p className="text-sm text-charcoal-teal/70">No mock exams completed yet.</p>
+          )}
         </section>
 
         <section className="mb-6">
           <h2 className="font-display font-bold text-lg mb-3">Revision plan</h2>
-          <div className="space-y-3">
-            {revision.map((r) => (
-              <RevisionItemCard key={r.id} item={r} />
-            ))}
-          </div>
+          {revision.length ? (
+            <div className="space-y-3">
+              {revision.map((r) => (
+                <RevisionItemCard
+                  key={r.id}
+                  item={{
+                    id: r.id,
+                    learnerId: r.learner_id,
+                    subject: r.subject ?? "",
+                    topic: r.topic ?? "",
+                    reason: r.reason ?? "",
+                    priority: (r.priority as "high" | "medium" | "low") ?? "medium",
+                    recommendedActivity: r.recommended_activity ?? "",
+                    dueDate: r.due_date ?? "",
+                    status: r.status as "not_started" | "in_progress" | "done",
+                  }}
+                />
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-charcoal-teal/70">No revision items yet.</p>
+          )}
         </section>
 
         <section className="mb-6">
           <h2 className="font-display font-bold text-lg mb-3">Previous lesson notes</h2>
-          {notes.map((n) => (
-            <Card key={n.id} className="mb-3">
-              <p className="font-semibold">{n.topic}</p>
-              <p className="text-sm text-charcoal-teal/80 mt-1">{n.covered}</p>
-            </Card>
-          ))}
+          {notes.length ? (
+            notes.map((n) => (
+              <Card key={n.id} className="mb-3">
+                <p className="font-semibold">{n.topic ?? "Session"}</p>
+                <p className="text-sm text-charcoal-teal/80 mt-1">{n.covered}</p>
+              </Card>
+            ))
+          ) : (
+            <p className="text-sm text-charcoal-teal/70">No lesson notes logged yet.</p>
+          )}
         </section>
 
-        <section className="mb-6">
-          <h2 className="font-display font-bold text-lg mb-3">Parent messages</h2>
-          <Card>
-            <p className="text-sm text-charcoal-teal/70">{threadMessages.length} messages in this thread — full history visible to the parent at all times.</p>
+        {!latestResult && (
+          <Card tint="teal">
+            <p className="text-sm text-charcoal-teal/80">
+              This learner hasn&apos;t completed a mock exam yet, so there&apos;s no AI-assisted lesson briefing to
+              show. Once they do, strengths and focus areas will summarise here automatically.
+            </p>
           </Card>
-        </section>
-
-        <Button variant="outline" className="border-brick-600 text-brick-600">
-          🛡️ Raise a safeguarding note
-        </Button>
+        )}
       </main>
     </PageShell>
   );

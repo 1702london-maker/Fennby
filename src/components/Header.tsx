@@ -95,7 +95,7 @@ export function Header() {
             </>
           )}
           <Link
-            href="/trust"
+            href={publicMode ? "/trust" : "/report-concern"}
             className="text-sm font-semibold text-brick-600 hover:underline min-h-[44px] flex items-center whitespace-nowrap"
           >
             Report a concern
@@ -160,7 +160,7 @@ export function Header() {
                   {l.label}
                 </Link>
               ))}
-              <Link href="/trust" className="block font-semibold text-brick-600 py-2 min-h-[44px] flex items-center" onClick={() => setMobileOpen(false)}>
+              <Link href="/report-concern" className="block font-semibold text-brick-600 py-2 min-h-[44px] flex items-center" onClick={() => setMobileOpen(false)}>
                 Report a concern
               </Link>
             </>

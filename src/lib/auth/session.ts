@@ -23,11 +23,14 @@ export async function getSessionProfile(): Promise<SessionProfile | null> {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("id, role, full_name, email")
+    .select("id, role, full_name, email, status")
     .eq("id", user.id)
     .single();
 
-  if (!profile) return null;
+  // A suspended account is treated as signed-out everywhere the app checks
+  // session identity — this is what makes admin "Suspend" actually work,
+  // not just a cosmetic label.
+  if (!profile || profile.status === "suspended" || profile.status === "deleted") return null;
 
   return {
     id: profile.id,

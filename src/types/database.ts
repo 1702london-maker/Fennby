@@ -1005,6 +1005,7 @@ export type Database = {
           full_name: string
           id: string
           role: Database["public"]["Enums"]["role_type"]
+          status: string
           updated_at: string
         }
         Insert: {
@@ -1013,6 +1014,7 @@ export type Database = {
           full_name: string
           id: string
           role: Database["public"]["Enums"]["role_type"]
+          status?: string
           updated_at?: string
         }
         Update: {
@@ -1021,6 +1023,7 @@ export type Database = {
           full_name?: string
           id?: string
           role?: Database["public"]["Enums"]["role_type"]
+          status?: string
           updated_at?: string
         }
         Relationships: []
@@ -1191,6 +1194,42 @@ export type Database = {
             columns: ["learner_id"]
             isOneToOne: false
             referencedRelation: "learners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      school_child_links: {
+        Row: {
+          id: string
+          learner_id: string
+          relationship: string
+          school_id: string
+        }
+        Insert: {
+          id?: string
+          learner_id: string
+          relationship: string
+          school_id: string
+        }
+        Update: {
+          id?: string
+          learner_id?: string
+          relationship?: string
+          school_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "school_child_links_learner_id_fkey"
+            columns: ["learner_id"]
+            isOneToOne: false
+            referencedRelation: "learners"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "school_child_links_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "schools"
             referencedColumns: ["id"]
           },
         ]
@@ -1436,6 +1475,7 @@ export type Database = {
           profile_id: string
           qualifications: string | null
           references_provided: string | null
+          reviewed_by: string | null
           safeguarding_declaration: boolean | null
           status: Database["public"]["Enums"]["tutor_status"]
           subjects: string[]
@@ -1451,6 +1491,7 @@ export type Database = {
           profile_id: string
           qualifications?: string | null
           references_provided?: string | null
+          reviewed_by?: string | null
           safeguarding_declaration?: boolean | null
           status?: Database["public"]["Enums"]["tutor_status"]
           subjects?: string[]
@@ -1466,6 +1507,7 @@ export type Database = {
           profile_id?: string
           qualifications?: string | null
           references_provided?: string | null
+          reviewed_by?: string | null
           safeguarding_declaration?: boolean | null
           status?: Database["public"]["Enums"]["tutor_status"]
           subjects?: string[]
@@ -1478,11 +1520,19 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "tutor_applications_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
         ]
       }
       tutor_profiles: {
         Row: {
           age_groups: string[]
+          application_id: string | null
           bio: string | null
           dbs_status: string | null
           exam_boards: string[]
@@ -1498,6 +1548,7 @@ export type Database = {
         }
         Insert: {
           age_groups?: string[]
+          application_id?: string | null
           bio?: string | null
           dbs_status?: string | null
           exam_boards?: string[]
@@ -1513,6 +1564,7 @@ export type Database = {
         }
         Update: {
           age_groups?: string[]
+          application_id?: string | null
           bio?: string | null
           dbs_status?: string | null
           exam_boards?: string[]
@@ -1528,6 +1580,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "tutor_profiles_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "tutor_applications"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "tutor_profiles_id_fkey"
             columns: ["id"]
             isOneToOne: true
@@ -1540,16 +1599,22 @@ export type Database = {
         Row: {
           description: string | null
           id: string
+          required: boolean
+          sort_order: number
           title: string
         }
         Insert: {
           description?: string | null
           id?: string
+          required?: boolean
+          sort_order?: number
           title: string
         }
         Update: {
           description?: string | null
           id?: string
+          required?: boolean
+          sort_order?: number
           title?: string
         }
         Relationships: []

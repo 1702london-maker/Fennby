@@ -1,10 +1,20 @@
 import { PageShell } from "@/components/PageShell";
 import { Card } from "@/components/Card";
-import { schools } from "@/lib/seed-data";
+import { EmptyState } from "@/components/EmptyState";
+import { getMySchool } from "@/features/schools/queries";
 
-const school = schools[0];
+export default async function SchoolSettingsPage() {
+  const school = await getMySchool();
+  if (!school) {
+    return (
+      <PageShell>
+        <main className="max-w-2xl mx-auto px-6 py-10">
+          <EmptyState emoji="🏫" title="No school account found" description="" />
+        </main>
+      </PageShell>
+    );
+  }
 
-export default function SchoolSettingsPage() {
   return (
     <PageShell>
       <main className="max-w-2xl mx-auto px-6 py-10">
@@ -17,15 +27,15 @@ export default function SchoolSettingsPage() {
             </div>
             <div>
               <label className="block text-sm font-semibold mb-1">URN</label>
-              <input defaultValue={school.urn} className="w-full rounded-2xl border-2 border-teal-100 px-4 py-3 min-h-[44px] focus:border-teal-700 outline-none" />
+              <input defaultValue={school.urn ?? ""} className="w-full rounded-2xl border-2 border-teal-100 px-4 py-3 min-h-[44px] focus:border-teal-700 outline-none" />
             </div>
             <div>
               <label className="block text-sm font-semibold mb-1">Safeguarding lead contact</label>
-              <input defaultValue={school.safeguardingLeadContact} className="w-full rounded-2xl border-2 border-teal-100 px-4 py-3 min-h-[44px] focus:border-teal-700 outline-none" />
+              <input defaultValue={school.safeguarding_lead_contact ?? ""} className="w-full rounded-2xl border-2 border-teal-100 px-4 py-3 min-h-[44px] focus:border-teal-700 outline-none" />
             </div>
             <div>
               <label className="block text-sm font-semibold mb-1">Data protection contact</label>
-              <input defaultValue={school.dataProtectionContact} className="w-full rounded-2xl border-2 border-teal-100 px-4 py-3 min-h-[44px] focus:border-teal-700 outline-none" />
+              <input defaultValue={school.data_protection_contact ?? ""} className="w-full rounded-2xl border-2 border-teal-100 px-4 py-3 min-h-[44px] focus:border-teal-700 outline-none" />
             </div>
           </div>
         </Card>

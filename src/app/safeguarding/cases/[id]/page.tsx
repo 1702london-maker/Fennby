@@ -1,32 +1,28 @@
 import { notFound } from "next/navigation";
 import { PageShell } from "@/components/PageShell";
 import { Card } from "@/components/Card";
-import { safeguardingCases, learners } from "@/lib/seed-data";
+import { getCase } from "@/features/safeguarding/queries";
+import { CaseUpdateForm } from "./CaseUpdateForm";
 
-export default function SafeguardingCaseDetail({ params }: { params: { id: string } }) {
-  const item = safeguardingCases.find((c) => c.id === params.id);
+export default async function SafeguardingCaseDetail({ params }: { params: { id: string } }) {
+  const item = await getCase(params.id);
   if (!item) notFound();
-  const learner = learners.find((l) => l.id === item.learnerId);
 
   const fields: [string, string][] = [
-    ["Learner", learner?.preferredName ?? item.learnerId],
-    ["Reported by", item.reportedBy],
-    ["Concern type", item.concernType],
-    ["Priority", item.priority],
-    ["Status", item.status.replace("_", " ")],
-    ["Assigned to", item.assignedTo],
-    ["Actions taken", item.actionsTaken || "None recorded yet"],
-    ["Outcome", item.outcome || "Not yet resolved"],
-    ["Created", new Date(item.createdAt).toLocaleString("en-GB")],
-    ["Last updated", new Date(item.updatedAt).toLocaleString("en-GB")],
+    ["Learner", item.learners?.preferred_name ?? "Unknown"],
+    ["Reported by", item.reported_by ?? "Unknown"],
+    ["Concern type", item.concern_type ?? "—"],
+    ["Priority", item.priority ?? "—"],
+    ["Created", new Date(item.created_at).toLocaleString("en-GB")],
+    ["Last updated", new Date(item.updated_at).toLocaleString("en-GB")],
   ];
 
   return (
     <PageShell>
       <main className="max-w-2xl mx-auto px-6 py-10">
         <h1 className="font-display font-bold text-3xl mb-2">{item.title}</h1>
-        <p className="text-charcoal-teal/80 mb-8">{item.description}</p>
-        <Card>
+        <p className="text-charcoal-teal/80 mb-6">{item.description}</p>
+        <Card className="mb-6">
           <dl className="grid sm:grid-cols-2 gap-4 text-sm">
             {fields.map(([label, value]) => (
               <div key={label}>
@@ -36,6 +32,12 @@ export default function SafeguardingCaseDetail({ params }: { params: { id: strin
             ))}
           </dl>
         </Card>
+        <CaseUpdateForm
+          caseId={item.id}
+          initialStatus={item.status}
+          initialActions={item.actions_taken ?? ""}
+          initialOutcome={item.outcome ?? ""}
+        />
       </main>
     </PageShell>
   );

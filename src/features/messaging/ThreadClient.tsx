@@ -1,0 +1,85 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Card } from "@/components/Card";
+import { sendMessage } from "@/features/messaging/actions";
+
+interface DisplayMessage {
+  id: string;
+  senderId: string;
+  senderName: string;
+  senderRole: string;
+  content: string;
+  timestamp: string;
+}
+
+export function ThreadClient({
+  threadId,
+  currentSenderId,
+  initialMessages,
+  placeholder = "Type a message...",
+}: {
+  threadId: string;
+  currentSenderId: string;
+  initialMessages: DisplayMessage[];
+  placeholder?: string;
+}) {
+  const router = useRouter();
+  const [draft, setDraft] = useState("");
+  const [sending, setSending] = useState(false);
+
+  const send = async () => {
+    if (!draft.trim()) return;
+    setSending(true);
+    await sendMessage({ threadId, content: draft });
+    setDraft("");
+    setSending(false);
+    router.refresh();
+  };
+
+  return (
+    <>
+      <Card className="flex flex-col gap-4 max-h-[55vh] overflow-y-auto">
+        {initialMessages.length ? (
+          initialMessages.map((m) => (
+            <div
+              key={m.id}
+              className={`max-w-[80%] rounded-2xl px-4 py-3 ${
+                m.senderId === currentSenderId
+                  ? "self-end bg-teal-900 text-white"
+                  : m.senderRole === "child"
+                  ? "self-start bg-coral-100"
+                  : "self-start bg-teal-100"
+              }`}
+            >
+              <p className="text-xs font-semibold opacity-70 mb-1">
+                {m.senderName} · {new Date(m.timestamp).toLocaleString("en-GB", { hour: "2-digit", minute: "2-digit", day: "numeric", month: "short" })}
+              </p>
+              <p>{m.content}</p>
+            </div>
+          ))
+        ) : (
+          <p className="text-sm text-charcoal-teal/60 text-center py-8">No messages yet.</p>
+        )}
+      </Card>
+      <div className="flex gap-2 mt-4">
+        <input
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && send()}
+          placeholder={placeholder}
+          aria-label="Message"
+          className="flex-1 rounded-full border-2 border-teal-100 px-5 py-3 min-h-[44px] focus:border-teal-700 outline-none"
+        />
+        <button
+          onClick={send}
+          disabled={sending}
+          className="rounded-full bg-teal-900 text-white px-6 py-3 font-semibold min-h-[44px] hover:bg-teal-700 disabled:opacity-50"
+        >
+          Send
+        </button>
+      </div>
+    </>
+  );
+}

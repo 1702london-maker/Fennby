@@ -1,18 +1,10 @@
 import { PageShell } from "@/components/PageShell";
 import { StatCard } from "@/components/StatCard";
 import { Card } from "@/components/Card";
-import {
-  learners,
-  profiles,
-  tutorProfiles,
-  schools,
-  messages,
-  safeguardingCases,
-} from "@/lib/seed-data";
+import { getDashboardStats } from "@/features/admin/queries";
 
-export default function AdminDashboard() {
-  const pendingTutors = tutorProfiles.filter((t) => t.status !== "approved" && t.status !== "rejected");
-  const parents = profiles.filter((p) => p.role === "parent");
+export default async function AdminDashboard() {
+  const stats = await getDashboardStats();
 
   return (
     <PageShell>
@@ -20,14 +12,14 @@ export default function AdminDashboard() {
         <h1 className="font-display font-bold text-3xl mb-8">Platform admin</h1>
 
         <div className="grid sm:grid-cols-3 lg:grid-cols-4 gap-4 mb-10">
-          <StatCard label="Active learners" value={learners.length} tint="teal" />
-          <StatCard label="Parents" value={parents.length} />
-          <StatCard label="Tutors" value={tutorProfiles.length} />
-          <StatCard label="Schools" value={schools.length} />
-          <StatCard label="Pending tutor applications" value={pendingTutors.length} tint="coral" />
-          <StatCard label="Pending school applications" value={schools.filter((s) => !s.approved).length} />
-          <StatCard label="Messages sent" value={messages.length} />
-          <StatCard label="Safeguarding cases" value={safeguardingCases.length} tint="coral" />
+          <StatCard label="Active learners" value={stats.learners} tint="teal" />
+          <StatCard label="Parents" value={stats.parents} />
+          <StatCard label="Tutors" value={stats.tutors} />
+          <StatCard label="Schools" value={stats.schools} />
+          <StatCard label="Pending tutor applications" value={stats.pendingTutors} tint="coral" />
+          <StatCard label="Pending school applications" value={stats.pendingSchools} />
+          <StatCard label="Messages sent" value={stats.messages} />
+          <StatCard label="Safeguarding cases" value={stats.cases} tint="coral" />
         </div>
 
         <Card>

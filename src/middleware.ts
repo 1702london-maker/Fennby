@@ -59,12 +59,18 @@ export async function middleware(request: NextRequest) {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("role")
+    .select("role, status")
     .eq("id", user.id)
     .single();
 
-  if (!profile || !match.roles.includes(profile.role)) {
-    const home = profile ? roleHome[profile.role] ?? "/" : "/login";
+  if (!profile || profile.status !== "active") {
+    await supabase.auth.signOut();
+    const loginUrl = new URL("/login", request.url);
+    return NextResponse.redirect(loginUrl);
+  }
+
+  if (!match.roles.includes(profile.role)) {
+    const home = roleHome[profile.role] ?? "/";
     return NextResponse.redirect(new URL(home, request.url));
   }
 

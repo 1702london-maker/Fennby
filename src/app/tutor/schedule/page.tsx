@@ -1,14 +1,20 @@
 import { PageShell } from "@/components/PageShell";
 import { Card } from "@/components/Card";
-import { Button } from "@/components/Button";
-import { lessonSessions, learners } from "@/lib/seed-data";
+import { getMyTutorProfile, getMySchedule } from "@/features/tutors/queries";
 
-export default function TutorSchedulePage() {
-  const upcoming = lessonSessions.filter((s) => s.status === "upcoming");
-  const completed = lessonSessions.filter((s) => s.status === "completed");
-  const cancelled = lessonSessions.filter((s) => s.status === "cancelled");
+export default async function TutorSchedulePage() {
+  const tutorProfile = await getMyTutorProfile();
+  if (!tutorProfile) {
+    return (
+      <PageShell>
+        <main className="max-w-3xl mx-auto px-6 py-10">
+          <p className="text-charcoal-teal/70">No tutor profile found.</p>
+        </main>
+      </PageShell>
+    );
+  }
 
-  const learnerName = (id: string) => learners.find((l) => l.id === id)?.preferredName ?? id;
+  const { upcoming, completed, cancelled } = await getMySchedule(tutorProfile.id);
 
   return (
     <PageShell>
@@ -27,12 +33,11 @@ export default function TutorSchedulePage() {
                 {group.list.map((s) => (
                   <Card key={s.id} className="flex items-center justify-between">
                     <div>
-                      <p className="font-semibold">{s.subject} with {learnerName(s.learnerId)}</p>
+                      <p className="font-semibold">{s.subject ?? "Session"} with {s.learners?.preferred_name ?? "learner"}</p>
                       <p className="text-sm text-charcoal-teal/70">
-                        {new Date(s.scheduledAt).toLocaleString("en-GB", { weekday: "long", day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" })}
+                        {new Date(s.scheduled_at).toLocaleString("en-GB", { weekday: "long", day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" })}
                       </p>
                     </div>
-                    {group.title === "Upcoming" && <Button variant="outline" className="px-4 py-2 text-sm">Reschedule</Button>}
                   </Card>
                 ))}
               </div>

@@ -1,13 +1,10 @@
-"use client";
-
-import { useState } from "react";
 import { PageShell } from "@/components/PageShell";
 import { Card } from "@/components/Card";
-import { Button } from "@/components/Button";
-import { tutorProfiles as initialTutors } from "@/lib/seed-data";
-import { TutorStatus } from "@/lib/types";
+import { EmptyState } from "@/components/EmptyState";
+import { getAllTutorApplications } from "@/features/admin/queries";
+import { TutorActions } from "./TutorActions";
 
-const statusColor: Record<TutorStatus, string> = {
+const statusColor: Record<string, string> = {
   submitted: "bg-teal-100 text-teal-900",
   under_review: "bg-teal-100 text-teal-900",
   dbs_pending: "bg-coral-100 text-coral-600",
@@ -18,57 +15,47 @@ const statusColor: Record<TutorStatus, string> = {
   suspended: "bg-brick-600/10 text-brick-600",
 };
 
-export default function AdminTutorsPage() {
-  const [tutors, setTutors] = useState(initialTutors);
-
-  const updateStatus = (id: string, status: TutorStatus) => {
-    setTutors((ts) => ts.map((t) => (t.id === id ? { ...t, status } : t)));
-  };
+export default async function AdminTutorsPage() {
+  const applications = await getAllTutorApplications();
 
   return (
     <PageShell>
       <main className="max-w-4xl mx-auto px-6 py-10">
         <h1 className="font-display font-bold text-3xl mb-8">Tutor applications</h1>
-        <div className="space-y-4">
-          {tutors.map((t) => (
-            <Card key={t.id}>
-              <div className="flex flex-wrap items-center justify-between gap-3 mb-2">
-                <p className="font-display font-bold text-lg">{t.name}</p>
-                <span className={`text-xs font-bold px-3 py-1 rounded-full ${statusColor[t.status]}`}>
-                  {t.status.replace("_", " ").toUpperCase()}
-                </span>
-              </div>
-              <p className="text-sm text-charcoal-teal/70">{t.subjects.join(" · ")}</p>
-              <div className="grid sm:grid-cols-3 gap-3 mt-3 text-sm">
-                <div>
-                  <p className="text-charcoal-teal/60 text-xs">DBS status</p>
-                  <p className="font-semibold">{t.dbsStatus}</p>
+        {applications.length ? (
+          <div className="space-y-4">
+            {applications.map((t) => (
+              <Card key={t.id}>
+                <div className="flex flex-wrap items-center justify-between gap-3 mb-2">
+                  <p className="font-display font-bold text-lg">{t.profiles?.full_name ?? "Unknown"}</p>
+                  <span className={`text-xs font-bold px-3 py-1 rounded-full ${statusColor[t.status]}`}>
+                    {t.status.replace("_", " ").toUpperCase()}
+                  </span>
                 </div>
-                <div>
-                  <p className="text-charcoal-teal/60 text-xs">Training</p>
-                  <p className="font-semibold">{t.trainingCompleted ? "Completed" : "Pending"}</p>
+                <p className="text-sm text-charcoal-teal/70">{t.profiles?.email}</p>
+                <div className="grid sm:grid-cols-3 gap-3 mt-3 text-sm">
+                  <div>
+                    <p className="text-charcoal-teal/60 text-xs">DBS status</p>
+                    <p className="font-semibold">{t.dbs_status}</p>
+                  </div>
+                  <div>
+                    <p className="text-charcoal-teal/60 text-xs">Experience</p>
+                    <p className="font-semibold">{t.experience_years ?? "—"} years</p>
+                  </div>
+                  <div>
+                    <p className="text-charcoal-teal/60 text-xs">Subjects</p>
+                    <p className="font-semibold">{t.subjects?.length ?? 0}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-charcoal-teal/60 text-xs">Experience</p>
-                  <p className="font-semibold">{t.experienceYears} years</p>
-                </div>
-              </div>
-              {t.status !== "approved" && t.status !== "rejected" && (
-                <div className="flex gap-2 mt-4">
-                  <Button variant="primary" className="px-4 py-2 text-sm" onClick={() => updateStatus(t.id, "approved")}>
-                    Approve
-                  </Button>
-                  <Button variant="outline" className="px-4 py-2 text-sm" onClick={() => updateStatus(t.id, "rejected")}>
-                    Reject
-                  </Button>
-                  <Button variant="ghost" className="px-4 py-2 text-sm" onClick={() => updateStatus(t.id, "suspended")}>
-                    Suspend
-                  </Button>
-                </div>
-              )}
-            </Card>
-          ))}
-        </div>
+                {t.status !== "approved" && t.status !== "rejected" && <TutorActions applicationId={t.id} />}
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <Card>
+            <EmptyState emoji="🎓" title="No tutor applications yet" description="Applications submitted via /apply-tutor will appear here." />
+          </Card>
+        )}
       </main>
     </PageShell>
   );
