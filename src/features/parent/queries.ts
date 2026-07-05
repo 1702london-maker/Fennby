@@ -84,3 +84,23 @@ export async function getLearnerAchievements(learnerId: string) {
     .order("awarded_at", { ascending: false });
   return data ?? [];
 }
+
+export async function getApprovedTutors() {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("tutor_profiles")
+    .select("*, profiles(full_name)")
+    .eq("status", "approved")
+    .order("rating", { ascending: false });
+  return data ?? [];
+}
+
+export async function getExamHistory(learnerId: string) {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("assessment_results")
+    .select("*, topic_performance(*)")
+    .eq("learner_id", learnerId)
+    .order("created_at", { ascending: false });
+  return data ?? [];
+}

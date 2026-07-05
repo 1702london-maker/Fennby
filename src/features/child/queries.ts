@@ -45,3 +45,15 @@ export async function getLatestBadge(learnerId: string) {
     .maybeSingle();
   return data;
 }
+
+export async function getLatestResultWithTopics(learnerId: string) {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("assessment_results")
+    .select("*, topic_performance(*)")
+    .eq("learner_id", learnerId)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  return data;
+}
