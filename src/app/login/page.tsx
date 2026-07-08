@@ -7,9 +7,22 @@ import { Card } from "@/components/Card";
 import { Button } from "@/components/Button";
 import { login } from "@/features/auth/actions";
 
+type RoleTab = "parent" | "tutor" | "school_admin" | "authority";
+
+const roleTabs: { key: RoleTab; label: string; emoji: string; blurb: string }[] = [
+  { key: "parent", label: "Parent", emoji: "👪", blurb: "See your child's progress, messages, and sessions." },
+  { key: "tutor", label: "Tutor", emoji: "🎓", blurb: "Your students, schedule, and lesson notes." },
+  { key: "school_admin", label: "School", emoji: "🏫", blurb: "Cohort dashboards and Pupil Premium reporting." },
+  { key: "authority", label: "Council", emoji: "🏛️", blurb: "Anonymised regional impact dashboards." },
+];
+
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const initialTab = (searchParams.get("as") as RoleTab) ?? null;
+  const [tab, setTab] = useState<RoleTab | null>(
+    roleTabs.some((r) => r.key === initialTab) ? initialTab : null
+  );
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -25,12 +38,46 @@ function LoginForm() {
       setError(result.error);
       return;
     }
+    // The signed-in account's own role decides where it lands — middleware
+    // redirects to the right dashboard automatically, regardless of which
+    // tab was selected here. The tab is just a friendlier starting point.
     router.push(searchParams.get("next") ?? "/");
     router.refresh();
   };
 
+  if (!tab) {
+    return (
+      <div className="grid sm:grid-cols-2 gap-4">
+        {roleTabs.map((r) => (
+          <button
+            key={r.key}
+            onClick={() => setTab(r.key)}
+            className="text-left"
+          >
+            <Card className="hover:ring-2 hover:ring-teal-700 transition-shadow h-full">
+              <span className="text-3xl" aria-hidden>{r.emoji}</span>
+              <p className="font-display font-bold text-lg mt-2">{r.label} login</p>
+              <p className="text-sm text-charcoal-teal/70 mt-1">{r.blurb}</p>
+            </Card>
+          </button>
+        ))}
+      </div>
+    );
+  }
+
+  const activeTab = roleTabs.find((r) => r.key === tab)!;
+
   return (
     <Card>
+      <button
+        onClick={() => setTab(null)}
+        className="text-sm font-semibold text-teal-900 hover:underline mb-4 flex items-center gap-1"
+      >
+        ← Not {activeTab.label.toLowerCase()}? Choose again
+      </button>
+      <p className="text-sm font-semibold text-charcoal-teal/70 mb-4">
+        {activeTab.emoji} Signing in as {activeTab.label.toLowerCase()}
+      </p>
       <form className="grid gap-4" onSubmit={onSubmit}>
         <div>
           <label htmlFor="login-email" className="block text-sm font-semibold mb-1">Email</label>
@@ -70,7 +117,7 @@ export default function LoginPage() {
       <main className="max-w-md mx-auto px-6 py-20">
         <h1 className="font-display font-bold text-3xl mb-2 text-center">Log in to Fennby</h1>
         <p className="text-charcoal-teal/70 text-center mb-8">
-          Parents, tutors, teachers, school admins, and staff sign in here.
+          Choose how you&apos;re signing in.
         </p>
         <Suspense fallback={null}>
           <LoginForm />

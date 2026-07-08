@@ -1,15 +1,15 @@
 import Link from "next/link";
 
-// Quick-access shortcuts to each audience's area. These are plain
-// navigation links, not a role switcher — the middleware still enforces
-// real sign-in for every one of these routes, so an unauthenticated click
-// correctly lands on /login rather than faking access.
+// Quick-access shortcuts to each audience's sign-in screen. These route to
+// /login pre-selected on the right role tab (or straight to the dedicated
+// child login), not to the dashboard itself — the dashboard route requires
+// a real session and would otherwise bounce through a confusing redirect.
 const destinations = [
-  { label: "👪 Parents", href: "/parent" },
-  { label: "🧒 Kids", href: "/child/today" },
-  { label: "🎓 Tutors", href: "/tutor" },
-  { label: "🏫 Schools", href: "/school" },
-  { label: "🏛️ Council", href: "/authority/dashboard" },
+  { label: "👪 Parents", href: "/login?as=parent" },
+  { label: "🧒 Kids", href: "/child-login" },
+  { label: "🎓 Tutors", href: "/login?as=tutor" },
+  { label: "🏫 Schools", href: "/login?as=school_admin" },
+  { label: "🏛️ Council", href: "/login?as=authority" },
 ];
 
 export function QuickNav() {

@@ -77,10 +77,10 @@ export function Header() {
         <div className="hidden lg:flex items-center gap-3 shrink-0">
           {publicMode ? (
             <>
-              <Link href="/parent" className="text-sm font-semibold text-teal-900 hover:underline px-2 min-h-[44px] flex items-center">
+              <Link href="/login" className="text-sm font-semibold text-teal-900 hover:underline px-2 min-h-[44px] flex items-center">
                 Log in
               </Link>
-              <Button href="/parent" variant="primary" className="px-5 py-2 text-sm">
+              <Button href="/register" variant="primary" className="px-5 py-2 text-sm">
                 Get started
               </Button>
             </>
@@ -149,8 +149,8 @@ export function Header() {
                 </Link>
               ))}
               <div className="flex gap-3 pt-2">
-                <Button href="/parent" variant="outline" className="flex-1 justify-center">Log in</Button>
-                <Button href="/parent" variant="primary" className="flex-1 justify-center">Get started</Button>
+                <Button href="/login" variant="outline" className="flex-1 justify-center">Log in</Button>
+                <Button href="/register" variant="primary" className="flex-1 justify-center">Get started</Button>
               </div>
             </>
           ) : (
