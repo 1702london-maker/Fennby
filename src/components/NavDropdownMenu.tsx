@@ -58,7 +58,12 @@ export function NavDropdownMenu({ dropdown }: { dropdown: NavDropdown }) {
   };
 
   return (
-    <div ref={containerRef} className="relative" onMouseEnter={() => setOpen(true)}>
+    <div
+      ref={containerRef}
+      className="relative"
+      onMouseEnter={() => setOpen(true)}
+      onMouseLeave={() => setOpen(false)}
+    >
       <button
         ref={buttonRef}
         aria-expanded={open}

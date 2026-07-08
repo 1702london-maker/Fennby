@@ -42,7 +42,10 @@ export default function RegisterParentPage() {
     });
     if (!signUpResult.ok) {
       setLoading(false);
-      setError(signUpResult.error);
+      const fieldMessages = signUpResult.fields
+        ? Object.values(signUpResult.fields).flat().join(" ")
+        : null;
+      setError(fieldMessages || signUpResult.error);
       return;
     }
     // Sign-up establishes a session directly (email confirmation disabled in dev);
@@ -108,7 +111,8 @@ export default function RegisterParentPage() {
               </div>
               <div>
                 <label className="block text-sm font-semibold mb-1">Password</label>
-                <input type="password" required value={account.password} onChange={(e) => setAccount({ ...account, password: e.target.value })} className="w-full rounded-2xl border-2 border-teal-100 px-4 py-3 min-h-[44px] focus:border-teal-700 outline-none" />
+                <input type="password" required minLength={12} value={account.password} onChange={(e) => setAccount({ ...account, password: e.target.value })} className="w-full rounded-2xl border-2 border-teal-100 px-4 py-3 min-h-[44px] focus:border-teal-700 outline-none" />
+                <p className="text-xs text-charcoal-teal/60 mt-1">At least 12 characters.</p>
               </div>
               {error && <p className="text-sm text-brick-600 font-semibold">{error}</p>}
               <Button type="submit" variant="primary" className="justify-center mt-2" disabled={loading}>
