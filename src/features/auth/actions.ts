@@ -37,6 +37,16 @@ export async function signUp(input: SignUpInput): Promise<ActionResult<{ userId:
   if (error) return { ok: false, error: error.message };
   if (!data.user) return { ok: false, error: "internal" };
 
+  // Auto-confirm the email server-side rather than waiting on Supabase's
+  // outbound mailer (unconfigured/rate-limited by default), which was
+  // leaving new accounts stuck with no session and no way to sign in.
+  // Real transactional confirmation email is a follow-up, not a blocker here.
+  const admin = createAdminClient();
+  const { error: confirmError } = await admin.auth.admin.updateUserById(data.user.id, {
+    email_confirm: true,
+  });
+  if (confirmError) return { ok: false, error: confirmError.message };
+
   return { ok: true, data: { userId: data.user.id } };
 }
 

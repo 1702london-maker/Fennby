@@ -1,4 +1,5 @@
 import { getSessionProfile, Role, SessionProfile } from "@/lib/auth/session";
+import type { ActionResult } from "@/lib/action-result";
 
 export class UnauthenticatedError extends Error {
   constructor() {
@@ -14,16 +15,26 @@ export class ForbiddenError extends Error {
 
 // Route-level guard: fast, clean error before touching domain logic.
 // This is NOT the security boundary — RLS is (see docs/architecture).
-// It exists so a wrong-role click gets "You don't have permission" instead
-// of a confusing empty result.
+//
+// Every current handler returns Promise<ActionResult<...>>, so on an auth
+// failure we resolve to a well-formed { ok: false, error } instead of
+// throwing — a thrown rejection from a Server Action has repeatedly left
+// client forms stuck on "Saving..." because a caller forgot a try/catch.
+// If a future call site genuinely needs a non-ActionResult return type,
+// wrap it in its own try/catch at the call site instead of relying on this
+// throwing.
 export function withRole<Args extends unknown[], R>(
   allowed: Role[],
   handler: (session: SessionProfile, ...args: Args) => Promise<R>
 ) {
   return async (...args: Args): Promise<R> => {
     const session = await getSessionProfile();
-    if (!session) throw new UnauthenticatedError();
-    if (!allowed.includes(session.role)) throw new ForbiddenError();
+    if (!session) {
+      return { ok: false, error: "unauthenticated" } as ActionResult as R;
+    }
+    if (!allowed.includes(session.role)) {
+      return { ok: false, error: "forbidden" } as ActionResult as R;
+    }
     return handler(session, ...args);
   };
 }

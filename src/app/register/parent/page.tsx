@@ -48,10 +48,16 @@ export default function RegisterParentPage() {
       setError(fieldMessages || signUpResult.error);
       return;
     }
-    // Sign-up establishes a session directly (email confirmation disabled in dev);
-    // if confirmation is required, this login call is a harmless no-op retry.
-    await login({ email: account.email, password: account.password });
+    // The account is now email-confirmed server-side, so this sign-in
+    // establishes a real session immediately — its result must be checked,
+    // otherwise a failure here silently leaves the next step without a
+    // session and every subsequent action fails.
+    const loginResult = await login({ email: account.email, password: account.password });
     setLoading(false);
+    if (!loginResult.ok) {
+      setError(loginResult.error);
+      return;
+    }
     setStep("child");
   };
 
@@ -63,27 +69,35 @@ export default function RegisterParentPage() {
     }
     setError(null);
     setLoading(true);
-    const result = await createLearner({
-      firstName: child.firstName,
-      preferredName: child.preferredName || child.firstName,
-      dateOfBirth: child.dateOfBirth,
-      yearGroup: child.yearGroup,
-      currentSchool: child.currentSchool || undefined,
-      targetExam: child.targetExam || undefined,
-      targetSchool: child.targetSchool || undefined,
-      examBoard: child.examBoard || undefined,
-      learningGoals: child.learningGoals || undefined,
-      sendNotes: child.sendNotes || undefined,
-      accessibilityNeeds: child.accessibilityNeeds || undefined,
-      consent: true,
-    });
-    setLoading(false);
-    if (!result.ok) {
-      setError(result.error);
-      return;
+    try {
+      const result = await createLearner({
+        firstName: child.firstName,
+        preferredName: child.preferredName || child.firstName,
+        dateOfBirth: child.dateOfBirth,
+        yearGroup: child.yearGroup,
+        currentSchool: child.currentSchool || undefined,
+        targetExam: child.targetExam || undefined,
+        targetSchool: child.targetSchool || undefined,
+        examBoard: child.examBoard || undefined,
+        learningGoals: child.learningGoals || undefined,
+        sendNotes: child.sendNotes || undefined,
+        accessibilityNeeds: child.accessibilityNeeds || undefined,
+        consent: true,
+      });
+      if (!result.ok) {
+        setError(result.error);
+        return;
+      }
+      router.push("/parent");
+      router.refresh();
+    } catch {
+      // withRole() throws (rather than returning an ActionResult) when
+      // there's no session at all — catch it here so the button never gets
+      // stuck on "Saving..." forever.
+      setError("Your session expired — please log in again.");
+    } finally {
+      setLoading(false);
     }
-    router.push("/parent");
-    router.refresh();
   };
 
   return (
