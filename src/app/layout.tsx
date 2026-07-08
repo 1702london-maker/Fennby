@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Quicksand, Inter } from "next/font/google";
 import "./globals.css";
+import { QuickNav } from "@/components/QuickNav";
 
 const quicksand = Quicksand({
   subsets: ["latin"],
@@ -29,6 +30,7 @@ export default function RootLayout({
         className={`${quicksand.variable} ${inter.variable} font-body antialiased bg-mist-50 text-charcoal-teal`}
       >
         {children}
+        <QuickNav />
       </body>
     </html>
   );
