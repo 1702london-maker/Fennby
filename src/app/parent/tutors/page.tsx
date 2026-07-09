@@ -2,10 +2,21 @@ import { PageShell } from "@/components/PageShell";
 import { Card } from "@/components/Card";
 import { Button } from "@/components/Button";
 import { EmptyState } from "@/components/EmptyState";
-import { getApprovedTutors } from "@/features/parent/queries";
+import { getApprovedTutors, getMyLearners } from "@/features/parent/queries";
 
 export default async function BrowseTutorsPage() {
-  const tutors = await getApprovedTutors();
+  // Soft SEND-experience weighting: any learner's shared diagnosis or EHCP
+  // note nudges matching tutors toward the top of the list, without hiding
+  // anyone else.
+  const myLearners = await getMyLearners();
+  const sendHints = myLearners
+    .flatMap((l) => {
+      const prefs = l.learning_preferences as { diagnosis_shared?: string | null; ehcp?: boolean } | null;
+      return prefs?.diagnosis_shared ? [prefs.diagnosis_shared] : [];
+    })
+    .filter(Boolean);
+
+  const tutors = await getApprovedTutors(sendHints);
 
   return (
     <PageShell>
@@ -28,6 +39,11 @@ export default async function BrowseTutorsPage() {
                       <span className="bg-sage-600/15 text-sage-600 text-xs font-bold px-2 py-0.5 rounded-full">
                         ✓ DBS Verified
                       </span>
+                      {t.send_experience && t.send_experience.length > 0 && (
+                        <span className="bg-plum-700/10 text-plum-700 text-xs font-bold px-2 py-0.5 rounded-full">
+                          SEND-experienced: {t.send_experience.join(", ")}
+                        </span>
+                      )}
                     </div>
                     <p className="text-sm text-charcoal-teal/70">{t.subjects?.join(" · ") || "No subjects listed"}</p>
                     {t.bio && <p className="text-sm text-charcoal-teal/80 mt-2 max-w-md">{t.bio}</p>}

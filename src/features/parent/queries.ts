@@ -85,14 +85,26 @@ export async function getLearnerAchievements(learnerId: string) {
   return data ?? [];
 }
 
-export async function getApprovedTutors() {
+// When `sendPreferenceHints` is given (e.g. from a learner's diagnosis_shared
+// or notes), tutors with overlapping send_experience are weighted toward the
+// top — a soft sort, not a hard filter, so areas with fewer SEND-experienced
+// tutors don't get unfairly narrowed.
+export async function getApprovedTutors(sendPreferenceHints: string[] = []) {
   const supabase = await createClient();
   const { data } = await supabase
     .from("tutor_profiles")
     .select("*, profiles(full_name)")
     .eq("status", "approved")
     .order("rating", { ascending: false });
-  return data ?? [];
+
+  const tutors = data ?? [];
+  if (!sendPreferenceHints.length) return tutors;
+
+  const hints = sendPreferenceHints.map((h) => h.toLowerCase());
+  const matchesHint = (t: (typeof tutors)[number]) =>
+    (t.send_experience ?? []).some((exp) => hints.some((h) => exp.toLowerCase().includes(h) || h.includes(exp.toLowerCase())));
+
+  return [...tutors].sort((a, b) => Number(matchesHint(b)) - Number(matchesHint(a)));
 }
 
 export async function getExamHistory(learnerId: string) {

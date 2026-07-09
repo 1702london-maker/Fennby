@@ -1,8 +1,12 @@
 import { PageShell } from "@/components/PageShell";
 import { Card } from "@/components/Card";
 import { Button } from "@/components/Button";
+import { getMyTutorApplication } from "@/features/tutors/applicationActions";
 
-export default function ApplyTutorConfirmation() {
+export default async function ApplyTutorConfirmation() {
+  const application = await getMyTutorApplication();
+  const approved = application?.status === "approved";
+
   return (
     <PageShell>
       <main className="max-w-xl mx-auto px-6 py-20 text-center">
@@ -16,9 +20,16 @@ export default function ApplyTutorConfirmation() {
             we&apos;re able to move forward. This usually takes 3–5 working days. We&apos;ll email you
             as soon as your application has been reviewed.
           </p>
-          <Button href="/apply-tutor/agreement" variant="primary">
-            Preview the tutor agreement
-          </Button>
+          {approved ? (
+            <Button href="/apply-tutor/agreement" variant="primary">
+              Continue to the tutor agreement
+            </Button>
+          ) : (
+            <p className="text-sm font-semibold text-charcoal-teal/60">
+              Current status: {application?.status.replace("_", " ") ?? "under review"} — the
+              conduct agreement unlocks automatically once your application is approved.
+            </p>
+          )}
         </Card>
       </main>
     </PageShell>
