@@ -27,8 +27,13 @@ const pillars = [
   },
   {
     title: "Built for schools, not just families",
-    body: "Cohort dashboards, Pupil Premium impact reports, and inter-school quizzes that make the whole network stronger.",
+    body: "Cohort dashboards, Pupil Premium impact reports, and inter-school visibility built in from day one.",
     color: "teal" as const,
+  },
+  {
+    title: "Clarity should feel calm enough to trust",
+    body: "A more luxurious interpretation of Fennby's original promise-led pattern.",
+    color: "dark" as const,
   },
 ];
 
@@ -76,13 +81,16 @@ export default function Home() {
         {/* Pillars */}
         <section id="how-it-works" className="max-w-6xl mx-auto px-6 py-16">
           <h2 className="font-display font-bold text-3xl text-center mb-12">
-            One ecosystem, five commitments
+            One ecosystem, six commitments
           </h2>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {pillars.map((p) => (
-              <Card key={p.title} tint={p.color === "coral" ? "coral" : p.color === "sage" ? "white" : "teal"}>
+              <Card
+                key={p.title}
+                tint={p.color === "coral" ? "coral" : p.color === "dark" ? "dark" : p.color === "sage" ? "white" : "teal"}
+              >
                 <h3 className="font-display font-bold text-lg mb-2">{p.title}</h3>
-                <p className="text-charcoal-teal/80 leading-relaxed">{p.body}</p>
+                <p className={`leading-relaxed ${p.color === "dark" ? "text-white/70" : "text-charcoal-teal/80"}`}>{p.body}</p>
               </Card>
             ))}
           </div>
