@@ -50,7 +50,7 @@ export async function getLatestResultWithTopics(learnerId: string) {
   const supabase = await createClient();
   const { data } = await supabase
     .from("assessment_results")
-    .select("*, topic_performance(*)")
+    .select("*, topic_performance(*), assessment_attempts(accommodations_used)")
     .eq("learner_id", learnerId)
     .order("created_at", { ascending: false })
     .limit(1)

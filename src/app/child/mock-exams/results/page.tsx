@@ -33,6 +33,12 @@ export default async function ExamResults({
   const score = result?.score ?? Number(scoreParam ?? 0);
   const topics = result?.topic_performance ?? [];
   const weakest = topics.length ? [...topics].sort((a, b) => a.score - b.score)[0] : null;
+  const accommodations = result?.assessment_attempts?.accommodations_used as {
+    extra_time_percent?: number;
+    read_aloud?: boolean;
+    dyslexia_font?: boolean;
+    chunked_content?: boolean;
+  } | null;
 
   return (
     <PageShell>
@@ -41,6 +47,13 @@ export default async function ExamResults({
           <p className="text-6xl mb-4">🎉</p>
           <p className="font-display font-bold text-2xl">You did it!</p>
           <p className="text-sm text-charcoal-teal/60 mt-1">{modeLabels[mode] ?? "Mock Exam"}</p>
+          {accommodations && (
+            <p className="text-xs font-bold text-plum-700 bg-plum-700/10 inline-block px-3 py-1 rounded-full mt-3">
+              Taken with accommodations
+              {accommodations.extra_time_percent ? ` · +${accommodations.extra_time_percent}% time` : ""}
+              {accommodations.read_aloud ? " · read-aloud" : ""}
+            </p>
+          )}
           <div className="flex justify-center mt-4">
             <ProgressRing progress={score} size={120} color="coral" />
           </div>

@@ -27,6 +27,21 @@ body {
   }
 }
 
+/* Learning Preferences: dyslexia-friendly font, applied per-learner via
+   LearningPreferencesStyles, never globally. */
+.font-dyslexia, .font-dyslexia * {
+  font-family: var(--font-lexend), var(--font-inter), sans-serif !important;
+  letter-spacing: 0.01em;
+}
+
+/* Learning Preferences: low stimulation mode — same mechanism as
+   prefers-reduced-motion, but opt-in per learner rather than OS-wide. */
+.reduce-motion, .reduce-motion * {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
+
 :focus-visible {
   outline: 3px solid #146B6B;
   outline-offset: 2px;

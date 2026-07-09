@@ -27,6 +27,30 @@ export const submitAssessmentAttempt = withRole(
     const learnerId = await getOwnLearnerId(session.id, supabase);
     if (!learnerId) return { ok: false, error: "not_found" };
 
+    // Read the learner's own stored preferences server-side rather than
+    // trusting anything the client claims, so "was this attempt
+    // accommodated" stays honest for parents and tutors reading results.
+    const { data: learnerPrefsRow } = await supabase
+      .from("learners")
+      .select("learning_preferences")
+      .eq("id", learnerId)
+      .maybeSingle();
+    const prefs = learnerPrefsRow?.learning_preferences as {
+      extra_time_percent?: number;
+      read_aloud_default?: boolean;
+      dyslexia_font?: boolean;
+      chunked_content?: boolean;
+    } | null;
+    const accommodationsUsed =
+      prefs && (prefs.extra_time_percent || prefs.read_aloud_default || prefs.dyslexia_font || prefs.chunked_content)
+        ? {
+            extra_time_percent: prefs.extra_time_percent ?? 0,
+            read_aloud: !!prefs.read_aloud_default,
+            dyslexia_font: !!prefs.dyslexia_font,
+            chunked_content: !!prefs.chunked_content,
+          }
+        : null;
+
     // Product rule: a brain warm-up must have been completed recently before a mock starts.
     const { data: recentWarmup } = await supabase
       .from("brain_warmups")
@@ -48,6 +72,7 @@ export const submitAssessmentAttempt = withRole(
         learner_id: learnerId,
         mode: parsed.data.mode,
         completed_at: new Date().toISOString(),
+        accommodations_used: accommodationsUsed,
       })
       .select("id")
       .single();

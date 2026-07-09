@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Quicksand, Inter } from "next/font/google";
+import { Quicksand, Inter, Lexend } from "next/font/google";
 import "./globals.css";
 import { QuickNav } from "@/components/QuickNav";
 
@@ -11,6 +11,13 @@ const quicksand = Quicksand({
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
+});
+// Lexend is designed and studied specifically to improve reading
+// proficiency — used as the "dyslexia-friendly font" option in Learning
+// Preferences, applied via the .font-dyslexia utility class.
+const lexend = Lexend({
+  subsets: ["latin"],
+  variable: "--font-lexend",
 });
 
 export const metadata: Metadata = {
@@ -27,7 +34,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${quicksand.variable} ${inter.variable} font-body antialiased bg-mist-50 text-charcoal-teal`}
+        className={`${quicksand.variable} ${inter.variable} ${lexend.variable} font-body antialiased bg-mist-50 text-charcoal-teal`}
       >
         {children}
         <QuickNav />

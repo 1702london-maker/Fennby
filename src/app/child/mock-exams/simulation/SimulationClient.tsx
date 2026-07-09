@@ -13,13 +13,22 @@ interface ClientQuestion {
   options: string[];
 }
 
-const TOTAL_SECONDS = 20 * 60;
+const BASE_SECONDS = 20 * 60;
 
-export function SimulationClient({ assessmentId, questions }: { assessmentId: string; questions: ClientQuestion[] }) {
+export function SimulationClient({
+  assessmentId,
+  questions,
+  extraTimePercent = 0,
+}: {
+  assessmentId: string;
+  questions: ClientQuestion[];
+  extraTimePercent?: number;
+}) {
   const router = useRouter();
+  const totalSeconds = Math.round(BASE_SECONDS * (1 + extraTimePercent / 100));
   const [qIndex, setQIndex] = useState(0);
   const [answers, setAnswers] = useState<{ questionId: string; choiceIndex: number }[]>([]);
-  const [secondsLeft, setSecondsLeft] = useState(TOTAL_SECONDS);
+  const [secondsLeft, setSecondsLeft] = useState(totalSeconds);
   const [error, setError] = useState<string | null>(null);
 
   const finish = async (finalAnswers: { questionId: string; choiceIndex: number }[]) => {
