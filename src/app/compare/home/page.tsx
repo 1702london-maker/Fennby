@@ -10,9 +10,10 @@ import { ProgressRing } from "@/components/ProgressRing";
 const bento = [
   { title: "Mock exams that actually feel like preparation", body: "Digital, print-and-shade, and full timed simulation — every mode auto-marked, every topic tracked.", tint: "bg-teal-100", span: "sm:col-span-2", dark: false },
   { title: "Every tutor vetted, DBS-checked, signed", body: "No tutor is ever matched with a child before identity checks, an enhanced DBS check, and a signed conduct agreement.", tint: "bg-coral-100", span: "", dark: false },
-  { title: "A whole child, not just a test score", body: "Vocational and craft tracks — bag making, shoemaking, sewing — supervised, structured, building real mastery.", tint: "bg-white border-2 border-teal-100", span: "", dark: false },
-  { title: "Built for schools, not just families", body: "Cohort dashboards, Pupil Premium impact reports, and inter-school visibility built in from day one.", tint: "bg-plum-700/10", span: "sm:col-span-2", dark: false },
-  { title: "Clarity should feel calm enough to trust", body: "A more luxurious interpretation of Fennby's original promise-led pattern.", tint: "bg-charcoal-teal text-white", span: "sm:col-span-3", dark: true },
+  { title: "Nothing hidden from you", body: "Every message, every score, every session note — visible to parents, in real time, always.", tint: "bg-white border-2 border-teal-100", span: "", dark: false },
+  { title: "A whole child, not just a test score", body: "Vocational and craft tracks — bag making, shoemaking, sewing — supervised, structured, building real mastery.", tint: "bg-plum-700/10", span: "sm:col-span-2", dark: false },
+  { title: "Built for schools, not just families", body: "Cohort dashboards, Pupil Premium impact reports, and inter-school visibility built in from day one.", tint: "bg-teal-100", span: "sm:col-span-2", dark: false },
+  { title: "Clarity should feel calm enough to trust", body: "A more luxurious interpretation of Fennby's original promise-led pattern.", tint: "bg-charcoal-teal text-white", span: "", dark: true },
 ];
 
 export default function CompareHome() {
