@@ -1,26 +1,28 @@
 import { Card } from "@/components/Card";
 import { Button } from "@/components/Button";
-import { Activity } from "@/lib/types";
+import type { Database } from "@/types/database";
 
-const typeLabel: Record<Activity["type"], string> = {
+type ActivityRow = Database["public"]["Tables"]["activities"]["Row"];
+
+const typeLabel: Record<string, string> = {
   summer_camp: "Summer Camp",
   craft_club: "Craft Club",
   vocational: "Vocational",
   competition: "Competition",
 };
 
-export function ActivityCard({ activity, registrationStatus }: { activity: Activity; registrationStatus?: string }) {
+export function ActivityCard({ activity, registrationStatus }: { activity: ActivityRow; registrationStatus?: string }) {
   return (
     <Card>
       <span className="inline-block bg-teal-100 text-teal-900 text-xs font-bold px-3 py-1 rounded-full mb-2">
-        {typeLabel[activity.type]}
+        {typeLabel[activity.type ?? ""] ?? activity.type}
       </span>
       <p className="font-display font-bold text-lg">{activity.title}</p>
-      <p className="text-sm text-charcoal-teal/70 mt-1">{activity.description}</p>
+      {activity.description && <p className="text-sm text-charcoal-teal/70 mt-1">{activity.description}</p>}
       <p className="text-xs text-charcoal-teal/60 mt-2">
-        {activity.startDate} → {activity.endDate} · {activity.location}
+        {activity.start_date} → {activity.end_date} · {activity.location}
       </p>
-      <p className="text-sm font-semibold mt-2">{activity.price}</p>
+      {activity.price && <p className="text-sm font-semibold mt-2">{activity.price}</p>}
       {registrationStatus && (
         <p className="text-xs text-sage-600 font-semibold mt-1">Status: {registrationStatus}</p>
       )}

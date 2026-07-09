@@ -10,6 +10,21 @@ export async function getMyLearners() {
   return data;
 }
 
+// Every open activity, annotated with which of the parent's own children
+// (if any) is registered and at what status.
+export async function getActivitiesForParent(learnerIds: string[]) {
+  const supabase = await createClient();
+  const [{ data: activities }, { data: registrations }] = await Promise.all([
+    supabase.from("activities").select("*").eq("status", "open"),
+    learnerIds.length
+      ? supabase.from("activity_registrations").select("*, learners(preferred_name)").in("learner_id", learnerIds)
+      : Promise.resolve({ data: [] as never[] }),
+  ]);
+
+  const regsByActivity = new Map((registrations ?? []).map((r) => [r.activity_id, r]));
+  return (activities ?? []).map((a) => ({ ...a, myRegistration: regsByActivity.get(a.id) ?? null }));
+}
+
 export async function getLatestResult(learnerId: string) {
   const supabase = await createClient();
   const { data } = await supabase

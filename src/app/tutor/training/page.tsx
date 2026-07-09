@@ -43,7 +43,7 @@ export default async function TutorTrainingPage() {
 
   return (
     <PageShell>
-      <main className="max-w-3xl mx-auto px-6 py-16">
+      <main className="max-w-5xl mx-auto px-6 py-16">
         <h1 className="font-display font-bold text-4xl mb-4">Tutor training &amp; vetting</h1>
         <p className="text-charcoal-teal/80 leading-relaxed mb-10 max-w-2xl">
           Every module below must be completed before you can be matched with a family — no

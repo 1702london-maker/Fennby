@@ -42,7 +42,7 @@ export default async function TutorDashboard() {
 
   return (
     <PageShell>
-      <main className="max-w-4xl mx-auto px-6 py-10">
+      <main className="max-w-6xl mx-auto px-6 py-10">
         <p className="text-charcoal-teal/70">Welcome back</p>
         <h1 className="font-display font-bold text-3xl mb-8">Your workspace</h1>
 
@@ -68,47 +68,49 @@ export default async function TutorDashboard() {
           </p>
         </Card>
 
-        <section className="mb-10">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-display font-bold text-lg">Your students</h2>
-            <Link href="/tutor/students" className="text-sm font-semibold text-teal-900 hover:underline">View all →</Link>
+        <section className="grid lg:grid-cols-2 gap-6">
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-display font-bold text-lg">Your students</h2>
+              <Link href="/tutor/students" className="text-sm font-semibold text-teal-900 hover:underline">View all →</Link>
+            </div>
+            {students.length ? (
+              <div className="grid sm:grid-cols-2 gap-4">
+                {students.slice(0, 4).map((s) => (
+                  <Card key={s.id}>
+                    <p className="font-display font-bold">{s.preferred_name}</p>
+                    <p className="text-sm text-charcoal-teal/70">{s.year_group}</p>
+                    <Button href={`/tutor/students/${s.id}`} variant="outline" className="mt-4 px-4 py-2 text-sm">
+                      Open profile
+                    </Button>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <Card>
+                <EmptyState emoji="🧑‍🎓" title="No students assigned yet" description="Once you're matched with a family, they'll appear here." />
+              </Card>
+            )}
           </div>
-          {students.length ? (
-            <div className="grid md:grid-cols-3 gap-4">
-              {students.slice(0, 3).map((s) => (
-                <Card key={s.id}>
-                  <p className="font-display font-bold">{s.preferred_name}</p>
-                  <p className="text-sm text-charcoal-teal/70">{s.year_group}</p>
-                  <Button href={`/tutor/students/${s.id}`} variant="outline" className="mt-4 px-4 py-2 text-sm">
-                    Open profile
-                  </Button>
-                </Card>
-              ))}
-            </div>
-          ) : (
-            <Card>
-              <EmptyState emoji="🧑‍🎓" title="No students assigned yet" description="Once you're matched with a family, they'll appear here." />
-            </Card>
-          )}
-        </section>
 
-        <section>
-          <h2 className="font-display font-bold text-lg mb-4">Recent session notes</h2>
-          {notes.length ? (
-            <div className="space-y-3">
-              {notes.map((n) => (
-                <Card key={n.id}>
-                  <div className="flex items-center justify-between mb-1">
-                    <p className="font-semibold">{n.learners?.preferred_name ?? "Learner"} · {n.topic ?? "Session"}</p>
-                    <p className="text-xs text-charcoal-teal/60">{new Date(n.created_at).toLocaleDateString("en-GB")}</p>
-                  </div>
-                  <p className="text-sm text-charcoal-teal/80">{n.parent_summary}</p>
-                </Card>
-              ))}
-            </div>
-          ) : (
-            <p className="text-sm text-charcoal-teal/70">No notes logged yet — visit a student profile to add one.</p>
-          )}
+          <div>
+            <h2 className="font-display font-bold text-lg mb-4">Recent session notes</h2>
+            {notes.length ? (
+              <div className="space-y-3">
+                {notes.map((n) => (
+                  <Card key={n.id}>
+                    <div className="flex items-center justify-between mb-1">
+                      <p className="font-semibold">{n.learners?.preferred_name ?? "Learner"} · {n.topic ?? "Session"}</p>
+                      <p className="text-xs text-charcoal-teal/60">{new Date(n.created_at).toLocaleDateString("en-GB")}</p>
+                    </div>
+                    <p className="text-sm text-charcoal-teal/80">{n.parent_summary}</p>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-charcoal-teal/70">No notes logged yet — visit a student profile to add one.</p>
+            )}
+          </div>
         </section>
       </main>
     </PageShell>

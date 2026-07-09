@@ -24,21 +24,23 @@ export function TrainingClient({ modules }: { modules: Module[] }) {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="grid md:grid-cols-2 gap-4">
       {state.map((m, i) => (
         <Card key={m.id} className="flex gap-4 items-start">
           <span className="font-display font-bold text-2xl text-teal-900 w-8 shrink-0">{i + 1}</span>
           <div className="flex-1">
             <h2 className="font-display font-bold text-lg">{m.title}</h2>
             <p className="text-charcoal-teal/80 mt-1">{m.description}</p>
+            <div className="mt-3">
+              {m.completed ? (
+                <span className="text-sm font-bold text-sage-600 whitespace-nowrap">✓ Completed</span>
+              ) : (
+                <Button variant="outline" className="px-4 py-2 text-sm" disabled={pending} onClick={() => complete(m.id)}>
+                  Mark complete
+                </Button>
+              )}
+            </div>
           </div>
-          {m.completed ? (
-            <span className="text-sm font-bold text-sage-600 whitespace-nowrap">✓ Completed</span>
-          ) : (
-            <Button variant="outline" className="px-4 py-2 text-sm" disabled={pending} onClick={() => complete(m.id)}>
-              Mark complete
-            </Button>
-          )}
         </Card>
       ))}
     </div>

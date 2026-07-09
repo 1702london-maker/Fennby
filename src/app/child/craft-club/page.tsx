@@ -1,37 +1,48 @@
 import { PageShell } from "@/components/PageShell";
 import { Card } from "@/components/Card";
-import { activities, activityRegistrations, learners } from "@/lib/seed-data";
+import { EmptyState } from "@/components/EmptyState";
+import { getMyLearnerProfile, getActivitiesForLearner } from "@/features/child/queries";
 
-const activeLearner = learners[0];
+export default async function ChildCraftClubPage() {
+  const learner = await getMyLearnerProfile();
 
-export default function ChildCraftClubPage() {
-  const craft = activities.filter((a) => a.type === "craft_club" || a.type === "vocational");
-  const myRegs = activityRegistrations.filter((r) => r.learnerId === activeLearner.id);
+  if (!learner) {
+    return (
+      <PageShell>
+        <main className="max-w-3xl mx-auto px-6 py-10">
+          <EmptyState emoji="🧒" title="No profile found" description="" />
+        </main>
+      </PageShell>
+    );
+  }
+
+  const craft = await getActivitiesForLearner(learner.id, ["craft_club", "vocational"]);
 
   return (
     <PageShell>
       <main className="max-w-3xl mx-auto px-6 py-10">
         <h1 className="font-display font-bold text-3xl mb-1">Craft Club</h1>
         <p className="text-charcoal-teal/70 mb-8">Make something brilliant with your hands, safely supervised every step.</p>
-        <div className="space-y-4">
-          {craft.map((a) => {
-            const reg = myRegs.find((r) => r.activityId === a.id);
-            return (
+        {craft.length ? (
+          <div className="space-y-4">
+            {craft.map((a) => (
               <Card key={a.id} tint="teal">
                 <p className="font-display font-bold text-lg">{a.title}</p>
-                <p className="text-sm text-charcoal-teal/80 mt-1">{a.description}</p>
-                <p className="text-xs text-charcoal-teal/60 mt-2">{a.startDate} → {a.endDate} · {a.location}</p>
-                {reg ? (
+                {a.description && <p className="text-sm text-charcoal-teal/80 mt-1">{a.description}</p>}
+                <p className="text-xs text-charcoal-teal/60 mt-2">{a.start_date} → {a.end_date} · {a.location}</p>
+                {a.myRegistration ? (
                   <p className="text-sm font-semibold text-sage-600 mt-3">
-                    You&apos;re {reg.bookingStatus}! Consent: {reg.consentStatus}
+                    You&apos;re {a.myRegistration.booking_status}! Consent: {a.myRegistration.consent_status}
                   </p>
                 ) : (
                   <p className="text-sm text-charcoal-teal/70 mt-3">Ask a grown-up to register your interest.</p>
                 )}
               </Card>
-            );
-          })}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <EmptyState emoji="🧵" title="No craft club sessions open right now" description="Check back soon — new sessions are added regularly." />
+        )}
       </main>
     </PageShell>
   );

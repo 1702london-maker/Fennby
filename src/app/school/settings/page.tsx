@@ -17,10 +17,10 @@ export default async function SchoolSettingsPage() {
 
   return (
     <PageShell>
-      <main className="max-w-2xl mx-auto px-6 py-10">
+      <main className="max-w-4xl mx-auto px-6 py-10">
         <h1 className="font-display font-bold text-3xl mb-8">Settings</h1>
         <Card>
-          <div className="grid gap-4">
+          <div className="grid sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-semibold mb-1">School name</label>
               <input defaultValue={school.name} className="w-full rounded-2xl border-2 border-teal-100 px-4 py-3 min-h-[44px] focus:border-teal-700 outline-none" />
