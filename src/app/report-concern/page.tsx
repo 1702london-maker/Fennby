@@ -4,6 +4,7 @@ import { useState } from "react";
 import { PageShell } from "@/components/PageShell";
 import { Card } from "@/components/Card";
 import { Button } from "@/components/Button";
+import { VoiceInputButton } from "@/components/VoiceInputButton";
 import { reportConcern } from "@/features/safeguarding/actions";
 
 export default function ReportConcernPage() {
@@ -59,7 +60,10 @@ export default function ReportConcernPage() {
               <input required value={concernType} onChange={(e) => setConcernType(e.target.value)} className="w-full rounded-2xl border-2 border-teal-100 px-4 py-3 min-h-[44px] focus:border-teal-700 outline-none" placeholder="e.g. Message content, tutor conduct" />
             </div>
             <div>
-              <label className="block text-sm font-semibold mb-1">Description</label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-sm font-semibold">Description</label>
+                <VoiceInputButton onResult={(text) => setDescription((d) => (d ? `${d} ${text}` : text))} />
+              </div>
               <textarea required value={description} onChange={(e) => setDescription(e.target.value)} rows={5} className="w-full rounded-2xl border-2 border-teal-100 p-4 focus:border-teal-700 outline-none" />
             </div>
             {error && <p className="text-sm text-brick-600 font-semibold">{error}</p>}

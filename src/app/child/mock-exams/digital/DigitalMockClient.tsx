@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card } from "@/components/Card";
+import { ReadAloudButton } from "@/components/ReadAloudButton";
 import { submitAssessmentAttempt } from "@/features/assessments/actions";
 
 interface ClientQuestion {
@@ -63,7 +64,10 @@ export function DigitalMockClient({ assessmentId, questions }: { assessmentId: s
       <AnimatePresence mode="wait">
         <motion.div key={qIndex} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.25 }}>
           <Card>
-            <p className="font-display font-bold text-xl mb-6">{q.text}</p>
+            <div className="flex items-start justify-between gap-4 mb-6">
+              <p className="font-display font-bold text-xl">{q.text}</p>
+              <ReadAloudButton text={`${q.topic}. ${q.text}. Options: ${q.options.join(", ")}`} label="Read aloud" />
+            </div>
             <div className="grid gap-3">
               {q.options.map((opt, i) => (
                 <button

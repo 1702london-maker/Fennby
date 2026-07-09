@@ -2,8 +2,13 @@ import { PageShell } from "@/components/PageShell";
 import { Card } from "@/components/Card";
 import { Button } from "@/components/Button";
 import { learners } from "@/lib/seed-data";
+import { getMyLearners } from "@/features/parent/queries";
+import { LearningPreferencesForm } from "@/features/parent/LearningPreferencesForm";
+import type { LearningPreferencesInput } from "@/features/parent/actions";
 
-export default function ParentSettingsPage() {
+export default async function ParentSettingsPage() {
+  const myLearners = await getMyLearners();
+
   return (
     <PageShell>
       <main className="max-w-3xl mx-auto px-6 py-10">
@@ -43,7 +48,7 @@ export default function ParentSettingsPage() {
           <Button variant="outline">Invite a guardian</Button>
         </Card>
 
-        <Card>
+        <Card className="mb-6">
           <h2 className="font-display font-bold text-lg mb-4">Notification preferences</h2>
           <label className="flex items-center gap-3 mb-2">
             <input type="checkbox" defaultChecked className="w-5 h-5 accent-teal-900" />
@@ -54,6 +59,22 @@ export default function ParentSettingsPage() {
             <span className="text-sm">Email me a weekly progress summary</span>
           </label>
         </Card>
+
+        <h2 className="font-display font-bold text-2xl mb-2 mt-10">Learning Preferences</h2>
+        <p className="text-charcoal-teal/70 mb-6">
+          Font, text size, extra time, and other accommodations — available to every family, on
+          every plan, never gated behind a diagnosis.
+        </p>
+        {myLearners.map((l) => (
+          <Card key={l.id} className="mb-6">
+            <h3 className="font-display font-bold text-lg mb-4">{l.preferred_name}</h3>
+            <LearningPreferencesForm
+              learnerId={l.id}
+              learnerName={l.preferred_name}
+              initial={(l.learning_preferences as unknown as Partial<Omit<LearningPreferencesInput, "learnerId">>) ?? {}}
+            />
+          </Card>
+        ))}
       </main>
     </PageShell>
   );

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Card } from "@/components/Card";
 import { Button } from "@/components/Button";
+import { VoiceInputButton } from "@/components/VoiceInputButton";
 
 export function LessonNoteForm({ onSubmit }: { onSubmit?: (note: Record<string, string | boolean>) => void }) {
   const [saved, setSaved] = useState(false);
@@ -36,7 +37,10 @@ export function LessonNoteForm({ onSubmit }: { onSubmit?: (note: Record<string, 
           <input id="ln-objective" value={form.objective} onChange={(e) => setForm({ ...form, objective: e.target.value })} className="w-full rounded-2xl border-2 border-teal-100 px-4 py-3 min-h-[44px] focus:border-teal-700 outline-none" />
         </div>
         <div>
-          <label htmlFor="ln-covered" className="block text-sm font-semibold mb-1">What was covered</label>
+          <div className="flex items-center justify-between mb-1">
+            <label htmlFor="ln-covered" className="block text-sm font-semibold">What was covered</label>
+            <VoiceInputButton onResult={(text) => setForm((f) => ({ ...f, covered: f.covered ? `${f.covered} ${text}` : text }))} />
+          </div>
           <textarea id="ln-covered" value={form.covered} onChange={(e) => setForm({ ...form, covered: e.target.value })} rows={3} className="w-full rounded-2xl border-2 border-teal-100 p-4 focus:border-teal-700 outline-none" />
         </div>
         <div className="grid sm:grid-cols-2 gap-4">

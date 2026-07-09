@@ -127,6 +127,7 @@ export type Database = {
       }
       assessment_attempts: {
         Row: {
+          accommodations_used: Json | null
           assessment_id: string
           completed_at: string | null
           id: string
@@ -135,6 +136,7 @@ export type Database = {
           started_at: string
         }
         Insert: {
+          accommodations_used?: Json | null
           assessment_id: string
           completed_at?: string | null
           id?: string
@@ -143,6 +145,7 @@ export type Database = {
           started_at?: string
         }
         Update: {
+          accommodations_used?: Json | null
           assessment_id?: string
           completed_at?: string | null
           id?: string
@@ -461,6 +464,36 @@ export type Database = {
           },
         ]
       }
+      contact_messages: {
+        Row: {
+          created_at: string
+          email: string
+          handled: boolean
+          id: string
+          message: string
+          name: string
+          topic: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          handled?: boolean
+          id?: string
+          message: string
+          name: string
+          topic?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          handled?: boolean
+          id?: string
+          message?: string
+          name?: string
+          topic?: string
+        }
+        Relationships: []
+      }
       guardian_permissions: {
         Row: {
           guardian_id: string
@@ -618,6 +651,7 @@ export type Database = {
           first_name: string
           id: string
           learning_goals: string | null
+          learning_preferences: Json
           parent_id: string
           preferred_name: string
           send_notes: string | null
@@ -637,6 +671,7 @@ export type Database = {
           first_name: string
           id?: string
           learning_goals?: string | null
+          learning_preferences?: Json
           parent_id: string
           preferred_name: string
           send_notes?: string | null
@@ -656,6 +691,7 @@ export type Database = {
           first_name?: string
           id?: string
           learning_goals?: string | null
+          learning_preferences?: Json
           parent_id?: string
           preferred_name?: string
           send_notes?: string | null
@@ -1477,6 +1513,7 @@ export type Database = {
           references_provided: string | null
           reviewed_by: string | null
           safeguarding_declaration: boolean | null
+          send_experience: string[]
           status: Database["public"]["Enums"]["tutor_status"]
           subjects: string[]
         }
@@ -1493,6 +1530,7 @@ export type Database = {
           references_provided?: string | null
           reviewed_by?: string | null
           safeguarding_declaration?: boolean | null
+          send_experience?: string[]
           status?: Database["public"]["Enums"]["tutor_status"]
           subjects?: string[]
         }
@@ -1509,6 +1547,7 @@ export type Database = {
           references_provided?: string | null
           reviewed_by?: string | null
           safeguarding_declaration?: boolean | null
+          send_experience?: string[]
           status?: Database["public"]["Enums"]["tutor_status"]
           subjects?: string[]
         }
@@ -1541,6 +1580,7 @@ export type Database = {
           qualifications: string | null
           rating: number | null
           review_count: number | null
+          send_experience: string[]
           status: Database["public"]["Enums"]["tutor_status"]
           subjects: string[]
           training_completed: boolean
@@ -1557,6 +1597,7 @@ export type Database = {
           qualifications?: string | null
           rating?: number | null
           review_count?: number | null
+          send_experience?: string[]
           status?: Database["public"]["Enums"]["tutor_status"]
           subjects?: string[]
           training_completed?: boolean
@@ -1573,6 +1614,7 @@ export type Database = {
           qualifications?: string | null
           rating?: number | null
           review_count?: number | null
+          send_experience?: string[]
           status?: Database["public"]["Enums"]["tutor_status"]
           subjects?: string[]
           training_completed?: boolean

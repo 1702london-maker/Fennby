@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card } from "@/components/Card";
+import { VoiceInputButton } from "@/components/VoiceInputButton";
+import { ReadAloudButton } from "@/components/ReadAloudButton";
 import { sendMessage } from "@/features/messaging/actions";
 
 interface DisplayMessage {
@@ -57,9 +59,12 @@ export function ThreadClient({
                   : "self-start bg-teal-100"
               }`}
             >
-              <p className="text-xs font-semibold opacity-70 mb-1">
-                {m.senderName} · {new Date(m.timestamp).toLocaleString("en-GB", { hour: "2-digit", minute: "2-digit", day: "numeric", month: "short" })}
-              </p>
+              <div className="flex items-center justify-between gap-2 mb-1">
+                <p className="text-xs font-semibold opacity-70">
+                  {m.senderName} · {new Date(m.timestamp).toLocaleString("en-GB", { hour: "2-digit", minute: "2-digit", day: "numeric", month: "short" })}
+                </p>
+                <ReadAloudButton text={m.content} label="Read aloud" />
+              </div>
               <p>{m.content}</p>
             </div>
           ))
@@ -67,7 +72,7 @@ export function ThreadClient({
           <p className="text-sm text-charcoal-teal/60 text-center py-8">No messages yet.</p>
         )}
       </Card>
-      <div className="flex gap-2 mt-4">
+      <div className="flex items-center gap-2 mt-4">
         <input
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
@@ -76,6 +81,8 @@ export function ThreadClient({
           aria-label="Message"
           className="flex-1 rounded-full border-2 border-teal-100 px-5 py-3 min-h-[44px] focus:border-teal-700 outline-none"
         />
+        <VoiceInputButton onResult={(text) => setDraft((d) => (d ? `${d} ${text}` : text))} label="Dictate" />
+        {draft.trim() && <ReadAloudButton text={draft} label="Hear it back" />}
         <button
           onClick={send}
           disabled={sending}
