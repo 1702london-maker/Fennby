@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Card } from "@/components/Card";
 import { VoiceInputButton } from "@/components/VoiceInputButton";
 import { ReadAloudButton } from "@/components/ReadAloudButton";
+import { SymbolSupportedText } from "@/components/SymbolSupportedText";
 import { sendMessage } from "@/features/messaging/actions";
 
 interface DisplayMessage {
@@ -21,11 +22,13 @@ export function ThreadClient({
   currentSenderId,
   initialMessages,
   placeholder = "Type a message...",
+  symbolSupport = false,
 }: {
   threadId: string;
   currentSenderId: string;
   initialMessages: DisplayMessage[];
   placeholder?: string;
+  symbolSupport?: boolean;
 }) {
   const router = useRouter();
   const [draft, setDraft] = useState("");
@@ -65,7 +68,7 @@ export function ThreadClient({
                 </p>
                 <ReadAloudButton text={m.content} label="Read aloud" />
               </div>
-              <p>{m.content}</p>
+              {symbolSupport ? <SymbolSupportedText text={m.content} /> : <p>{m.content}</p>}
             </div>
           ))
         ) : (

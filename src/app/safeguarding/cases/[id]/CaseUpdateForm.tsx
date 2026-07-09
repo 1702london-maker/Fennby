@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card } from "@/components/Card";
 import { Button } from "@/components/Button";
+import { VoiceInputButton } from "@/components/VoiceInputButton";
 import { updateCase } from "@/features/safeguarding/actions";
 
 export function CaseUpdateForm({
@@ -47,11 +48,17 @@ export function CaseUpdateForm({
           </select>
         </div>
         <div>
-          <label className="block text-sm font-semibold mb-1">Actions taken</label>
+          <div className="flex items-center justify-between mb-1">
+            <label className="block text-sm font-semibold">Actions taken</label>
+            <VoiceInputButton onResult={(text) => setActionsTaken((a) => (a ? `${a} ${text}` : text))} />
+          </div>
           <textarea value={actionsTaken} onChange={(e) => setActionsTaken(e.target.value)} rows={3} className="w-full rounded-2xl border-2 border-teal-100 p-4 focus:border-teal-700 outline-none" />
         </div>
         <div>
-          <label className="block text-sm font-semibold mb-1">Outcome</label>
+          <div className="flex items-center justify-between mb-1">
+            <label className="block text-sm font-semibold">Outcome</label>
+            <VoiceInputButton onResult={(text) => setOutcome((o) => (o ? `${o} ${text}` : text))} />
+          </div>
           <textarea value={outcome} onChange={(e) => setOutcome(e.target.value)} rows={2} className="w-full rounded-2xl border-2 border-teal-100 p-4 focus:border-teal-700 outline-none" />
         </div>
         <Button type="submit" variant="primary" className="justify-center">Save update</Button>

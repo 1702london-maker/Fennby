@@ -31,7 +31,11 @@ export default async function ChildMessagesPage() {
           </p>
         </Card>
         {thread ? (
-          <ThreadClientWrapper threadId={thread.id} currentSenderId={session!.id} />
+          <ThreadClientWrapper
+            threadId={thread.id}
+            currentSenderId={session!.id}
+            symbolSupport={!!(learner.learning_preferences as { symbol_support?: boolean } | null)?.symbol_support}
+          />
         ) : (
           <EmptyState emoji="💬" title="No messages yet" description="When your tutor sends a message, you'll see it here." />
         )}
@@ -40,12 +44,21 @@ export default async function ChildMessagesPage() {
   );
 }
 
-async function ThreadClientWrapper({ threadId, currentSenderId }: { threadId: string; currentSenderId: string }) {
+async function ThreadClientWrapper({
+  threadId,
+  currentSenderId,
+  symbolSupport,
+}: {
+  threadId: string;
+  currentSenderId: string;
+  symbolSupport: boolean;
+}) {
   const messages = await getMessages(threadId);
   return (
     <ThreadClient
       threadId={threadId}
       currentSenderId={currentSenderId}
+      symbolSupport={symbolSupport}
       initialMessages={messages.map((m) => ({
         id: m.id,
         senderId: m.sender_id,

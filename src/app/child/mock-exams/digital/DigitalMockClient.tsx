@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card } from "@/components/Card";
@@ -14,17 +14,33 @@ interface ClientQuestion {
   options: string[];
 }
 
-export function DigitalMockClient({ assessmentId, questions }: { assessmentId: string; questions: ClientQuestion[] }) {
+export function DigitalMockClient({
+  assessmentId,
+  questions,
+  readAloudDefault = false,
+  chunkedContent = false,
+  lowStimulation = false,
+}: {
+  assessmentId: string;
+  questions: ClientQuestion[];
+  readAloudDefault?: boolean;
+  chunkedContent?: boolean;
+  lowStimulation?: boolean;
+}) {
   const router = useRouter();
   const [qIndex, setQIndex] = useState(0);
   const [answers, setAnswers] = useState<{ questionId: string; choiceIndex: number }[]>([]);
   const [error, setError] = useState<string | null>(null);
+  // Chunked content: reveal answer options one at a time instead of all at
+  // once, when a learner's preference asks for smaller pieces.
+  const [revealedOptions, setRevealedOptions] = useState(1);
 
   const answer = async (choiceIndex: number) => {
     const next = [...answers, { questionId: questions[qIndex].id, choiceIndex }];
     setAnswers(next);
     if (qIndex + 1 < questions.length) {
       setQIndex((i) => i + 1);
+      setRevealedOptions(1);
       return;
     }
     const result = await submitAssessmentAttempt({ assessmentId, mode: "practice", answers: next });
@@ -41,6 +57,19 @@ export function DigitalMockClient({ assessmentId, questions }: { assessmentId: s
 
   const q = questions[qIndex];
 
+  // Universal convenience for every learner whose profile requests it —
+  // not just triggered on click. Browsers require the tab to already have
+  // had some interaction before speech will play; that's a browser
+  // limitation, not something Fennby can bypass.
+  useEffect(() => {
+    if (!readAloudDefault || typeof window === "undefined" || !("speechSynthesis" in window)) return;
+    const utterance = new SpeechSynthesisUtterance(`${q.topic}. ${q.text}. Options: ${q.options.join(", ")}`);
+    utterance.lang = "en-GB";
+    window.speechSynthesis.speak(utterance);
+    return () => window.speechSynthesis.cancel();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [qIndex]);
+
   if (error) {
     return (
       <Card>
@@ -48,6 +77,36 @@ export function DigitalMockClient({ assessmentId, questions }: { assessmentId: s
       </Card>
     );
   }
+
+  const visibleOptions = chunkedContent ? q.options.slice(0, revealedOptions) : q.options;
+
+  const content = (
+    <Card>
+      <div className="flex items-start justify-between gap-4 mb-6">
+        <p className="font-display font-bold text-xl">{q.text}</p>
+        <ReadAloudButton text={`${q.topic}. ${q.text}. Options: ${q.options.join(", ")}`} label="Read aloud" />
+      </div>
+      <div className="grid gap-3">
+        {visibleOptions.map((opt, i) => (
+          <button
+            key={opt}
+            onClick={() => answer(i)}
+            className="text-left px-5 py-4 rounded-2xl bg-teal-100 hover:bg-teal-100/70 font-semibold min-h-[44px] transition-colors"
+          >
+            {opt}
+          </button>
+        ))}
+        {chunkedContent && revealedOptions < q.options.length && (
+          <button
+            onClick={() => setRevealedOptions((n) => n + 1)}
+            className="text-left px-5 py-3 rounded-2xl border-2 border-dashed border-teal-100 text-teal-900 font-semibold text-sm"
+          >
+            Show next option ({q.options.length - revealedOptions} more)
+          </button>
+        )}
+      </div>
+    </Card>
+  );
 
   return (
     <>
@@ -61,27 +120,15 @@ export function DigitalMockClient({ assessmentId, questions }: { assessmentId: s
       </div>
       <p className="text-sm text-charcoal-teal/70 mb-4">Question {qIndex + 1} of {questions.length}</p>
 
-      <AnimatePresence mode="wait">
-        <motion.div key={qIndex} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.25 }}>
-          <Card>
-            <div className="flex items-start justify-between gap-4 mb-6">
-              <p className="font-display font-bold text-xl">{q.text}</p>
-              <ReadAloudButton text={`${q.topic}. ${q.text}. Options: ${q.options.join(", ")}`} label="Read aloud" />
-            </div>
-            <div className="grid gap-3">
-              {q.options.map((opt, i) => (
-                <button
-                  key={opt}
-                  onClick={() => answer(i)}
-                  className="text-left px-5 py-4 rounded-2xl bg-teal-100 hover:bg-teal-100/70 font-semibold min-h-[44px] transition-colors"
-                >
-                  {opt}
-                </button>
-              ))}
-            </div>
-          </Card>
-        </motion.div>
-      </AnimatePresence>
+      {lowStimulation ? (
+        content
+      ) : (
+        <AnimatePresence mode="wait">
+          <motion.div key={qIndex} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.25 }}>
+            {content}
+          </motion.div>
+        </AnimatePresence>
+      )}
     </>
   );
 }

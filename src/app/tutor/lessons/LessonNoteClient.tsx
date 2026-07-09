@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Card } from "@/components/Card";
 import { Button } from "@/components/Button";
+import { VoiceInputButton } from "@/components/VoiceInputButton";
 import { submitLessonNote } from "@/features/tutors/actions";
 
 interface SessionOption {
@@ -84,7 +85,10 @@ export function LessonNoteClient({ sessions }: { sessions: SessionOption[] }) {
           <input value={form.learningObjective} onChange={(e) => setForm({ ...form, learningObjective: e.target.value })} className="w-full rounded-2xl border-2 border-teal-100 px-4 py-3 min-h-[44px] focus:border-teal-700 outline-none" />
         </div>
         <div>
-          <label className="block text-sm font-semibold mb-1">What was covered</label>
+          <div className="flex items-center justify-between mb-1">
+            <label className="block text-sm font-semibold">What was covered</label>
+            <VoiceInputButton onResult={(text) => setForm((f) => ({ ...f, covered: f.covered ? `${f.covered} ${text}` : text }))} />
+          </div>
           <textarea value={form.covered} onChange={(e) => setForm({ ...form, covered: e.target.value })} rows={3} className="w-full rounded-2xl border-2 border-teal-100 p-4 focus:border-teal-700 outline-none" />
         </div>
         <div className="grid sm:grid-cols-2 gap-4">
@@ -102,7 +106,10 @@ export function LessonNoteClient({ sessions }: { sessions: SessionOption[] }) {
           <input value={form.homeworkAssigned} onChange={(e) => setForm({ ...form, homeworkAssigned: e.target.value })} className="w-full rounded-2xl border-2 border-teal-100 px-4 py-3 min-h-[44px] focus:border-teal-700 outline-none" />
         </div>
         <div>
-          <label className="block text-sm font-semibold mb-1">Parent-facing summary</label>
+          <div className="flex items-center justify-between mb-1">
+            <label className="block text-sm font-semibold">Parent-facing summary</label>
+            <VoiceInputButton onResult={(text) => setForm((f) => ({ ...f, parentSummary: f.parentSummary ? `${f.parentSummary} ${text}` : text }))} />
+          </div>
           <textarea required value={form.parentSummary} onChange={(e) => setForm({ ...form, parentSummary: e.target.value })} rows={2} className="w-full rounded-2xl border-2 border-teal-100 p-4 focus:border-teal-700 outline-none" placeholder="Visible to the parent immediately." />
         </div>
         <label className="flex items-center gap-3 cursor-pointer">

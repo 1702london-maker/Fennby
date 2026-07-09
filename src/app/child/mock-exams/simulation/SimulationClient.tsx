@@ -19,10 +19,12 @@ export function SimulationClient({
   assessmentId,
   questions,
   extraTimePercent = 0,
+  lowStimulation = false,
 }: {
   assessmentId: string;
   questions: ClientQuestion[];
   extraTimePercent?: number;
+  lowStimulation?: boolean;
 }) {
   const router = useRouter();
   const totalSeconds = Math.round(BASE_SECONDS * (1 + extraTimePercent / 100));
@@ -98,24 +100,41 @@ export function SimulationClient({
           <span className="text-sm text-charcoal-teal/70">Question {qIndex + 1} of {questions.length}</span>
         </div>
 
-        <AnimatePresence mode="wait">
-          <motion.div key={qIndex} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <Card>
-              <p className="font-display font-bold text-xl mb-6">{q.text}</p>
-              <div className="grid gap-3">
-                {q.options.map((opt, i) => (
-                  <button
-                    key={opt}
-                    onClick={() => answer(i)}
-                    className="text-left px-5 py-4 rounded-2xl bg-teal-100 hover:bg-teal-100/70 font-semibold min-h-[44px] transition-colors"
-                  >
-                    {opt}
-                  </button>
-                ))}
-              </div>
-            </Card>
-          </motion.div>
-        </AnimatePresence>
+        {lowStimulation ? (
+          <Card>
+            <p className="font-display font-bold text-xl mb-6">{q.text}</p>
+            <div className="grid gap-3">
+              {q.options.map((opt, i) => (
+                <button
+                  key={opt}
+                  onClick={() => answer(i)}
+                  className="text-left px-5 py-4 rounded-2xl bg-teal-100 hover:bg-teal-100/70 font-semibold min-h-[44px] transition-colors"
+                >
+                  {opt}
+                </button>
+              ))}
+            </div>
+          </Card>
+        ) : (
+          <AnimatePresence mode="wait">
+            <motion.div key={qIndex} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+              <Card>
+                <p className="font-display font-bold text-xl mb-6">{q.text}</p>
+                <div className="grid gap-3">
+                  {q.options.map((opt, i) => (
+                    <button
+                      key={opt}
+                      onClick={() => answer(i)}
+                      className="text-left px-5 py-4 rounded-2xl bg-teal-100 hover:bg-teal-100/70 font-semibold min-h-[44px] transition-colors"
+                    >
+                      {opt}
+                    </button>
+                  ))}
+                </div>
+              </Card>
+            </motion.div>
+          </AnimatePresence>
+        )}
         <p className="text-xs text-charcoal-teal/50 mt-6 text-center">
           There&apos;s no pause in exam simulation mode — just like the real thing.
         </p>

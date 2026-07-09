@@ -7,6 +7,7 @@ import { Card } from "@/components/Card";
 import { Button } from "@/components/Button";
 import { signUp, login } from "@/features/auth/actions";
 import { createLearner } from "@/features/learners/actions";
+import { VoiceInputButton } from "@/components/VoiceInputButton";
 
 export default function RegisterParentPage() {
   const router = useRouter();
@@ -176,16 +177,25 @@ export default function RegisterParentPage() {
                 <input value={child.examBoard} onChange={(e) => setChild({ ...child, examBoard: e.target.value })} className="w-full rounded-2xl border-2 border-teal-100 px-4 py-3 min-h-[44px] focus:border-teal-700 outline-none" placeholder="GL Assessment" />
               </div>
               <div>
-                <label className="block text-sm font-semibold mb-1">Learning goals</label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-sm font-semibold">Learning goals</label>
+                  <VoiceInputButton onResult={(text) => setChild((c) => ({ ...c, learningGoals: c.learningGoals ? `${c.learningGoals} ${text}` : text }))} />
+                </div>
                 <textarea rows={2} value={child.learningGoals} onChange={(e) => setChild({ ...child, learningGoals: e.target.value })} className="w-full rounded-2xl border-2 border-teal-100 p-4 focus:border-teal-700 outline-none" />
               </div>
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold mb-1">SEND notes</label>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-sm font-semibold">SEND notes</label>
+                    <VoiceInputButton onResult={(text) => setChild((c) => ({ ...c, sendNotes: c.sendNotes ? `${c.sendNotes} ${text}` : text }))} />
+                  </div>
                   <textarea rows={2} value={child.sendNotes} onChange={(e) => setChild({ ...child, sendNotes: e.target.value })} className="w-full rounded-2xl border-2 border-teal-100 p-4 focus:border-teal-700 outline-none" />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold mb-1">Accessibility needs</label>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-sm font-semibold">Accessibility needs</label>
+                    <VoiceInputButton onResult={(text) => setChild((c) => ({ ...c, accessibilityNeeds: c.accessibilityNeeds ? `${c.accessibilityNeeds} ${text}` : text }))} />
+                  </div>
                   <textarea rows={2} value={child.accessibilityNeeds} onChange={(e) => setChild({ ...child, accessibilityNeeds: e.target.value })} className="w-full rounded-2xl border-2 border-teal-100 p-4 focus:border-teal-700 outline-none" />
                 </div>
               </div>

@@ -14,12 +14,13 @@ export default async function FullSimulation() {
     );
   }
 
-  const prefs = learner?.learning_preferences as { extra_time_percent?: number } | null;
+  const prefs = learner?.learning_preferences as { extra_time_percent?: number; low_stimulation_mode?: boolean } | null;
 
   return (
     <SimulationClient
       assessmentId={data.assessment.id}
       extraTimePercent={prefs?.extra_time_percent ?? 0}
+      lowStimulation={!!prefs?.low_stimulation_mode}
       questions={data.questions.map((q) => ({
         id: q.id,
         topic: q.topic_key ?? "General",
