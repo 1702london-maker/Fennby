@@ -15,17 +15,18 @@ export default function ForSchoolsPage() {
   return (
     <PageShell>
       <main className="max-w-5xl mx-auto px-6 py-16">
-        <h1 className="font-display font-bold text-4xl mb-4">For schools</h1>
+        <h1 className="font-display font-bold text-4xl mb-4">For education providers</h1>
         <p className="text-charcoal-teal/80 max-w-2xl mb-4">
           A genuine institutional reporting layer — not just a bolt-on tutoring widget. Fennby
-          gives your school a live view of pupil progress alongside evidence you can actually
+          gives your setting a live view of pupil progress alongside evidence you can actually
           use in statutory reporting.
         </p>
         <p className="text-charcoal-teal/80 max-w-2xl mb-10">
-          Built for the realities of school life: Pupil Premium strategy statements, SEND
-          progress tracking, homework that doesn&apos;t need re-typing into three different
-          systems, and safeguarding evidence a governor or Ofsted inspector could actually
-          follow.
+          Built for the realities of real settings — mainstream schools, alternative provision,
+          and EOTAS (Education Otherwise Than in School) settings alike: Pupil Premium strategy
+          statements, SEND progress tracking, homework that doesn&apos;t need re-typing into
+          three different systems, and safeguarding evidence a governor, local authority
+          officer, or Ofsted inspector could actually follow — whichever kind of setting you run.
         </p>
         <div className="grid sm:grid-cols-2 gap-4 mb-10">
           {features.map((f) => (

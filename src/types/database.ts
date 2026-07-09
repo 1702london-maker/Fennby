@@ -125,6 +125,77 @@ export type Database = {
           },
         ]
       }
+      ai_tutor_conversations: {
+        Row: {
+          ended_at: string | null
+          id: string
+          learner_id: string
+          started_at: string
+          subject_key: string | null
+        }
+        Insert: {
+          ended_at?: string | null
+          id?: string
+          learner_id: string
+          started_at?: string
+          subject_key?: string | null
+        }
+        Update: {
+          ended_at?: string | null
+          id?: string
+          learner_id?: string
+          started_at?: string
+          subject_key?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_tutor_conversations_learner_id_fkey"
+            columns: ["learner_id"]
+            isOneToOne: false
+            referencedRelation: "learners"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_tutor_conversations_subject_key_fkey"
+            columns: ["subject_key"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["key"]
+          },
+        ]
+      }
+      ai_tutor_messages: {
+        Row: {
+          content: string
+          conversation_id: string
+          created_at: string
+          id: string
+          role: string
+        }
+        Insert: {
+          content: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          role: string
+        }
+        Update: {
+          content?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_tutor_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "ai_tutor_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       assessment_attempts: {
         Row: {
           accommodations_used: Json | null
@@ -133,6 +204,8 @@ export type Database = {
           id: string
           learner_id: string
           mode: string
+          source_id: string | null
+          source_type: string | null
           started_at: string
         }
         Insert: {
@@ -142,6 +215,8 @@ export type Database = {
           id?: string
           learner_id: string
           mode: string
+          source_id?: string | null
+          source_type?: string | null
           started_at?: string
         }
         Update: {
@@ -151,6 +226,8 @@ export type Database = {
           id?: string
           learner_id?: string
           mode?: string
+          source_id?: string | null
+          source_type?: string | null
           started_at?: string
         }
         Relationships: [
@@ -258,6 +335,7 @@ export type Database = {
           duration_minutes: number | null
           exam_board: string | null
           id: string
+          level_key: string | null
           mode: string | null
           published: boolean
           subject_keys: string[]
@@ -269,6 +347,7 @@ export type Database = {
           duration_minutes?: number | null
           exam_board?: string | null
           id?: string
+          level_key?: string | null
           mode?: string | null
           published?: boolean
           subject_keys?: string[]
@@ -280,12 +359,21 @@ export type Database = {
           duration_minutes?: number | null
           exam_board?: string | null
           id?: string
+          level_key?: string | null
           mode?: string | null
           published?: boolean
           subject_keys?: string[]
           title?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "assessments_level_key_fkey"
+            columns: ["level_key"]
+            isOneToOne: false
+            referencedRelation: "education_levels"
+            referencedColumns: ["key"]
+          },
+        ]
       }
       attempt_answers: {
         Row: {
@@ -494,6 +582,123 @@ export type Database = {
         }
         Relationships: []
       }
+      cradle_participants: {
+        Row: {
+          anonymized_display_name: string | null
+          id: string
+          joined_at: string
+          profile_id: string
+          role_in_session: string
+          session_id: string
+        }
+        Insert: {
+          anonymized_display_name?: string | null
+          id?: string
+          joined_at?: string
+          profile_id: string
+          role_in_session?: string
+          session_id: string
+        }
+        Update: {
+          anonymized_display_name?: string | null
+          id?: string
+          joined_at?: string
+          profile_id?: string
+          role_in_session?: string
+          session_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cradle_participants_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cradle_participants_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "cradle_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cradle_sessions: {
+        Row: {
+          ended_at: string | null
+          host_id: string
+          id: string
+          lesson_session_id: string | null
+          peer_anonymity_enabled: boolean
+          recording_status: string
+          recording_url: string | null
+          session_type: string
+          started_at: string
+          video_provider: string
+          video_room_sid: string | null
+        }
+        Insert: {
+          ended_at?: string | null
+          host_id: string
+          id?: string
+          lesson_session_id?: string | null
+          peer_anonymity_enabled?: boolean
+          recording_status?: string
+          recording_url?: string | null
+          session_type?: string
+          started_at?: string
+          video_provider?: string
+          video_room_sid?: string | null
+        }
+        Update: {
+          ended_at?: string | null
+          host_id?: string
+          id?: string
+          lesson_session_id?: string | null
+          peer_anonymity_enabled?: boolean
+          recording_status?: string
+          recording_url?: string | null
+          session_type?: string
+          started_at?: string
+          video_provider?: string
+          video_room_sid?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cradle_sessions_host_id_fkey"
+            columns: ["host_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cradle_sessions_lesson_session_id_fkey"
+            columns: ["lesson_session_id"]
+            isOneToOne: false
+            referencedRelation: "lesson_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      education_levels: {
+        Row: {
+          key: string
+          name: string
+          sort_order: number
+        }
+        Insert: {
+          key: string
+          name: string
+          sort_order?: number
+        }
+        Update: {
+          key?: string
+          name?: string
+          sort_order?: number
+        }
+        Relationships: []
+      }
       guardian_permissions: {
         Row: {
           guardian_id: string
@@ -564,6 +769,38 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "homework_learner_id_fkey"
+            columns: ["learner_id"]
+            isOneToOne: false
+            referencedRelation: "learners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      homework_help_requests: {
+        Row: {
+          created_at: string
+          id: string
+          learner_id: string
+          status: string
+          storage_path: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          learner_id: string
+          status?: string
+          storage_path?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          learner_id?: string
+          status?: string
+          storage_path?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "homework_help_requests_learner_id_fkey"
             columns: ["learner_id"]
             isOneToOne: false
             referencedRelation: "learners"
@@ -898,18 +1135,28 @@ export type Database = {
       }
       message_threads: {
         Row: {
+          cradle_session_id: string | null
           id: string
           learner_id: string
         }
         Insert: {
+          cradle_session_id?: string | null
           id?: string
           learner_id: string
         }
         Update: {
+          cradle_session_id?: string | null
           id?: string
           learner_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "message_threads_cradle_session_id_fkey"
+            columns: ["cradle_session_id"]
+            isOneToOne: false
+            referencedRelation: "cradle_sessions"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "message_threads_learner_id_fkey"
             columns: ["learner_id"]
@@ -1356,14 +1603,17 @@ export type Database = {
       }
       subjects: {
         Row: {
+          category: string
           key: string
           name: string
         }
         Insert: {
+          category?: string
           key: string
           name: string
         }
         Update: {
+          category?: string
           key?: string
           name?: string
         }
@@ -1506,6 +1756,8 @@ export type Database = {
           created_at: string
           dbs_status: string | null
           exam_boards: string[]
+          examiner_boards_claimed: string[]
+          examiner_claim: string | null
           experience_years: number | null
           id: string
           profile_id: string
@@ -1523,6 +1775,8 @@ export type Database = {
           created_at?: string
           dbs_status?: string | null
           exam_boards?: string[]
+          examiner_boards_claimed?: string[]
+          examiner_claim?: string | null
           experience_years?: number | null
           id?: string
           profile_id: string
@@ -1540,6 +1794,8 @@ export type Database = {
           created_at?: string
           dbs_status?: string | null
           exam_boards?: string[]
+          examiner_boards_claimed?: string[]
+          examiner_claim?: string | null
           experience_years?: number | null
           id?: string
           profile_id?: string
@@ -1575,6 +1831,9 @@ export type Database = {
           bio: string | null
           dbs_status: string | null
           exam_boards: string[]
+          examiner_boards_verified: string[]
+          examiner_verified: boolean
+          examiner_verified_at: string | null
           experience_years: number | null
           id: string
           qualifications: string | null
@@ -1592,6 +1851,9 @@ export type Database = {
           bio?: string | null
           dbs_status?: string | null
           exam_boards?: string[]
+          examiner_boards_verified?: string[]
+          examiner_verified?: boolean
+          examiner_verified_at?: string | null
           experience_years?: number | null
           id: string
           qualifications?: string | null
@@ -1609,6 +1871,9 @@ export type Database = {
           bio?: string | null
           dbs_status?: string | null
           exam_boards?: string[]
+          examiner_boards_verified?: string[]
+          examiner_verified?: boolean
+          examiner_verified_at?: string | null
           experience_years?: number | null
           id?: string
           qualifications?: string | null
@@ -1694,6 +1959,107 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "tutor_profiles"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      workshop_reteach_log: {
+        Row: {
+          approach_used: string
+          created_at: string
+          id: string
+          learner_id: string
+          question_id: string | null
+          topic_key: string | null
+        }
+        Insert: {
+          approach_used: string
+          created_at?: string
+          id?: string
+          learner_id: string
+          question_id?: string | null
+          topic_key?: string | null
+        }
+        Update: {
+          approach_used?: string
+          created_at?: string
+          id?: string
+          learner_id?: string
+          question_id?: string | null
+          topic_key?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workshop_reteach_log_learner_id_fkey"
+            columns: ["learner_id"]
+            isOneToOne: false
+            referencedRelation: "learners"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workshop_reteach_log_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "questions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workshop_reteach_log_topic_key_fkey"
+            columns: ["topic_key"]
+            isOneToOne: false
+            referencedRelation: "topics"
+            referencedColumns: ["key"]
+          },
+        ]
+      }
+      workshop_sessions: {
+        Row: {
+          ended_at: string | null
+          id: string
+          learner_id: string
+          minutes_spent: number | null
+          started_at: string
+          subject_key: string | null
+          topic_key: string | null
+        }
+        Insert: {
+          ended_at?: string | null
+          id?: string
+          learner_id: string
+          minutes_spent?: number | null
+          started_at?: string
+          subject_key?: string | null
+          topic_key?: string | null
+        }
+        Update: {
+          ended_at?: string | null
+          id?: string
+          learner_id?: string
+          minutes_spent?: number | null
+          started_at?: string
+          subject_key?: string | null
+          topic_key?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workshop_sessions_learner_id_fkey"
+            columns: ["learner_id"]
+            isOneToOne: false
+            referencedRelation: "learners"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workshop_sessions_subject_key_fkey"
+            columns: ["subject_key"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["key"]
+          },
+          {
+            foreignKeyName: "workshop_sessions_topic_key_fkey"
+            columns: ["topic_key"]
+            isOneToOne: false
+            referencedRelation: "topics"
+            referencedColumns: ["key"]
           },
         ]
       }

@@ -19,17 +19,18 @@ export const publicNavDropdowns: NavDropdown[] = [
       { href: "/parent", label: "Parent Dashboard" },
       { href: "/vocational", label: "Vocational & Craft Track" },
       { href: "/summer-camps", label: "Summer Camps" },
+      { href: "/home-ed-eotas", label: "Home Ed & EOTAS" },
       { href: "/send-accessibility", label: "SEND & Accessibility" },
       { href: "/#how-it-works", label: "How it works" },
     ],
   },
   {
-    label: "For Schools",
+    label: "For Education Providers",
     items: [
-      { href: "/for-schools", label: "For Schools" },
-      { href: "/school", label: "School Dashboard" },
+      { href: "/for-schools", label: "For Education Providers" },
+      { href: "/school", label: "School Dashboard Overview" },
       { href: "/school/reports", label: "Pupil Premium Impact Reports" },
-      { href: "/school/network", label: "Inter-School Network" },
+      { href: "/school/network", label: "Inter-School Network & Competitions" },
       { href: "/school/demo", label: "Book a Demo" },
     ],
   },
@@ -46,6 +47,7 @@ export const publicNavDropdowns: NavDropdown[] = [
 
 export const publicTopLinks: NavLink[] = [
   { href: "/trust", label: "Trust & Safeguarding" },
+  { href: "/for-local-authorities", label: "For Local Authorities" },
   { href: "/pricing", label: "Pricing" },
 ];
 
@@ -142,4 +144,6 @@ export const publicPathPrefixes = [
   "/contact",
   "/legal",
   "/send-accessibility",
+  "/home-ed-eotas",
+  "/for-local-authorities",
 ];
