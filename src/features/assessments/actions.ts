@@ -6,11 +6,16 @@ import { createClient } from "@/lib/supabase/server";
 import type { ActionResult } from "@/lib/action-result";
 
 const submitAssessmentSchema = z.object({
-  assessmentId: z.string().uuid(),
+  assessmentId: z.string().uuid().optional(),
   mode: z.enum(["practice", "timed", "simulation", "print_shade"]),
   answers: z.array(z.object({ questionId: z.string().uuid(), choiceIndex: z.number().int() })),
+  // Part 3 — The Wrap-Up: lets the same scoring/results pipeline serve
+  // quick end-of-session checks from The Cradle, The Workshop, and the AI
+  // Tutor, not just pre-built mock exams.
+  sourceType: z.enum(["mock", "wrap_up_cradle", "wrap_up_workshop", "wrap_up_ai_tutor"]).optional(),
+  sourceId: z.string().uuid().optional(),
 });
-export type SubmitAssessmentInput = z.infer<typeof submitAssessmentSchema>;
+export type SubmitAssessmentInput = z.input<typeof submitAssessmentSchema>;
 
 async function getOwnLearnerId(profileId: string, supabase: Awaited<ReturnType<typeof createClient>>) {
   const { data } = await supabase.from("learners").select("id").eq("auth_id", profileId).maybeSingle();
@@ -51,28 +56,36 @@ export const submitAssessmentAttempt = withRole(
           }
         : null;
 
-    // Product rule: a brain warm-up must have been completed recently before a mock starts.
-    const { data: recentWarmup } = await supabase
-      .from("brain_warmups")
-      .select("id")
-      .eq("learner_id", learnerId)
-      .not("completed_at", "is", null)
-      .gte("completed_at", new Date(Date.now() - 1000 * 60 * 60).toISOString())
-      .limit(1)
-      .maybeSingle();
+    const sourceType = parsed.data.sourceType ?? "mock";
 
-    if (!recentWarmup) {
-      return { ok: false, error: "warmup_required" };
+    // The brain warm-up gate only applies to actual mock exams — a Wrap-Up
+    // closing out a Cradle session, Workshop practice, or AI Tutor chat
+    // isn't a fresh mock attempt, so it shouldn't be blocked by it.
+    if (sourceType === "mock") {
+      const { data: recentWarmup } = await supabase
+        .from("brain_warmups")
+        .select("id")
+        .eq("learner_id", learnerId)
+        .not("completed_at", "is", null)
+        .gte("completed_at", new Date(Date.now() - 1000 * 60 * 60).toISOString())
+        .limit(1)
+        .maybeSingle();
+
+      if (!recentWarmup) {
+        return { ok: false, error: "warmup_required" };
+      }
     }
 
     const { data: attempt, error: attemptError } = await supabase
       .from("assessment_attempts")
       .insert({
-        assessment_id: parsed.data.assessmentId,
+        assessment_id: parsed.data.assessmentId ?? null,
         learner_id: learnerId,
         mode: parsed.data.mode,
         completed_at: new Date().toISOString(),
         accommodations_used: accommodationsUsed,
+        source_type: sourceType,
+        source_id: parsed.data.sourceId ?? null,
       })
       .select("id")
       .single();

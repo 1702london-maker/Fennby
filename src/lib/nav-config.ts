@@ -56,6 +56,8 @@ export const roleNav: Record<Role, NavLink[]> = {
     { href: "/child/today", label: "Today" },
     { href: "/child/practice", label: "Practice" },
     { href: "/child/mock-exams", label: "Mock Exams" },
+    { href: "/child/workshop", label: "The Workshop" },
+    { href: "/child/ai-tutor", label: "AI Tutor" },
     { href: "/child/games", label: "Games" },
     { href: "/child/badges", label: "Badges" },
     { href: "/child/messages", label: "Messages" },

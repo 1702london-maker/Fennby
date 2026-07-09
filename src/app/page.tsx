@@ -52,6 +52,10 @@ export default function Home() {
               you can see happening — built so every message, every score, and every session
               is visible to you, always.
             </p>
+            <p className="mt-4 text-sm text-charcoal-teal/60 max-w-lg">
+              11+ is our anchor, not our ceiling — Maths, English, the sciences, and French,
+              Spanish &amp; German, from Key Stage 1 through A-Level.
+            </p>
             <div className="mt-8 flex flex-wrap gap-4">
               <Button href="/register/parent" variant="primary">I&apos;m a parent</Button>
               <Button href="/apply-tutor" variant="outline">I&apos;m a tutor</Button>

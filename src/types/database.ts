@@ -199,7 +199,7 @@ export type Database = {
       assessment_attempts: {
         Row: {
           accommodations_used: Json | null
-          assessment_id: string
+          assessment_id: string | null
           completed_at: string | null
           id: string
           learner_id: string
@@ -210,7 +210,7 @@ export type Database = {
         }
         Insert: {
           accommodations_used?: Json | null
-          assessment_id: string
+          assessment_id?: string | null
           completed_at?: string | null
           id?: string
           learner_id: string
@@ -221,7 +221,7 @@ export type Database = {
         }
         Update: {
           accommodations_used?: Json | null
-          assessment_id?: string
+          assessment_id?: string | null
           completed_at?: string | null
           id?: string
           learner_id?: string

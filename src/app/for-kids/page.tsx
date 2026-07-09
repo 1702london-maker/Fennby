@@ -9,7 +9,9 @@ export default function ForKidsPage() {
         <h1 className="font-display font-bold text-4xl mb-4">Hey! This bit&apos;s for you.</h1>
         <p className="text-charcoal-teal/80 leading-relaxed mb-8 max-w-xl mx-auto">
           Fennby has brain warm-ups, mock exams that feel like mini-games, cool badges to earn,
-          and a craft club where you make real things with your hands. Ready to see it?
+          and a craft club where you make real things with your hands. Whether you&apos;re
+          working on 11+, GCSEs, A-Levels, or learning French, Spanish, or German — there&apos;s
+          a version of Fennby built for your age and stage. Ready to see it?
         </p>
         <Card tint="coral" className="mb-8">
           <p className="font-display font-bold text-lg">Your grown-up can always see what you&apos;re up to — that&apos;s the deal that keeps everyone happy and safe.</p>

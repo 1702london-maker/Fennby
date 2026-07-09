@@ -15,6 +15,7 @@ import {
   getRevisionItems,
   getLearnerAchievements,
 } from "@/features/parent/queries";
+import { getWorkshopSummaryForLearner } from "@/features/parent/workshopQueries";
 
 const dbMoodToIcon = {
   happy: "great",
@@ -52,13 +53,14 @@ export default async function ParentDashboard({
 
   const child = learners.find((l) => l.id === childId) ?? learners[0];
 
-  const [latestResult, moodTrend, sessions, messages, revisionItems, achievements] = await Promise.all([
+  const [latestResult, moodTrend, sessions, messages, revisionItems, achievements, workshop] = await Promise.all([
     getLatestResult(child.id),
     getMoodTrend(child.id),
     getUpcomingSessions(child.id),
     getRecentMessages(child.id),
     getRevisionItems(child.id),
     getLearnerAchievements(child.id),
+    getWorkshopSummaryForLearner(child.id),
   ]);
 
   return (
@@ -238,6 +240,30 @@ export default async function ParentDashboard({
               </div>
             ) : (
               <p className="text-sm text-charcoal-teal/70">No achievements earned yet — keep going!</p>
+            )}
+          </Card>
+        </section>
+
+        <section className="mt-10">
+          <Card>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-display font-bold text-lg">The Workshop</h2>
+              <span className="text-sm text-charcoal-teal/70">{workshop.totalMinutes} minutes recently</span>
+            </div>
+            {workshop.sessions.length ? (
+              <div className="space-y-2 text-sm">
+                {workshop.sessions.map((s) => (
+                  <div key={s.id} className="flex justify-between items-center">
+                    <span className="font-semibold">{s.topic_key ?? s.subject_key ?? "General practice"}</span>
+                    <span className="text-charcoal-teal/70">
+                      {s.minutes_spent ? `${s.minutes_spent} min` : "In progress"} ·{" "}
+                      {new Date(s.started_at).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-charcoal-teal/70">No self-study sessions yet — this shows up here the moment {child.preferred_name} uses The Workshop.</p>
             )}
           </Card>
         </section>

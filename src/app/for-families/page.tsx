@@ -8,6 +8,7 @@ const features = [
   { title: "Parent dashboard", body: "Real-time visibility into every score, message, and session.", href: "/parent" },
   { title: "Vocational & craft track", body: "Bag making, shoemaking, and sewing — supervised, structured mastery.", href: "/vocational" },
   { title: "Summer camps", body: "A summer that builds confidence, not just fills time.", href: "/summer-camps" },
+  { title: "Home Ed & EOTAS", body: "A full curriculum-aligned education, without requiring school enrolment.", href: "/home-ed-eotas" },
 ];
 
 export default function ForFamiliesPage() {
@@ -15,8 +16,13 @@ export default function ForFamiliesPage() {
     <PageShell>
       <main className="max-w-5xl mx-auto px-6 py-16">
         <h1 className="font-display font-bold text-4xl mb-4">For families</h1>
-        <p className="text-charcoal-teal/80 max-w-2xl mb-10">
+        <p className="text-charcoal-teal/80 max-w-2xl mb-4">
           Everything your child needs to prepare — and everything you need to see it happening.
+        </p>
+        <p className="text-charcoal-teal/80 max-w-2xl mb-10">
+          11+ is where Fennby started, and it&apos;s still our anchor — but it&apos;s not the
+          whole picture. Maths, English, the sciences, and French, Spanish, and German are all
+          here too, spanning Key Stage 1 right through to A-Level.
         </p>
         <div className="grid sm:grid-cols-2 gap-4 mb-10">
           {features.map((f) => (

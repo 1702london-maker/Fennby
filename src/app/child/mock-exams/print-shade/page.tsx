@@ -2,24 +2,16 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
 import { PageShell } from "@/components/PageShell";
 import { Card } from "@/components/Card";
 import { Button } from "@/components/Button";
+import { PhotoUploadFlow } from "@/components/PhotoUploadFlow";
 
-type Step = "download" | "upload" | "processing";
+type Step = "download" | "upload";
 
 export default function PrintShadeFlow() {
   const router = useRouter();
   const [step, setStep] = useState<Step>("download");
-  const [dragOver, setDragOver] = useState(false);
-
-  const startProcessing = () => {
-    setStep("processing");
-    setTimeout(() => {
-      router.push("/child/mock-exams/results?mode=print-shade&score=74");
-    }, 2200);
-  };
 
   return (
     <PageShell>
@@ -43,49 +35,17 @@ export default function PrintShadeFlow() {
         )}
 
         {step === "upload" && (
-          <Card className="text-center py-12">
-            <p className="text-5xl mb-4">📤</p>
-            <p className="font-display font-bold text-xl mb-2">Step 2: Upload your completed paper</p>
-            <p className="text-charcoal-teal/70 mb-6 max-w-sm mx-auto">
-              Ask a grown-up to help you take a clear photo, or drag a file in below.
-            </p>
-            <div
-              onDragOver={(e) => {
-                e.preventDefault();
-                setDragOver(true);
-              }}
-              onDragLeave={() => setDragOver(false)}
-              onDrop={(e) => {
-                e.preventDefault();
-                setDragOver(false);
-                startProcessing();
-              }}
-              className={`rounded-2xl border-2 border-dashed p-10 mb-6 transition-colors ${
-                dragOver ? "border-teal-700 bg-teal-100" : "border-teal-100"
-              }`}
-            >
-              <p className="text-charcoal-teal/70 text-sm">Drag and drop your photo here</p>
-            </div>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Button variant="outline" onClick={startProcessing}>📁 Choose a file</Button>
-              <Button variant="secondary" onClick={startProcessing}>📷 Use camera</Button>
-            </div>
-          </Card>
-        )}
-
-        {step === "processing" && (
-          <Card className="text-center py-16">
-            <motion.p
-              className="text-5xl mb-4"
-              animate={{ rotate: [0, 12, -12, 0] }}
-              transition={{ repeat: Infinity, duration: 1.3 }}
-              aria-hidden
-            >
-              🔍
-            </motion.p>
-            <p className="font-display font-bold text-xl">Reading your answers...</p>
-            <p className="text-charcoal-teal/70 mt-1">Hang tight, this only takes a moment.</p>
-          </Card>
+          <PhotoUploadFlow
+            uploadTitle="Step 2: Upload your completed paper"
+            uploadBody="Ask a grown-up to help you take a clear photo, or drag a file in below."
+            processingTitle="Reading your answers..."
+            processingBody="Hang tight, this only takes a moment."
+            onComplete={() => {
+              setTimeout(() => {
+                router.push("/child/mock-exams/results?mode=print-shade&score=74");
+              }, 2200);
+            }}
+          />
         )}
       </main>
     </PageShell>
