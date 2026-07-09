@@ -16,6 +16,7 @@ import {
   getLearnerAchievements,
 } from "@/features/parent/queries";
 import { getWorkshopSummaryForLearner } from "@/features/parent/workshopQueries";
+import { getAiTutorHistoryForLearner } from "@/features/ai-tutor/queries";
 
 const dbMoodToIcon = {
   happy: "great",
@@ -53,7 +54,7 @@ export default async function ParentDashboard({
 
   const child = learners.find((l) => l.id === childId) ?? learners[0];
 
-  const [latestResult, moodTrend, sessions, messages, revisionItems, achievements, workshop] = await Promise.all([
+  const [latestResult, moodTrend, sessions, messages, revisionItems, achievements, workshop, aiTutorHistory] = await Promise.all([
     getLatestResult(child.id),
     getMoodTrend(child.id),
     getUpcomingSessions(child.id),
@@ -61,6 +62,7 @@ export default async function ParentDashboard({
     getRevisionItems(child.id),
     getLearnerAchievements(child.id),
     getWorkshopSummaryForLearner(child.id),
+    getAiTutorHistoryForLearner(child.id),
   ]);
 
   return (
@@ -264,6 +266,34 @@ export default async function ParentDashboard({
               </div>
             ) : (
               <p className="text-sm text-charcoal-teal/70">No self-study sessions yet — this shows up here the moment {child.preferred_name} uses The Workshop.</p>
+            )}
+          </Card>
+        </section>
+
+        <section className="mt-6">
+          <Card>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-display font-bold text-lg">AI Tutor conversations</h2>
+              <span className="text-xs font-semibold text-charcoal-teal/60">Supplementary practice tool, not a replacement for a real tutor</span>
+            </div>
+            {aiTutorHistory.length ? (
+              <div className="space-y-3">
+                {aiTutorHistory.map((c) => (
+                  <div key={c.id} className="text-sm border-b border-teal-100 pb-2 last:border-0">
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="font-semibold">{c.subject_key ?? "General"}</span>
+                      <span className="text-charcoal-teal/60 text-xs">
+                        {new Date(c.started_at).toLocaleDateString("en-GB", { day: "numeric", month: "short" })} · {c.ai_tutor_messages?.length ?? 0} messages
+                      </span>
+                    </div>
+                    {c.ai_tutor_messages?.[0] && (
+                      <p className="text-charcoal-teal/70 truncate">{c.ai_tutor_messages[0].content}</p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-charcoal-teal/70">No AI Tutor conversations yet.</p>
             )}
           </Card>
         </section>
