@@ -3,12 +3,20 @@
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/Button";
-import { setTutorApplicationStatus } from "@/features/admin/actions";
+import { setTutorApplicationStatus, verifyExaminerHistory } from "@/features/admin/actions";
 import type { Database } from "@/types/database";
 
 type TutorStatus = Database["public"]["Enums"]["tutor_status"];
 
-export function TutorActions({ applicationId }: { applicationId: string }) {
+export function TutorActions({
+  applicationId,
+  tutorProfileId,
+  examinerClaim,
+}: {
+  applicationId: string;
+  tutorProfileId?: string;
+  examinerClaim?: string;
+}) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
 
@@ -18,6 +26,27 @@ export function TutorActions({ applicationId }: { applicationId: string }) {
       router.refresh();
     });
   };
+
+  const verify = () => {
+    if (!tutorProfileId || !examinerClaim) return;
+    startTransition(async () => {
+      // The claim text isn't structured board-by-board — an admin reads
+      // it and confirms verification here rather than us guessing which
+      // boards to mark verified from free text.
+      await verifyExaminerHistory(tutorProfileId, [examinerClaim]);
+      router.refresh();
+    });
+  };
+
+  if (tutorProfileId && examinerClaim) {
+    return (
+      <div className="flex gap-2 mt-4">
+        <Button variant="primary" className="px-4 py-2 text-sm" disabled={pending} onClick={verify}>
+          Verify examiner history
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="flex gap-2 mt-4">

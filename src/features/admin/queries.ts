@@ -35,7 +35,7 @@ export async function getAllTutorApplications() {
   const supabase = await createClient();
   const { data } = await supabase
     .from("tutor_applications")
-    .select("*, profiles!tutor_applications_profile_id_fkey(full_name, email)")
+    .select("*, profiles!tutor_applications_profile_id_fkey(full_name, email), tutor_profiles(examiner_verified)")
     .order("created_at", { ascending: false });
   return data ?? [];
 }

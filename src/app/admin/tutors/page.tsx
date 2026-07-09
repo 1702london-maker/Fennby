@@ -47,7 +47,20 @@ export default async function AdminTutorsPage() {
                     <p className="font-semibold">{t.subjects?.length ?? 0}</p>
                   </div>
                 </div>
+                {t.examiner_claim && (
+                  <p className="text-xs text-plum-700 bg-plum-700/10 inline-block px-3 py-1 rounded-full mt-3">
+                    Claims examiner history (unverified): {t.examiner_claim}
+                  </p>
+                )}
                 {t.status !== "approved" && t.status !== "rejected" && <TutorActions applicationId={t.id} />}
+                {t.status === "approved" && t.examiner_claim && !t.tutor_profiles?.[0]?.examiner_verified && (
+                  <TutorActions applicationId={t.id} tutorProfileId={t.profile_id} examinerClaim={t.examiner_claim} />
+                )}
+                {t.tutor_profiles?.[0]?.examiner_verified && (
+                  <p className="text-xs font-bold text-sage-600 bg-sage-600/15 inline-block px-3 py-1 rounded-full mt-3">
+                    ✓ Verified examiner history
+                  </p>
+                )}
               </Card>
             ))}
           </div>

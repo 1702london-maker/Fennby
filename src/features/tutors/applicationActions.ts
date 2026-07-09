@@ -14,6 +14,7 @@ const submitApplicationSchema = z.object({
   subjects: z.string().min(1, "List at least one subject"),
   dbsReference: z.string().min(1, "Enter your DBS certificate or reference number"),
   sendExperience: z.array(z.string()).default([]),
+  examinerClaim: z.string().optional(),
 });
 export type SubmitTutorApplicationInput = z.infer<typeof submitApplicationSchema>;
 
@@ -45,6 +46,7 @@ export const submitTutorApplication = withRole(
         experience_years: parsed.data.experienceYears,
         qualifications: `DBS reference: ${parsed.data.dbsReference}`,
         send_experience: parsed.data.sendExperience,
+        examiner_claim: parsed.data.examinerClaim ?? null,
         status: "under_review",
       })
       .select("id")

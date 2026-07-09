@@ -13,7 +13,7 @@ const sendOptions = ["Dyslexia", "Autism", "ADHD", "Speech and language needs"];
 export default function ApplyTutorPage() {
   const router = useRouter();
   const [account, setAccount] = useState({ fullName: "", email: "", password: "" });
-  const [form, setForm] = useState({ experienceYears: "", subjects: "", dbsReference: "" });
+  const [form, setForm] = useState({ experienceYears: "", subjects: "", dbsReference: "", examinerClaim: "" });
   const [sendExperience, setSendExperience] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -53,6 +53,7 @@ export default function ApplyTutorPage() {
       subjects: form.subjects,
       dbsReference: form.dbsReference,
       sendExperience,
+      examinerClaim: form.examinerClaim || undefined,
     });
     setLoading(false);
     if (!appResult.ok) {
@@ -154,6 +155,19 @@ export default function ApplyTutorPage() {
               </div>
               <p className="text-xs text-charcoal-teal/60 mt-2">
                 Verified where possible during vetting, alongside your DBS and reference checks.
+              </p>
+            </div>
+            <div>
+              <label htmlFor="examiner-claim" className="block text-sm font-semibold mb-1">Exam board examiner or marker experience (optional)</label>
+              <input
+                id="examiner-claim"
+                value={form.examinerClaim}
+                onChange={(e) => setForm({ ...form, examinerClaim: e.target.value })}
+                className="w-full rounded-2xl border-2 border-teal-100 px-4 py-3 min-h-[44px] focus:border-teal-700 outline-none"
+                placeholder="e.g. AQA GCSE Maths marker, 2021-2024"
+              />
+              <p className="text-xs text-charcoal-teal/60 mt-1">
+                We&apos;ll verify this during vetting. Until verified, it&apos;s shown to families as an unverified claim, never with the same weight as confirmed history.
               </p>
             </div>
             <div>

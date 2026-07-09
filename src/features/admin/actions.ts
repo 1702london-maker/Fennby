@@ -32,6 +32,7 @@ export const setTutorApplicationStatus = withRole(
           qualifications: application.qualifications,
           exam_boards: application.exam_boards,
           dbs_status: application.dbs_status,
+          send_experience: application.send_experience,
           status: "approved",
         },
         { onConflict: "id" }
@@ -49,6 +50,35 @@ export const setTutorApplicationStatus = withRole(
     } else {
       await supabase.from("tutor_profiles").update({ status }).eq("id", application.profile_id);
     }
+
+    return { ok: true, data: null };
+  }
+);
+
+// Part 7: verified examiner history is a distinct, deliberate admin action,
+// separate from general approval, so a tutor's own claim never gets shown
+// with verified weight just because their application was approved.
+export const verifyExaminerHistory = withRole(
+  ["admin"],
+  async (session, tutorProfileId: string, boards: string[]): Promise<ActionResult> => {
+    const supabase = await createClient();
+    const { error } = await supabase
+      .from("tutor_profiles")
+      .update({
+        examiner_verified: true,
+        examiner_boards_verified: boards,
+        examiner_verified_at: new Date().toISOString(),
+      })
+      .eq("id", tutorProfileId);
+    if (error) return { ok: false, error: error.message };
+
+    await supabase.from("audit_logs").insert({
+      actor_id: session.id,
+      action: "examiner_history_verified",
+      entity: "tutor_profiles",
+      entity_id: tutorProfileId,
+      diff: { boards },
+    });
 
     return { ok: true, data: null };
   }

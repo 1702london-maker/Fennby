@@ -44,6 +44,11 @@ export default async function BrowseTutorsPage() {
                           SEND-experienced: {t.send_experience.join(", ")}
                         </span>
                       )}
+                      {t.examiner_verified && t.examiner_boards_verified?.length > 0 && (
+                        <span className="bg-sage-600/15 text-sage-600 text-xs font-bold px-2 py-0.5 rounded-full">
+                          ✓ Verified examiner: {t.examiner_boards_verified.join(", ")}
+                        </span>
+                      )}
                     </div>
                     <p className="text-sm text-charcoal-teal/70">{t.subjects?.join(" · ") || "No subjects listed"}</p>
                     {t.bio && <p className="text-sm text-charcoal-teal/80 mt-2 max-w-md">{t.bio}</p>}
