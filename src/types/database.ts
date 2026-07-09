@@ -1137,17 +1137,17 @@ export type Database = {
         Row: {
           cradle_session_id: string | null
           id: string
-          learner_id: string
+          learner_id: string | null
         }
         Insert: {
           cradle_session_id?: string | null
           id?: string
-          learner_id: string
+          learner_id?: string | null
         }
         Update: {
           cradle_session_id?: string | null
           id?: string
-          learner_id?: string
+          learner_id?: string | null
         }
         Relationships: [
           {
