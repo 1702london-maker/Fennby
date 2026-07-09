@@ -19,6 +19,7 @@ export const publicNavDropdowns: NavDropdown[] = [
       { href: "/parent", label: "Parent Dashboard" },
       { href: "/vocational", label: "Vocational & Craft Track" },
       { href: "/summer-camps", label: "Summer Camps" },
+      { href: "/send-accessibility", label: "SEND & Accessibility" },
       { href: "/#how-it-works", label: "How it works" },
     ],
   },
@@ -135,4 +136,10 @@ export const publicPathPrefixes = [
   "/register",
   "/login",
   "/book-demo",
+  "/about",
+  "/careers",
+  "/blog",
+  "/contact",
+  "/legal",
+  "/send-accessibility",
 ];
