@@ -46,7 +46,7 @@ export default async function TutorDashboard() {
         <p className="text-charcoal-teal/70">Welcome back</p>
         <h1 className="font-display font-bold text-3xl mb-8">Your workspace</h1>
 
-        <section className="grid sm:grid-cols-3 gap-4 mb-10">
+        <section className="grid sm:grid-cols-3 gap-4 mb-4">
           <Card tint="teal">
             <p className="text-sm font-semibold text-charcoal-teal/70">Students</p>
             <p className="font-display font-bold text-3xl mt-1">{students.length}</p>
@@ -60,6 +60,13 @@ export default async function TutorDashboard() {
             <p className="font-display font-bold text-3xl mt-1">{notes.length}</p>
           </Card>
         </section>
+
+        <Card tint="coral" className="mb-10">
+          <p className="text-xs font-bold text-brick-600 mb-1">BOUNDARY REMINDER</p>
+          <p className="text-sm text-charcoal-teal/80">
+            Child messages stay visible to the parent. No off-platform contact — every session note, every message, always logged here.
+          </p>
+        </Card>
 
         <section className="mb-10">
           <div className="flex items-center justify-between mb-4">

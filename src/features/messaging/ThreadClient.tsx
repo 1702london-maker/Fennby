@@ -40,6 +40,10 @@ export function ThreadClient({
 
   return (
     <>
+      <div className="flex items-center gap-2 mb-3 text-xs font-bold text-coral-600 bg-coral-100 rounded-full px-4 py-2 w-fit">
+        <span>🛡️</span>
+        <span>Safeguarding status: parent-visible · no private child thread</span>
+      </div>
       <Card className="flex flex-col gap-4 max-h-[55vh] overflow-y-auto">
         {initialMessages.length ? (
           initialMessages.map((m) => (
