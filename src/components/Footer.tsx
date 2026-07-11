@@ -91,8 +91,12 @@ export function Footer() {
           </div>
         ))}
       </div>
-      <div className="border-t border-teal-900/10">
-        <div className="max-w-7xl mx-auto px-6 py-5 flex flex-wrap items-center justify-between gap-3 text-sm text-charcoal-teal/70">
+      {/* The floating QuickNav bar is fixed to the viewport, so at the very
+          bottom of a page it would otherwise sit on top of this row —
+          pb-24/pb-20 gives the page enough extra height to scroll this row
+          fully clear of the bar instead of leaving it permanently covered. */}
+      <div className="border-t border-teal-900/10 pb-24 sm:pb-20">
+        <div className="max-w-7xl mx-auto px-6 pt-5 flex flex-wrap items-center justify-between gap-3 text-sm text-charcoal-teal/70">
           <span>&copy; {2026} Fennby. All rights reserved.</span>
           <div className="flex gap-5">
             <Link href="/legal/terms" className="hover:underline min-h-[36px] flex items-center">Terms</Link>
