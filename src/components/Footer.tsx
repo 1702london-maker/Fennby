@@ -57,12 +57,12 @@ const socials = [
 export function Footer() {
   return (
     <footer className="bg-teal-100 mt-20">
-      <div className="max-w-7xl mx-auto px-6 py-14 grid grid-cols-2 lg:grid-cols-5 gap-x-6 gap-y-10">
-        {/* row-span-4 on mobile keeps the logo as its own left-hand column
-            for the full height of the four link groups, which then stack
-            in a single flowing right-hand column beside it, instead of
-            splitting unevenly across two columns. */}
-        <div className="row-span-4 lg:row-span-1">
+      <div className="max-w-7xl mx-auto px-6 py-14 grid grid-cols-3 lg:grid-cols-5 gap-x-6 gap-y-10">
+        {/* 3 columns on mobile: logo is its own column spanning both rows,
+            then the four link groups auto-fill the remaining two columns
+            two-deep each (For Families/For Schools stacked in one column,
+            Trust & Safety/Company stacked in the other). */}
+        <div className="row-span-2 lg:row-span-1">
           <Image src="/brand/fennby-logo-stacked.svg" alt="Fennby" width={80} height={88} />
           <p className="text-sm text-charcoal-teal/80 mt-4 max-w-[180px]">
             The only tutoring platform where nothing about your child is hidden from you.
