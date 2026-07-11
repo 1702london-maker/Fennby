@@ -42,7 +42,7 @@ export default function Home() {
     <PageShell>
       <main>
         {/* Hero */}
-        <section className="max-w-6xl mx-auto px-6 pt-16 pb-20 grid md:grid-cols-2 gap-12 items-center">
+        <section className="max-w-7xl mx-auto px-6 pt-16 pb-20 grid md:grid-cols-2 gap-12 items-center">
           <div>
             <h1 className="font-display font-bold text-4xl sm:text-5xl leading-tight text-charcoal-teal text-balance">
               The only tutoring platform where nothing about your child is hidden from you.
@@ -83,7 +83,7 @@ export default function Home() {
         </section>
 
         {/* Pillars */}
-        <section id="how-it-works" className="max-w-6xl mx-auto px-6 py-16">
+        <section id="how-it-works" className="max-w-7xl mx-auto px-6 py-16">
           <h2 className="font-display font-bold text-3xl text-center mb-12">
             One ecosystem, six commitments
           </h2>
@@ -101,7 +101,7 @@ export default function Home() {
         </section>
 
         {/* Mock exams detail */}
-        <section className="max-w-6xl mx-auto px-6 py-16 grid md:grid-cols-2 gap-10 items-center">
+        <section className="max-w-7xl mx-auto px-6 py-16 grid md:grid-cols-2 gap-10 items-center">
           <div>
             <span className="inline-block bg-teal-100 text-teal-900 text-xs font-bold px-3 py-1 rounded-full mb-4">MOCK EXAMS</span>
             <h2 className="font-display font-bold text-3xl mb-4">Three ways to sit a mock — because children prepare differently</h2>
@@ -130,7 +130,7 @@ export default function Home() {
 
         {/* Parent dashboard detail */}
         <section className="bg-teal-100">
-          <div className="max-w-6xl mx-auto px-6 py-16 grid md:grid-cols-2 gap-10 items-center">
+          <div className="max-w-7xl mx-auto px-6 py-16 grid md:grid-cols-2 gap-10 items-center">
             <Card className="order-2 md:order-1">
               <ul className="space-y-3 text-charcoal-teal/85">
                 <li>✓ Every child&apos;s score, mood, and session in one place</li>
@@ -154,7 +154,7 @@ export default function Home() {
         </section>
 
         {/* Tutor marketplace detail */}
-        <section className="max-w-6xl mx-auto px-6 py-16 grid md:grid-cols-2 gap-10 items-center">
+        <section className="max-w-7xl mx-auto px-6 py-16 grid md:grid-cols-2 gap-10 items-center">
           <div>
             <span className="inline-block bg-plum-700/10 text-plum-700 text-xs font-bold px-3 py-1 rounded-full mb-4">TUTORS</span>
             <h2 className="font-display font-bold text-3xl mb-4">A tutor marketplace built on vetting, not just reviews</h2>
@@ -186,7 +186,7 @@ export default function Home() {
 
         {/* School reporting detail */}
         <section className="bg-teal-100">
-          <div className="max-w-6xl mx-auto px-6 py-16 grid md:grid-cols-2 gap-10 items-center">
+          <div className="max-w-7xl mx-auto px-6 py-16 grid md:grid-cols-2 gap-10 items-center">
             <div>
               <span className="inline-block bg-white text-teal-900 text-xs font-bold px-3 py-1 rounded-full mb-4">FOR SCHOOLS</span>
               <h2 className="font-display font-bold text-3xl mb-4 text-teal-900">Cohort-level insight, without the spreadsheet wrangling</h2>
@@ -211,7 +211,7 @@ export default function Home() {
 
         {/* Trust teaser — light tint, not a dark full-bleed block */}
         <section>
-          <div className="max-w-6xl mx-auto px-6 py-16 grid md:grid-cols-2 gap-8 items-center">
+          <div className="max-w-7xl mx-auto px-6 py-16 grid md:grid-cols-2 gap-8 items-center">
             <div>
               <h2 className="font-display font-bold text-3xl mb-4 text-teal-900">
                 Safeguarding isn&apos;t a policy page. It&apos;s the architecture.
@@ -240,7 +240,7 @@ export default function Home() {
         </section>
 
         {/* Final CTA */}
-        <section className="max-w-6xl mx-auto px-6 py-20 text-center">
+        <section className="max-w-7xl mx-auto px-6 py-20 text-center">
           <h2 className="font-display font-bold text-3xl mb-4">Ready to see it for yourself?</h2>
           <p className="text-charcoal-teal/80 mb-8 max-w-xl mx-auto">
             Create a real account and see exactly what a family, tutor, or school sees —

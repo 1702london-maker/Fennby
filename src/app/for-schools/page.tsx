@@ -14,7 +14,7 @@ const features = [
 export default function ForSchoolsPage() {
   return (
     <PageShell>
-      <main className="max-w-5xl mx-auto px-6 py-16">
+      <main className="max-w-7xl mx-auto px-6 py-16">
         <h1 className="font-display font-bold text-4xl mb-4">For education providers</h1>
         <p className="text-charcoal-teal/80 max-w-2xl mb-4">
           A genuine institutional reporting layer — not just a bolt-on tutoring widget. Fennby

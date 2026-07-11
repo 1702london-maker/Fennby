@@ -18,7 +18,7 @@ export default function SendAccessibilityPage() {
   return (
     <PageShell>
       <main>
-        <section className="max-w-6xl mx-auto px-6 pt-16 pb-12 text-center">
+        <section className="max-w-7xl mx-auto px-6 pt-16 pb-12 text-center">
           <span className="inline-block bg-teal-100 text-teal-900 text-xs font-bold px-3 py-1 rounded-full mb-4">
             SEND &amp; ACCESSIBILITY
           </span>
@@ -33,7 +33,7 @@ export default function SendAccessibilityPage() {
           <Button href="/register/parent" variant="primary" className="mt-8">Get started</Button>
         </section>
 
-        <section className="max-w-6xl mx-auto px-6 py-12">
+        <section className="max-w-7xl mx-auto px-6 py-12">
           <h2 className="font-display font-bold text-2xl mb-6 text-center">Every accommodation, available to every family</h2>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {accommodations.map((a) => (
@@ -50,7 +50,7 @@ export default function SendAccessibilityPage() {
         </section>
 
         <section className="bg-teal-100">
-          <div className="max-w-6xl mx-auto px-6 py-16 grid md:grid-cols-2 gap-10 items-center">
+          <div className="max-w-7xl mx-auto px-6 py-16 grid md:grid-cols-2 gap-10 items-center">
             <div>
               <span className="inline-block bg-white text-teal-900 text-xs font-bold px-3 py-1 rounded-full mb-4">MOCK EXAMS</span>
               <h2 className="font-display font-bold text-3xl mb-4 text-teal-900">Print-and-shade is already an accommodation</h2>
@@ -76,7 +76,7 @@ export default function SendAccessibilityPage() {
           </div>
         </section>
 
-        <section className="max-w-6xl mx-auto px-6 py-16 grid md:grid-cols-2 gap-10 items-center">
+        <section className="max-w-7xl mx-auto px-6 py-16 grid md:grid-cols-2 gap-10 items-center">
           <Card tint="coral">
             <p className="text-xs font-bold text-brick-600 mb-2">A CLEAR PROMISE</p>
             <ul className="space-y-3 text-charcoal-teal/85">
@@ -102,7 +102,7 @@ export default function SendAccessibilityPage() {
           </div>
         </section>
 
-        <section className="max-w-6xl mx-auto px-6 py-20 text-center">
+        <section className="max-w-7xl mx-auto px-6 py-20 text-center">
           <h2 className="font-display font-bold text-3xl mb-4">A child should never have to ask for the basics</h2>
           <p className="text-charcoal-teal/80 mb-8 max-w-xl mx-auto">
             Create a real account and open Settings → Learning Preferences to see exactly what&apos;s available — no sample data, no walkthrough required.

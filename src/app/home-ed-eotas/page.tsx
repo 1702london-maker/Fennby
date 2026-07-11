@@ -19,7 +19,7 @@ const features = [
 export default function HomeEdEotasPage() {
   return (
     <PageShell>
-      <main className="max-w-5xl mx-auto px-6 py-16">
+      <main className="max-w-7xl mx-auto px-6 py-16">
         <span className="inline-block bg-teal-100 text-teal-900 text-xs font-bold px-3 py-1 rounded-full mb-4">
           FOR FAMILIES
         </span>

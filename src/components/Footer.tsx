@@ -54,7 +54,7 @@ const socials = [
 export function Footer() {
   return (
     <footer className="bg-teal-100 mt-20">
-      <div className="max-w-6xl mx-auto px-6 py-14 grid sm:grid-cols-2 lg:grid-cols-5 gap-10">
+      <div className="max-w-7xl mx-auto px-6 py-14 grid sm:grid-cols-2 lg:grid-cols-5 gap-10">
         <div>
           <Image src="/brand/fennby-logo-stacked.svg" alt="Fennby" width={100} height={110} />
           <p className="text-sm text-charcoal-teal/80 mt-4 max-w-[220px]">
@@ -89,7 +89,7 @@ export function Footer() {
         ))}
       </div>
       <div className="border-t border-teal-900/10">
-        <div className="max-w-6xl mx-auto px-6 py-5 flex flex-wrap items-center justify-between gap-3 text-sm text-charcoal-teal/70">
+        <div className="max-w-7xl mx-auto px-6 py-5 flex flex-wrap items-center justify-between gap-3 text-sm text-charcoal-teal/70">
           <span>&copy; {2026} Fennby. All rights reserved.</span>
           <div className="flex gap-5">
             <Link href="/legal/terms" className="hover:underline min-h-[36px] flex items-center">Terms</Link>

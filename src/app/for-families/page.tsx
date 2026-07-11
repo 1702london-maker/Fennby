@@ -14,7 +14,7 @@ const features = [
 export default function ForFamiliesPage() {
   return (
     <PageShell>
-      <main className="max-w-5xl mx-auto px-6 py-16">
+      <main className="max-w-7xl mx-auto px-6 py-16">
         <h1 className="font-display font-bold text-4xl mb-4">For families</h1>
         <p className="text-charcoal-teal/80 max-w-2xl mb-4">
           Everything your child needs to prepare — and everything you need to see it happening.

@@ -10,25 +10,35 @@ export interface NavDropdown {
   items: NavLink[];
 }
 
-export const publicNavDropdowns: NavDropdown[] = [
+// The top nav stays deliberately minimal, GoStudent-style — audience
+// segmentation (parents/kids/tutors/schools/council) lives in the floating
+// bar instead, which is Fennby's own differentiator, not a copy of a
+// competitor's pattern.
+export const publicTopLinks: NavLink[] = [
+  { href: "/#how-it-works", label: "How it works" },
+  { href: "/subjects", label: "Subjects" },
+  { href: "/trust", label: "Trust & Safeguarding" },
+  { href: "/pricing", label: "Pricing" },
+];
+
+// Kept for pages that still link into a specific audience's detail pages
+// (e.g. the footer) — no longer rendered as header dropdowns.
+export const audienceLinks: NavDropdown[] = [
   {
-    label: "For Families",
+    label: "Families",
     items: [
-      { href: "/for-families", label: "For Families" },
+      { href: "/for-families", label: "Families" },
       { href: "/child/mock-exams", label: "Mock Exams" },
-      { href: "/parent", label: "Parent Dashboard" },
       { href: "/vocational", label: "Vocational & Craft Track" },
       { href: "/summer-camps", label: "Summer Camps" },
       { href: "/home-ed-eotas", label: "Home Ed & EOTAS" },
       { href: "/send-accessibility", label: "SEND & Accessibility" },
-      { href: "/#how-it-works", label: "How it works" },
     ],
   },
   {
-    label: "For Education Providers",
+    label: "Education Providers",
     items: [
-      { href: "/for-schools", label: "For Education Providers" },
-      { href: "/school", label: "School Dashboard Overview" },
+      { href: "/for-schools", label: "Education Providers" },
       { href: "/school/reports", label: "Pupil Premium Impact Reports" },
       { href: "/school/network", label: "Inter-School Network & Competitions" },
       { href: "/school/demo", label: "Book a Demo" },
@@ -37,18 +47,15 @@ export const publicNavDropdowns: NavDropdown[] = [
   {
     label: "Tutors",
     items: [
-      { href: "/for-tutors", label: "For Tutors" },
-      { href: "/parent/tutors", label: "Browse Tutors" },
+      { href: "/for-tutors", label: "Tutors" },
       { href: "/apply-tutor", label: "Apply to Tutor" },
       { href: "/tutor/training", label: "Tutor Training & Vetting" },
     ],
   },
-];
-
-export const publicTopLinks: NavLink[] = [
-  { href: "/trust", label: "Trust & Safeguarding" },
-  { href: "/for-local-authorities", label: "For Local Authorities" },
-  { href: "/pricing", label: "Pricing" },
+  {
+    label: "Local Authorities",
+    items: [{ href: "/for-local-authorities", label: "Local Authorities" }],
+  },
 ];
 
 export const roleNav: Record<Role, NavLink[]> = {
@@ -130,6 +137,7 @@ export const roleNav: Record<Role, NavLink[]> = {
 export const publicPathPrefixes = [
   "/trust",
   "/pricing",
+  "/subjects",
   "/vocational",
   "/summer-camps",
   "/apply-tutor",

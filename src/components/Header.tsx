@@ -4,8 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { publicNavDropdowns, publicTopLinks, roleNav, publicPathPrefixes } from "@/lib/nav-config";
-import { NavDropdownMenu } from "@/components/NavDropdownMenu";
+import { publicTopLinks, roleNav, publicPathPrefixes } from "@/lib/nav-config";
 import { Button } from "@/components/Button";
 import type { Role } from "@/lib/types";
 
@@ -35,43 +34,37 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-40 bg-mist-50/95 backdrop-blur border-b border-teal-100">
-      <div className="max-w-6xl mx-auto flex items-center justify-between px-6 py-3 gap-4">
+      <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-3 gap-4">
         <Link href="/" className="flex items-center gap-2 shrink-0">
           <Image src="/brand/fennby-logo-horizontal.svg" alt="Fennby" width={130} height={60} priority />
         </Link>
 
-        {/* Desktop nav */}
+        {/* Desktop nav — kept deliberately minimal; audience segmentation
+            (parents/kids/tutors/schools/council) lives in the floating bar */}
         <nav className="hidden lg:flex items-center gap-1 flex-1">
-          {publicMode ? (
-            <>
-              {publicNavDropdowns.map((d) => (
-                <NavDropdownMenu key={d.label} dropdown={d} />
-              ))}
-              {publicTopLinks.map((l) => (
+          {publicMode
+            ? publicTopLinks.map((l) => (
                 <Link
                   key={l.href}
                   href={l.href}
-                  className={`px-3 py-2 rounded-full text-sm font-semibold min-h-[44px] flex items-center transition-colors ${
+                  className={`px-4 py-2 rounded-full text-sm font-semibold min-h-[44px] flex items-center transition-colors ${
                     l.href === "/trust" ? "text-brick-600" : "text-charcoal-teal hover:bg-teal-100"
                   }`}
                 >
                   {l.label}
                 </Link>
+              ))
+            : links.map((l) => (
+                <Link
+                  key={l.href}
+                  href={l.href}
+                  className={`px-4 py-2 rounded-full text-sm font-semibold min-h-[44px] flex items-center transition-colors ${
+                    pathname === l.href ? "bg-teal-900 text-white" : "text-teal-900 hover:bg-teal-100"
+                  }`}
+                >
+                  {l.label}
+                </Link>
               ))}
-            </>
-          ) : (
-            links.map((l) => (
-              <Link
-                key={l.href}
-                href={l.href}
-                className={`px-4 py-2 rounded-full text-sm font-semibold min-h-[44px] flex items-center transition-colors ${
-                  pathname === l.href ? "bg-teal-900 text-white" : "text-teal-900 hover:bg-teal-100"
-                }`}
-              >
-                {l.label}
-              </Link>
-            ))
-          )}
         </nav>
 
         <div className="hidden lg:flex items-center gap-3 shrink-0">
@@ -125,30 +118,15 @@ export function Header() {
 
       {/* Mobile accordion menu */}
       {mobileOpen && (
-        <div className="lg:hidden border-t border-teal-100 bg-mist-50 px-6 py-4 space-y-4">
+        <div className="lg:hidden border-t border-teal-100 bg-mist-50 px-6 py-4 space-y-1">
           {publicMode ? (
             <>
-              {publicNavDropdowns.map((d) => (
-                <details key={d.label} className="group">
-                  <summary className="font-semibold py-2 cursor-pointer list-none flex items-center justify-between min-h-[44px]">
-                    {d.label}
-                    <span aria-hidden>+</span>
-                  </summary>
-                  <div className="pl-4 flex flex-col gap-1 pb-2">
-                    {d.items.map((item) => (
-                      <Link key={item.href} href={item.href} className="py-2 text-sm min-h-[44px] flex items-center" onClick={() => setMobileOpen(false)}>
-                        {item.label}
-                      </Link>
-                    ))}
-                  </div>
-                </details>
-              ))}
               {publicTopLinks.map((l) => (
                 <Link key={l.href} href={l.href} className="block font-semibold py-2 min-h-[44px] flex items-center" onClick={() => setMobileOpen(false)}>
                   {l.label}
                 </Link>
               ))}
-              <div className="flex gap-3 pt-2">
+              <div className="flex gap-3 pt-3">
                 <Button href="/login" variant="outline" className="flex-1 justify-center">Log in</Button>
                 <Button href="/register" variant="primary" className="flex-1 justify-center">Get started</Button>
               </div>
