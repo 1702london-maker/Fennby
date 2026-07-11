@@ -3,10 +3,12 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { logout } from "@/features/auth/actions";
 import { publicTopLinks, campsDropdown, roleNav, publicPathPrefixes } from "@/lib/nav-config";
 import { useHasSendProfile } from "@/lib/send-context";
 import { NotificationBell } from "@/components/NotificationBell";
+import { AccountMenu } from "@/components/AccountMenu";
 import { Button } from "@/components/Button";
 import type { Role } from "@/lib/types";
 
@@ -105,9 +107,7 @@ export function Header() {
           ) : (
             <>
               <NotificationBell />
-              <span className="rounded-full bg-teal-100 px-3 py-2 text-sm font-semibold min-h-[44px] flex items-center">
-                Account
-              </span>
+              <AccountMenu />
             </>
           )}
           {/* Public mode already has Safeguarding in the main nav — showing
@@ -173,10 +173,28 @@ export function Header() {
               <Link href="/trust#report" className="block font-semibold text-brick-600 py-2 min-h-[44px] flex items-center" onClick={() => setMobileOpen(false)}>
                 Safeguarding
               </Link>
+              <MobileLogoutLink onNavigate={() => setMobileOpen(false)} />
             </>
           )}
         </div>
       )}
     </header>
+  );
+}
+
+function MobileLogoutLink({ onNavigate }: { onNavigate: () => void }) {
+  const router = useRouter();
+  return (
+    <button
+      onClick={async () => {
+        onNavigate();
+        await logout();
+        router.push("/login");
+        router.refresh();
+      }}
+      className="block w-full text-left font-semibold text-brick-600 py-2 min-h-[44px] flex items-center"
+    >
+      Log out
+    </button>
   );
 }
