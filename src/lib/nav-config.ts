@@ -15,7 +15,7 @@ export interface NavDropdown {
 // bar instead, which is Fennby's own differentiator, not a copy of a
 // competitor's pattern.
 export const publicTopLinks: NavLink[] = [
-  { href: "/#how-it-works", label: "How it works" },
+  { href: "/how-it-works", label: "How it works" },
   { href: "/subjects", label: "Subjects" },
   { href: "/ai-tutor-safety", label: "AI Tutor" },
   { href: "/for-tutors", label: "Vetted Tutors" },
@@ -170,4 +170,5 @@ export const publicPathPrefixes = [
   "/for-local-authorities",
   "/get-started",
   "/ai-tutor-safety",
+  "/how-it-works",
 ];

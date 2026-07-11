@@ -104,7 +104,11 @@ export async function getLearnerAchievements(learnerId: string) {
 // or notes), tutors with overlapping send_experience are weighted toward the
 // top — a soft sort, not a hard filter, so areas with fewer SEND-experienced
 // tutors don't get unfairly narrowed.
-export async function getApprovedTutors(sendPreferenceHints: string[] = []) {
+//
+// `sendOnly` is a real hard filter, used as the default view for any parent
+// with a SEND child — only tutors who've indicated SEND experience/training
+// are shown at all, unless the parent explicitly asks to see everyone.
+export async function getApprovedTutors(sendPreferenceHints: string[] = [], sendOnly = false) {
   const supabase = await createClient();
   const { data } = await supabase
     .from("tutor_profiles")
@@ -112,7 +116,10 @@ export async function getApprovedTutors(sendPreferenceHints: string[] = []) {
     .eq("status", "approved")
     .order("rating", { ascending: false });
 
-  const tutors = data ?? [];
+  let tutors = data ?? [];
+  if (sendOnly) {
+    tutors = tutors.filter((t) => (t.send_experience ?? []).length > 0);
+  }
   if (!sendPreferenceHints.length) return tutors;
 
   const hints = sendPreferenceHints.map((h) => h.toLowerCase());

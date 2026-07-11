@@ -48,7 +48,7 @@ export default function ContactPage() {
             <p className="text-charcoal-teal/80 leading-relaxed">
               Thank you — we&apos;ll get back to you as soon as we can. If this was a safeguarding
               concern involving a child already using Fennby, please also use{" "}
-              <a href="/report-concern" className="font-semibold text-teal-900 hover:underline">
+              <a href="/trust#report" className="font-semibold text-teal-900 hover:underline">
                 Report a concern
               </a>{" "}
               from inside your account for the fastest response.

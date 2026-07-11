@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { publicTopLinks, campsDropdown, roleNav, publicPathPrefixes } from "@/lib/nav-config";
+import { useHasSendProfile } from "@/lib/send-context";
 import { Button } from "@/components/Button";
 import type { Role } from "@/lib/types";
 
@@ -31,7 +32,12 @@ export function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [campsOpen, setCampsOpen] = useState(false);
   const publicMode = isPublicPath(pathname);
-  const links = roleNav[sectionRoleFromPath(pathname)];
+  const sectionRole = sectionRoleFromPath(pathname);
+  const hasSend = useHasSendProfile();
+  const links =
+    sectionRole === "child" && hasSend
+      ? [...roleNav[sectionRole], { href: "/child/calm-corner", label: "🌿 Calm Corner" }]
+      : roleNav[sectionRole];
 
   return (
     <header className="sticky top-0 z-40 bg-mist-50/95 backdrop-blur border-b border-teal-100">
@@ -106,10 +112,10 @@ export function Header() {
             </>
           )}
           <Link
-            href={publicMode ? "/trust" : "/report-concern"}
+            href="/trust#report"
             className="text-sm font-semibold text-brick-600 hover:underline min-h-[44px] flex items-center whitespace-nowrap"
           >
-            Report a concern
+            Safeguarding
           </Link>
         </div>
 
@@ -153,9 +159,6 @@ export function Header() {
               <div className="flex gap-3 pt-3">
                 <Button href="/get-started" variant="primary" className="flex-1 justify-center">Get started</Button>
               </div>
-              <Link href="/report-concern" className="block font-semibold text-brick-600 py-2 min-h-[44px] flex items-center" onClick={() => setMobileOpen(false)}>
-                Report a concern
-              </Link>
             </>
           ) : (
             <>
@@ -164,8 +167,8 @@ export function Header() {
                   {l.label}
                 </Link>
               ))}
-              <Link href="/report-concern" className="block font-semibold text-brick-600 py-2 min-h-[44px] flex items-center" onClick={() => setMobileOpen(false)}>
-                Report a concern
+              <Link href="/trust#report" className="block font-semibold text-brick-600 py-2 min-h-[44px] flex items-center" onClick={() => setMobileOpen(false)}>
+                Safeguarding
               </Link>
             </>
           )}

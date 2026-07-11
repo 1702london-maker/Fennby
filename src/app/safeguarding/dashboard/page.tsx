@@ -17,7 +17,7 @@ export default async function SafeguardingDashboard() {
       <main className="max-w-4xl mx-auto px-6 py-10">
         <div className="flex items-center justify-between mb-8">
           <h1 className="font-display font-bold text-3xl">Safeguarding dashboard</h1>
-          <Button href="/report-concern" variant="outline" className="border-brick-600 text-brick-600">Report a concern</Button>
+          <Button href="/trust#report" variant="outline" className="border-brick-600 text-brick-600">Report a concern</Button>
         </div>
 
         <div className="grid sm:grid-cols-3 gap-4 mb-10">

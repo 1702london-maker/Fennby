@@ -3,8 +3,9 @@ import { Card } from "@/components/Card";
 import { Button } from "@/components/Button";
 import { EmptyState } from "@/components/EmptyState";
 import { getApprovedTutors, getMyLearners } from "@/features/parent/queries";
+import { hasSendProfile } from "@/lib/send";
 
-export default async function BrowseTutorsPage() {
+export default async function BrowseTutorsPage({ searchParams }: { searchParams: { all?: string } }) {
   // Soft SEND-experience weighting: any learner's shared diagnosis or EHCP
   // note nudges matching tutors toward the top of the list, without hiding
   // anyone else.
@@ -16,15 +17,33 @@ export default async function BrowseTutorsPage() {
     })
     .filter(Boolean);
 
-  const tutors = await getApprovedTutors(sendHints);
+  // Any SEND child in the family defaults this view to SEND-accredited
+  // tutors only — a real filter, not just a badge — with an explicit way
+  // to see everyone if a parent wants to.
+  const familyHasSend = myLearners.some(hasSendProfile);
+  const showAll = searchParams?.all === "1";
+  const sendOnly = familyHasSend && !showAll;
+
+  const tutors = await getApprovedTutors(sendHints, sendOnly);
 
   return (
     <PageShell>
       <main className="max-w-4xl mx-auto px-6 py-10">
         <h1 className="font-display font-bold text-3xl mb-1">Browse tutors</h1>
-        <p className="text-charcoal-teal/70 mb-8">
+        <p className="text-charcoal-teal/70 mb-2">
           Every tutor shown here has completed Fennby&apos;s full vetting pipeline before ever meeting a child.
         </p>
+        {familyHasSend && (
+          <p className="text-sm text-charcoal-teal/70 mb-8">
+            {sendOnly
+              ? "Showing SEND-accredited and trained tutors only, since a SEND profile is set for your family. "
+              : "Showing every approved tutor. "}
+            <a href={sendOnly ? "?all=1" : "?"} className="font-semibold text-teal-900 hover:underline">
+              {sendOnly ? "Show all approved tutors instead" : "Show SEND-accredited tutors only"}
+            </a>
+          </p>
+        )}
+        {!familyHasSend && <div className="mb-8" />}
         {tutors.length ? (
           <div className="grid gap-4">
             {tutors.map((t) => (
@@ -67,7 +86,12 @@ export default async function BrowseTutorsPage() {
           </div>
         ) : (
           <Card>
-            <EmptyState emoji="🎓" title="No approved tutors yet" description="Approved tutors will appear here for families to browse." />
+            <EmptyState
+              emoji="🎓"
+              title={sendOnly ? "No SEND-accredited tutors approved yet" : "No approved tutors yet"}
+              description={sendOnly ? "Try showing all approved tutors while we grow our SEND-accredited network." : "Approved tutors will appear here for families to browse."}
+            />
+            {sendOnly && <Button href="?all=1" variant="outline" className="mt-4">Show all approved tutors</Button>}
           </Card>
         )}
       </main>

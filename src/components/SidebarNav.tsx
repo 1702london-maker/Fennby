@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { roleNav, publicPathPrefixes } from "@/lib/nav-config";
+import { useHasSendProfile } from "@/lib/send-context";
 import type { Role } from "@/lib/types";
 
 function isPublicPath(pathname: string) {
@@ -25,10 +26,16 @@ function sectionRoleFromPath(pathname: string): Role {
 // Report a concern stay in the header above, unchanged, on every page.
 export function SidebarNav() {
   const pathname = usePathname();
+  const hasSend = useHasSendProfile();
   if (isPublicPath(pathname)) return null;
 
   const role = sectionRoleFromPath(pathname);
-  const links = roleNav[role];
+  // Same menu as every other child, plus one extra item — the SEND portal
+  // is additive, never a different, separated experience.
+  const links =
+    role === "child" && hasSend
+      ? [...roleNav[role], { href: "/child/calm-corner", label: "🌿 Calm Corner" }]
+      : roleNav[role];
 
   return (
     <aside className="hidden lg:block w-56 shrink-0 border-r border-teal-100 bg-mist-50 px-3 py-6">

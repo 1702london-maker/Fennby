@@ -1,23 +1,44 @@
 import { PageShell } from "@/components/PageShell";
 import { Card } from "@/components/Card";
 import { Button } from "@/components/Button";
+import { ReportConcernForm } from "@/components/ReportConcernForm";
 
 export default function TrustPage() {
   return (
     <PageShell>
       <main className="max-w-3xl mx-auto px-6 py-14">
-        <h1 className="font-display font-bold text-4xl mb-4">Trust &amp; Safeguarding</h1>
-        <p className="text-charcoal-teal/80 leading-relaxed mb-6 max-w-2xl">
-          This isn&apos;t a marketing page. It&apos;s a plain description of how Fennby actually
-          protects children — enforced in the way the product is built, not just written
-          in a policy filed away somewhere. It exists for parents deciding whether to trust us,
-          for schools carrying out due diligence, and for local authorities assessing whether
-          Fennby is a safe partner for the families they support.
-        </p>
-        <div className="flex flex-wrap gap-3 mb-10">
-          <Button href="/school/demo" variant="primary">Book a safeguarding walkthrough</Button>
-          <Button href="/report-concern" variant="outline" className="border-brick-600 text-brick-600">Report a concern</Button>
-        </div>
+        <section className="grid md:grid-cols-2 gap-10 items-center mb-14">
+          <div>
+            <span className="inline-block bg-teal-100 text-teal-900 text-xs font-bold px-3 py-1 rounded-full mb-4">
+              TRUST &amp; SAFEGUARDING
+            </span>
+            <h1 className="font-display font-bold text-4xl leading-tight text-charcoal-teal text-balance">
+              How Fennby actually protects children, and how to report a concern.
+            </h1>
+            <p className="mt-6 text-charcoal-teal/80 leading-relaxed">
+              This isn&apos;t a marketing page. It&apos;s a plain description of how Fennby
+              protects children, enforced in the way the product is built, not just written in a
+              policy filed away somewhere. If you have a concern right now, the form is further
+              down this page, always reachable from here, nowhere else.
+            </p>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <Button href="/school/demo" variant="primary">Book a safeguarding walkthrough</Button>
+              <Button href="#report" variant="outline" className="border-brick-600 text-brick-600">Report a concern</Button>
+            </div>
+          </div>
+          <div className="flex justify-center">
+            <Card tint="coral" className="w-full max-w-sm">
+              <p className="font-display font-bold text-sm text-brick-600 mb-3">If something&apos;s wrong, right now</p>
+              <p className="text-sm text-charcoal-teal/85 mb-3">
+                The report form below reaches our Designated Safeguarding Lead directly, not a
+                queue.
+              </p>
+              <p className="text-sm text-charcoal-teal/85">
+                If a child is in immediate danger, contact emergency services first.
+              </p>
+            </Card>
+          </div>
+        </section>
 
         <Card className="mb-6">
           <h2 className="font-display font-bold text-lg mb-2">Governed against recognised UK frameworks</h2>
@@ -154,15 +175,14 @@ export default function TrustPage() {
           </div>
         </Card>
 
-        <Card id="report" tint="coral" className="text-center mb-6">
-          <p className="font-display font-bold text-lg mb-2">Have a concern?</p>
-          <p className="text-charcoal-teal/80 mb-4">
-            Every chat in Fennby has a &quot;Report a concern&quot; link that reaches our
-            Designated Safeguarding Lead directly, and it&apos;s visible from every
+        <div id="report" className="mb-6 scroll-mt-24">
+          <h2 className="font-display font-bold text-2xl mb-1">Report a concern</h2>
+          <p className="text-charcoal-teal/70 mb-4">
+            Every chat in Fennby also links straight back to this form, visible from every
             logged-in screen on the platform.
           </p>
-          <Button href="/report-concern" variant="primary">Report a concern now</Button>
-        </Card>
+          <ReportConcernForm />
+        </div>
 
         <div className="grid sm:grid-cols-2 gap-4">
           <Card tint="teal">

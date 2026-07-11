@@ -42,7 +42,7 @@ export default async function CradleSessionPage({ params }: { params: Promise<{ 
           <h1 className="font-display font-bold text-2xl">
             The Cradle — {cradleSession.session_type === "vocational" ? "Craft session" : "Tutor session"}
           </h1>
-          <Link href="/report-concern" className="text-sm font-semibold text-brick-600 hover:underline">
+          <Link href="/trust#report" className="text-sm font-semibold text-brick-600 hover:underline">
             Report a concern
           </Link>
         </div>

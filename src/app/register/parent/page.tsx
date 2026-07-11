@@ -26,6 +26,7 @@ export default function RegisterParentPage() {
     targetSchool: "",
     examBoard: "",
     learningGoals: "",
+    hasSend: false,
     sendNotes: "",
     accessibilityNeeds: "",
     consent: false,
@@ -81,7 +82,7 @@ export default function RegisterParentPage() {
         targetSchool: child.targetSchool || undefined,
         examBoard: child.examBoard || undefined,
         learningGoals: child.learningGoals || undefined,
-        sendNotes: child.sendNotes || undefined,
+        sendNotes: child.sendNotes || (child.hasSend ? "Marked at registration" : undefined),
         accessibilityNeeds: child.accessibilityNeeds || undefined,
         consent: true,
       });
@@ -183,21 +184,39 @@ export default function RegisterParentPage() {
                 </div>
                 <textarea rows={2} value={child.learningGoals} onChange={(e) => setChild({ ...child, learningGoals: e.target.value })} className="w-full rounded-2xl border-2 border-teal-100 p-4 focus:border-teal-700 outline-none" />
               </div>
-              <div className="grid sm:grid-cols-2 gap-4">
-                <div>
-                  <div className="flex items-center justify-between mb-1">
-                    <label className="block text-sm font-semibold">SEND notes</label>
-                    <VoiceInputButton onResult={(text) => setChild((c) => ({ ...c, sendNotes: c.sendNotes ? `${c.sendNotes} ${text}` : text }))} />
+              <div className="rounded-2xl border-2 border-teal-100 p-4">
+                <label className="flex items-start gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={child.hasSend}
+                    onChange={(e) => setChild({ ...child, hasSend: e.target.checked })}
+                    className="mt-1 w-5 h-5 accent-teal-900"
+                  />
+                  <span className="text-sm">
+                    My child has a diagnosed or suspected special educational need or disability
+                    (SEND), such as dyslexia, autism, ADHD, or a speech and language need. No
+                    diagnosis or EHCP is required to say yes here, this never costs extra, and it
+                    only unlocks extra support, never a different price for the same features.
+                  </span>
+                </label>
+                {child.hasSend && (
+                  <div className="grid sm:grid-cols-2 gap-4 mt-4">
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="block text-sm font-semibold">Tell us a bit more (optional)</label>
+                        <VoiceInputButton onResult={(text) => setChild((c) => ({ ...c, sendNotes: c.sendNotes ? `${c.sendNotes} ${text}` : text }))} />
+                      </div>
+                      <textarea rows={2} value={child.sendNotes} onChange={(e) => setChild({ ...child, sendNotes: e.target.value })} className="w-full rounded-2xl border-2 border-teal-100 p-4 focus:border-teal-700 outline-none" placeholder="e.g. dyslexia, autism, ADHD" />
+                    </div>
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="block text-sm font-semibold">Accessibility needs</label>
+                        <VoiceInputButton onResult={(text) => setChild((c) => ({ ...c, accessibilityNeeds: c.accessibilityNeeds ? `${c.accessibilityNeeds} ${text}` : text }))} />
+                      </div>
+                      <textarea rows={2} value={child.accessibilityNeeds} onChange={(e) => setChild({ ...child, accessibilityNeeds: e.target.value })} className="w-full rounded-2xl border-2 border-teal-100 p-4 focus:border-teal-700 outline-none" placeholder="e.g. extra time, larger text" />
+                    </div>
                   </div>
-                  <textarea rows={2} value={child.sendNotes} onChange={(e) => setChild({ ...child, sendNotes: e.target.value })} className="w-full rounded-2xl border-2 border-teal-100 p-4 focus:border-teal-700 outline-none" />
-                </div>
-                <div>
-                  <div className="flex items-center justify-between mb-1">
-                    <label className="block text-sm font-semibold">Accessibility needs</label>
-                    <VoiceInputButton onResult={(text) => setChild((c) => ({ ...c, accessibilityNeeds: c.accessibilityNeeds ? `${c.accessibilityNeeds} ${text}` : text }))} />
-                  </div>
-                  <textarea rows={2} value={child.accessibilityNeeds} onChange={(e) => setChild({ ...child, accessibilityNeeds: e.target.value })} className="w-full rounded-2xl border-2 border-teal-100 p-4 focus:border-teal-700 outline-none" />
-                </div>
+                )}
               </div>
               <label className="flex items-start gap-3 cursor-pointer">
                 <input type="checkbox" required checked={child.consent} onChange={(e) => setChild({ ...child, consent: e.target.checked })} className="mt-1 w-5 h-5 accent-teal-900" />
