@@ -18,6 +18,7 @@ import {
 } from "@/features/parent/queries";
 import { getWorkshopSummaryForLearner } from "@/features/parent/workshopQueries";
 import { getAiTutorHistoryForLearner } from "@/features/ai-tutor/queries";
+import { GenerateReportButton } from "./GenerateReportButton";
 
 const dbMoodToIcon = {
   happy: "great",
@@ -302,7 +303,10 @@ export default async function ParentDashboard({
 
         <section className="mt-6">
           <Card tint="teal">
-            <h2 className="font-display font-bold text-lg mb-1">Weekly report</h2>
+            <div className="flex items-center justify-between gap-4 mb-1">
+              <h2 className="font-display font-bold text-lg">Weekly report</h2>
+              <GenerateReportButton learnerId={child.id} />
+            </div>
             <p className="text-xs font-semibold text-charcoal-teal/60 mb-4">
               Three sources, clearly labelled — never disguised as one or the other.
             </p>

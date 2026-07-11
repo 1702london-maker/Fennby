@@ -3,6 +3,8 @@ import { Card } from "@/components/Card";
 import { EmptyState } from "@/components/EmptyState";
 import { ProgressRing } from "@/components/ProgressRing";
 import { getMyLearners, getExamHistory } from "@/features/parent/queries";
+import { getOpenSittings, getMySittingPurchases } from "@/features/mockExamSittings/actions";
+import { SittingRegisterButton } from "./SittingRegisterButton";
 
 export default async function ParentExamsPage({
   searchParams,
@@ -23,7 +25,12 @@ export default async function ParentExamsPage({
   }
 
   const child = learners.find((l) => l.id === childId) ?? learners[0];
-  const history = await getExamHistory(child.id);
+  const [history, sittings, purchases] = await Promise.all([
+    getExamHistory(child.id),
+    getOpenSittings(),
+    getMySittingPurchases(learners.map((l) => l.id)),
+  ]);
+  const purchasedSittingIds = new Set(purchases.filter((p) => p.learner_id === child.id).map((p) => p.sitting_id));
 
   return (
     <PageShell>
@@ -44,6 +51,33 @@ export default async function ParentExamsPage({
             ))}
           </div>
         </div>
+
+        {sittings.length > 0 && (
+          <div className="mb-10">
+            <h2 className="font-display font-bold text-lg mb-1">Upcoming exam simulations</h2>
+            <p className="text-sm text-charcoal-teal/70 mb-4">
+              A full timed exam-mode sitting from home — announced dates, billed separately from
+              your subscription.
+            </p>
+            <div className="space-y-3">
+              {sittings.map((s) => (
+                <Card key={s.id} className="flex items-center justify-between gap-4">
+                  <div>
+                    <p className="font-semibold">{s.title}</p>
+                    <p className="text-sm text-charcoal-teal/70">
+                      {new Date(s.sitting_date).toLocaleString("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })} · £{Number(s.price).toFixed(2)}
+                    </p>
+                  </div>
+                  {purchasedSittingIds.has(s.id) ? (
+                    <span className="text-sm font-semibold text-sage-600 shrink-0">✓ Registered</span>
+                  ) : (
+                    <SittingRegisterButton sittingId={s.id} learnerId={child.id} />
+                  )}
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
 
         {history.length === 0 ? (
           <Card tint="teal">

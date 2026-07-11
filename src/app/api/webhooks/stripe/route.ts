@@ -30,6 +30,8 @@ export async function POST(request: NextRequest) {
     case "checkout.session.completed": {
       const session = event.data.object as Stripe.Checkout.Session;
       const profileId = session.client_reference_id ?? session.metadata?.profile_id;
+      const purchaseId = session.metadata?.purchase_id;
+
       if (profileId) {
         await supabase.from("profiles").update({ subscription_status: "active" }).eq("id", profileId);
         const { data: existing } = await supabase.from("subscriptions").select("id").eq("parent_id", profileId).maybeSingle();
@@ -38,6 +40,19 @@ export async function POST(request: NextRequest) {
         } else {
           await supabase.from("subscriptions").insert({ parent_id: profileId, plan_name: "Family subscription", status: "active" });
         }
+      }
+
+      // Part 1.4/7.6: only this webhook — never the client — marks a
+      // specific mock exam sitting purchase as paid.
+      if (purchaseId) {
+        await supabase
+          .from("mock_exam_purchases")
+          .update({
+            paid_at: new Date().toISOString(),
+            stripe_payment_intent_id:
+              typeof session.payment_intent === "string" ? session.payment_intent : (session.payment_intent?.id ?? null),
+          })
+          .eq("id", purchaseId);
       }
       break;
     }

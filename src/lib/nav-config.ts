@@ -127,6 +127,8 @@ export const roleNav: Record<Role, NavLink[]> = {
     { href: "/admin/learners", label: "Learners" },
     { href: "/admin/tutors", label: "Tutors" },
     { href: "/admin/curriculum", label: "Curriculum" },
+    { href: "/admin/mock-exams", label: "Mock Exam Sittings" },
+    { href: "/admin/referrals", label: "Referrals" },
     { href: "/admin/schools", label: "Schools" },
     { href: "/admin/questions", label: "Questions" },
     { href: "/admin/assessments", label: "Assessments" },
