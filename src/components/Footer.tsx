@@ -57,7 +57,11 @@ const socials = [
 export function Footer() {
   return (
     <footer className="bg-teal-100 mt-20">
-      <div className="max-w-7xl mx-auto px-6 py-14 grid grid-cols-3 gap-x-6 gap-y-10 lg:flex lg:items-start lg:justify-between lg:gap-10">
+      {/* w-full, not max-w-7xl mx-auto — the header is full-width with the
+          same px-6 padding, so this is the only way the footer logo lines
+          up exactly under the header logo instead of sitting further right
+          inside a centered container. */}
+      <div className="w-full px-6 py-14 grid grid-cols-3 gap-x-6 gap-y-10 lg:flex lg:items-start lg:justify-between lg:gap-10">
         {/* 3 columns on mobile: logo is its own column spanning both rows,
             then the four link groups auto-fill the remaining two columns
             two-deep each (For Families/For Schools stacked in one column,
@@ -103,7 +107,7 @@ export function Footer() {
           pb-24/pb-20 gives the page enough extra height to scroll this row
           fully clear of the bar instead of leaving it permanently covered. */}
       <div className="border-t border-teal-900/10 pb-24 sm:pb-20">
-        <div className="max-w-7xl mx-auto px-6 pt-5 flex flex-wrap items-center justify-between gap-3 text-sm text-charcoal-teal/70">
+        <div className="w-full px-6 pt-5 flex flex-wrap items-center justify-between gap-3 text-sm text-charcoal-teal/70">
           <span>&copy; {2026} Fennby. All rights reserved.</span>
           <div className="flex gap-5">
             <Link href="/legal/terms" className="hover:underline min-h-[36px] flex items-center">Terms</Link>
