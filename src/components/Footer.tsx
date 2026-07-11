@@ -58,9 +58,9 @@ export function Footer() {
   return (
     <footer className="bg-teal-100 mt-20">
       <div className="max-w-7xl mx-auto px-6 py-14 grid grid-cols-2 lg:grid-cols-5 gap-x-6 gap-y-10">
-        <div className="col-span-2 lg:col-span-1">
-          <Image src="/brand/fennby-logo-stacked.svg" alt="Fennby" width={100} height={110} />
-          <p className="text-sm text-charcoal-teal/80 mt-4 max-w-[220px]">
+        <div>
+          <Image src="/brand/fennby-logo-stacked.svg" alt="Fennby" width={80} height={88} />
+          <p className="text-sm text-charcoal-teal/80 mt-4 max-w-[180px]">
             The only tutoring platform where nothing about your child is hidden from you.
           </p>
           <div className="flex gap-3 mt-4">

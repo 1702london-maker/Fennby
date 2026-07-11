@@ -20,6 +20,7 @@ export const publicTopLinks: NavLink[] = [
   { href: "/ai-tutor-safety", label: "AI Tutor" },
   { href: "/for-tutors", label: "Vetted Tutors" },
   { href: "/home-ed-eotas", label: "Home Ed & EOTAS" },
+  { href: "/foundry", label: "The Foundry" },
   { href: "/trust", label: "Safeguarding" },
 ];
 
@@ -171,4 +172,5 @@ export const publicPathPrefixes = [
   "/get-started",
   "/ai-tutor-safety",
   "/how-it-works",
+  "/foundry",
 ];

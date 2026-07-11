@@ -65,6 +65,16 @@ export default function ForSchoolsPage() {
           </ol>
         </Card>
 
+        <Card tint="plum" className="mb-10">
+          <p className="font-display font-bold text-lg mb-2 text-plum-700">Want it under your own name?</p>
+          <p className="text-charcoal-teal/85 leading-relaxed mb-4">
+            The Fennby Foundry builds a fully branded version of this same platform for your
+            school or trust, your colours, your domain, your name, for a £2,500 one-off build
+            and £599 a month after that.
+          </p>
+          <Button href="/foundry" variant="outline">Explore the Fennby Foundry</Button>
+        </Card>
+
         <div className="flex flex-wrap gap-4">
           <Button href="/school/demo" variant="primary">Book a demo</Button>
           <Button href="/register/school" variant="secondary">Register your school</Button>
