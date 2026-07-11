@@ -58,7 +58,11 @@ export function Footer() {
   return (
     <footer className="bg-teal-100 mt-20">
       <div className="max-w-7xl mx-auto px-6 py-14 grid grid-cols-2 lg:grid-cols-5 gap-x-6 gap-y-10">
-        <div>
+        {/* row-span-4 on mobile keeps the logo as its own left-hand column
+            for the full height of the four link groups, which then stack
+            in a single flowing right-hand column beside it, instead of
+            splitting unevenly across two columns. */}
+        <div className="row-span-4 lg:row-span-1">
           <Image src="/brand/fennby-logo-stacked.svg" alt="Fennby" width={80} height={88} />
           <p className="text-sm text-charcoal-teal/80 mt-4 max-w-[180px]">
             The only tutoring platform where nothing about your child is hidden from you.
