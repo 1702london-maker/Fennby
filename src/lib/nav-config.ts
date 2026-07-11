@@ -18,7 +18,6 @@ export const publicTopLinks: NavLink[] = [
   { href: "/#how-it-works", label: "How it works" },
   { href: "/subjects", label: "Subjects" },
   { href: "/for-tutors", label: "Vetted Tutors" },
-  { href: "/apply-tutor", label: "Apply to Tutor" },
   { href: "/summer-camps", label: "Summer Camps" },
   { href: "/vocational", label: "Vocational & Craft" },
   { href: "/home-ed-eotas", label: "Home Ed & EOTAS" },

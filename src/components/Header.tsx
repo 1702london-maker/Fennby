@@ -34,7 +34,7 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-40 bg-mist-50/95 backdrop-blur border-b border-teal-100">
-      <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-3 gap-4">
+      <div className="w-full flex items-center justify-between px-6 py-3 gap-6">
         <Link href="/" className="flex items-center gap-2 shrink-0">
           <Image src="/brand/fennby-logo-horizontal.svg" alt="Fennby" width={130} height={60} priority />
         </Link>
@@ -43,14 +43,16 @@ export function Header() {
             (parents/kids/tutors/schools/council) lives in the floating bar.
             Once logged in, per-role navigation lives in the left sidebar,
             not here — this bar stays the same everywhere so Trust &
-            Safeguarding and Report a concern are always in the same place. */}
-        <nav className="hidden lg:flex items-center gap-1 flex-1 flex-wrap">
+            Safeguarding and Report a concern are always in the same place.
+            justify-between spreads links across the full width between the
+            logo and the CTA, left to right, instead of clumping together. */}
+        <nav className="hidden lg:flex items-center justify-between flex-1">
           {publicMode &&
             publicTopLinks.map((l) => (
               <Link
                 key={l.href}
                 href={l.href}
-                className={`px-3 py-2 rounded-full text-sm font-semibold min-h-[44px] flex items-center transition-colors whitespace-nowrap ${
+                className={`px-2 py-2 rounded-full text-sm font-semibold min-h-[44px] flex items-center transition-colors whitespace-nowrap ${
                   l.href === "/trust" ? "text-brick-600" : "text-charcoal-teal hover:bg-teal-100"
                 }`}
               >
