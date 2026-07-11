@@ -9,6 +9,17 @@ import { login } from "@/features/auth/actions";
 
 type RoleTab = "parent" | "tutor" | "school_admin" | "authority";
 
+const roleHome: Record<string, string> = {
+  child: "/child/today",
+  parent: "/parent",
+  tutor: "/tutor",
+  school_admin: "/school",
+  teacher: "/teacher/dashboard",
+  admin: "/admin/dashboard",
+  safeguarding: "/safeguarding/dashboard",
+  authority: "/authority/dashboard",
+};
+
 const roleTabs: { key: RoleTab; label: string; emoji: string; blurb: string }[] = [
   { key: "parent", label: "Parent", emoji: "👪", blurb: "See your child's progress, messages, and sessions." },
   { key: "tutor", label: "Tutor", emoji: "🎓", blurb: "Your students, schedule, and lesson notes." },
@@ -38,10 +49,11 @@ function LoginForm() {
       setError(result.error);
       return;
     }
-    // The signed-in account's own role decides where it lands — middleware
-    // redirects to the right dashboard automatically, regardless of which
-    // tab was selected here. The tab is just a friendlier starting point.
-    router.push(searchParams.get("next") ?? "/");
+    // The signed-in account's own real role decides where it lands, not
+    // whichever tab was clicked before typing a password — middleware would
+    // bounce a mismatched role away from a hardcoded dashboard anyway, so
+    // this always uses what login() actually reports back.
+    router.push(searchParams.get("next") ?? roleHome[result.data.role] ?? "/");
     router.refresh();
   };
 

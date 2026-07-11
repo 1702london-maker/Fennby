@@ -51,15 +51,21 @@ export async function signUp(input: SignUpInput): Promise<ActionResult<{ userId:
 }
 
 /** Adult sign-in (parent/tutor/teacher/school_admin/admin/safeguarding/authority). */
-export async function login(input: LoginInput): Promise<ActionResult> {
+export async function login(input: LoginInput): Promise<ActionResult<{ role: string }>> {
   const parsed = loginSchema.safeParse(input);
   if (!parsed.success) {
     return { ok: false, error: "validation_failed", fields: parsed.error.flatten().fieldErrors };
   }
   const supabase = await createClient();
-  const { error } = await supabase.auth.signInWithPassword(parsed.data);
+  const { data, error } = await supabase.auth.signInWithPassword(parsed.data);
   if (error) return { ok: false, error: "Incorrect email or password" };
-  return { ok: true, data: null };
+
+  // Callers need the real role to land on the right dashboard — "/" is a
+  // public marketing page, not a landing spot for a signed-in account.
+  const { data: profile } = await supabase.from("profiles").select("role").eq("id", data.user.id).single();
+  if (!profile) return { ok: false, error: "internal" };
+
+  return { ok: true, data: { role: profile.role } };
 }
 
 /** Child sign-in via parent-assigned username + 6-digit PIN. */
