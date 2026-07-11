@@ -110,13 +110,16 @@ export async function getLearnerAchievements(learnerId: string) {
 // are shown at all, unless the parent explicitly asks to see everyone.
 export async function getApprovedTutors(sendPreferenceHints: string[] = [], sendOnly = false) {
   const supabase = await createClient();
+  // Part 8.1 state 7: onboarding_state must be "verified" (agreement
+  // signed) before a tutor can appear here at all — status "approved" on
+  // its own is not enough, matching the hard state-machine gate.
   const { data } = await supabase
     .from("tutor_profiles")
-    .select("*, profiles(full_name)")
+    .select("*, profiles(full_name), application:tutor_applications!application_id(onboarding_state)")
     .eq("status", "approved")
     .order("rating", { ascending: false });
 
-  let tutors = data ?? [];
+  let tutors = (data ?? []).filter((t) => t.application?.onboarding_state === "verified");
   if (sendOnly) {
     tutors = tutors.filter((t) => (t.send_experience ?? []).length > 0);
   }
@@ -127,6 +130,20 @@ export async function getApprovedTutors(sendPreferenceHints: string[] = [], send
     (t.send_experience ?? []).some((exp) => hints.some((h) => exp.toLowerCase().includes(h) || h.includes(exp.toLowerCase())));
 
   return [...tutors].sort((a, b) => Number(matchesHint(b)) - Number(matchesHint(a)));
+}
+
+// Part 3.3: the most recent weekly report, three sources synthesised and
+// clearly labelled — never disguised as purely automated or purely human.
+export async function getLatestWeeklyReport(learnerId: string) {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("weekly_reports")
+    .select("*")
+    .eq("learner_id", learnerId)
+    .order("week_start", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  return data;
 }
 
 export async function getExamHistory(learnerId: string) {

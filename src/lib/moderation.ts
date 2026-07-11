@@ -22,3 +22,17 @@ export function containsProfanity(text: string): boolean {
   const normalized = normalize(text);
   return BLOCKED_WORDS.some((word) => normalized.includes(word));
 }
+
+// A distinct, higher-severity category — sexual content from a child on an
+// educational AI companion is a safeguarding escalation, not just a manners
+// issue, and is routed to an active alert rather than a passive log line.
+const SEXUAL_CONTENT_WORDS = [
+  "sex", "sexy", "porn", "nude", "naked", "boob", "vagina", "penis", "dick pic",
+  "blowjob", "handjob", "masturbat", "orgasm", "horny", "fetish", "kink",
+  "nsfw", "onlyfans", "hookup", "sext",
+];
+
+export function containsSexualContent(text: string): boolean {
+  const normalized = normalize(text);
+  return SEXUAL_CONTENT_WORDS.some((word) => normalized.includes(word.replace(/[^a-z\s]/g, "")));
+}

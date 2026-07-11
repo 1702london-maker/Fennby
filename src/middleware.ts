@@ -74,6 +74,40 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL(home, request.url));
   }
 
+  // Part 7.4: server-side subscription gating on every protected parent/child
+  // route — never a client-side-only check. /parent/billing is exempt so a
+  // pending/suspended account can always reach the page that fixes it.
+  if (!request.nextUrl.pathname.startsWith("/parent/billing")) {
+    let subscriptionStatus: string | null = null;
+
+    if (profile.role === "parent") {
+      const { data: parentProfile } = await supabase
+        .from("profiles")
+        .select("subscription_status")
+        .eq("id", user.id)
+        .single();
+      subscriptionStatus = parentProfile?.subscription_status ?? null;
+    } else if (profile.role === "child") {
+      const { data: learner } = await supabase
+        .from("learners")
+        .select("parent_id")
+        .eq("auth_id", user.id)
+        .maybeSingle();
+      if (learner?.parent_id) {
+        const { data: parentProfile } = await supabase
+          .from("profiles")
+          .select("subscription_status")
+          .eq("id", learner.parent_id)
+          .single();
+        subscriptionStatus = parentProfile?.subscription_status ?? null;
+      }
+    }
+
+    if (subscriptionStatus === "pending" || subscriptionStatus === "suspended") {
+      return NextResponse.redirect(new URL("/parent/billing", request.url));
+    }
+  }
+
   return response;
 }
 

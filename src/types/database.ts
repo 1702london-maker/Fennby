@@ -681,6 +681,63 @@ export type Database = {
           },
         ]
       }
+      curricula: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          reviewer_notes: string | null
+          status: string
+          subject_key: string
+          title: string
+          tutor_id: string
+          updated_at: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          reviewer_notes?: string | null
+          status?: string
+          subject_key: string
+          title: string
+          tutor_id: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          reviewer_notes?: string | null
+          status?: string
+          subject_key?: string
+          title?: string
+          tutor_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "curricula_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "curricula_tutor_id_fkey"
+            columns: ["tutor_id"]
+            isOneToOne: false
+            referencedRelation: "tutor_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       education_levels: {
         Row: {
           key: string
@@ -807,6 +864,82 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      inter_school_event_registrations: {
+        Row: {
+          created_at: string
+          event_id: string
+          id: string
+          registered_by: string | null
+          school_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          id?: string
+          registered_by?: string | null
+          school_id: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          id?: string
+          registered_by?: string | null
+          school_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inter_school_event_registrations_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "inter_school_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inter_school_event_registrations_registered_by_fkey"
+            columns: ["registered_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inter_school_event_registrations_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inter_school_events: {
+        Row: {
+          created_at: string
+          description: string | null
+          event_date: string | null
+          event_type: string
+          id: string
+          status: string
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          event_date?: string | null
+          event_type: string
+          id?: string
+          status?: string
+          title: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          event_date?: string | null
+          event_type?: string
+          id?: string
+          status?: string
+          title?: string
+        }
+        Relationships: []
       }
       invoices: {
         Row: {
@@ -1025,24 +1158,33 @@ export type Database = {
       }
       lesson_sessions: {
         Row: {
+          commission_rate: number
+          hourly_rate: number | null
           id: string
           learner_id: string
+          payment_status: string
           scheduled_at: string
           status: string
           subject: string | null
           tutor_id: string
         }
         Insert: {
+          commission_rate?: number
+          hourly_rate?: number | null
           id?: string
           learner_id: string
+          payment_status?: string
           scheduled_at: string
           status?: string
           subject?: string | null
           tutor_id: string
         }
         Update: {
+          commission_rate?: number
+          hourly_rate?: number | null
           id?: string
           learner_id?: string
+          payment_status?: string
           scheduled_at?: string
           status?: string
           subject?: string | null
@@ -1217,6 +1359,94 @@ export type Database = {
           },
         ]
       }
+      mock_exam_purchases: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          learner_id: string
+          paid_at: string | null
+          parent_id: string
+          sitting_id: string
+          stripe_payment_intent_id: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          learner_id: string
+          paid_at?: string | null
+          parent_id: string
+          sitting_id: string
+          stripe_payment_intent_id?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          learner_id?: string
+          paid_at?: string | null
+          parent_id?: string
+          sitting_id?: string
+          stripe_payment_intent_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mock_exam_purchases_learner_id_fkey"
+            columns: ["learner_id"]
+            isOneToOne: false
+            referencedRelation: "learners"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mock_exam_purchases_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mock_exam_purchases_sitting_id_fkey"
+            columns: ["sitting_id"]
+            isOneToOne: false
+            referencedRelation: "mock_exam_sittings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mock_exam_sittings: {
+        Row: {
+          capacity: number | null
+          created_at: string
+          id: string
+          price: number
+          sitting_date: string
+          status: string
+          subject_key: string | null
+          title: string
+        }
+        Insert: {
+          capacity?: number | null
+          created_at?: string
+          id?: string
+          price: number
+          sitting_date: string
+          status?: string
+          subject_key?: string | null
+          title: string
+        }
+        Update: {
+          capacity?: number | null
+          created_at?: string
+          id?: string
+          price?: number
+          sitting_date?: string
+          status?: string
+          subject_key?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
       mood_checkins: {
         Row: {
           created_at: string
@@ -1289,6 +1519,7 @@ export type Database = {
           id: string
           role: Database["public"]["Enums"]["role_type"]
           status: string
+          subscription_status: string
           updated_at: string
         }
         Insert: {
@@ -1298,6 +1529,7 @@ export type Database = {
           id: string
           role: Database["public"]["Enums"]["role_type"]
           status?: string
+          subscription_status?: string
           updated_at?: string
         }
         Update: {
@@ -1307,6 +1539,7 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["role_type"]
           status?: string
+          subscription_status?: string
           updated_at?: string
         }
         Relationships: []
@@ -1374,6 +1607,50 @@ export type Database = {
           },
         ]
       }
+      referrals: {
+        Row: {
+          contact_email: string | null
+          contact_name: string
+          contact_phone: string | null
+          created_at: string
+          description: string
+          id: string
+          referral_type: string
+          referred_by: string
+          status: string
+        }
+        Insert: {
+          contact_email?: string | null
+          contact_name: string
+          contact_phone?: string | null
+          created_at?: string
+          description: string
+          id?: string
+          referral_type: string
+          referred_by: string
+          status?: string
+        }
+        Update: {
+          contact_email?: string | null
+          contact_name?: string
+          contact_phone?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          referral_type?: string
+          referred_by?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referrals_referred_by_fkey"
+            columns: ["referred_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       revision_items: {
         Row: {
           due_date: string | null
@@ -1430,6 +1707,7 @@ export type Database = {
           outcome: string | null
           priority: string | null
           reported_by: string | null
+          severity: string
           status: string
           title: string
           updated_at: string
@@ -1445,6 +1723,7 @@ export type Database = {
           outcome?: string | null
           priority?: string | null
           reported_by?: string | null
+          severity?: string
           status?: string
           title: string
           updated_at?: string
@@ -1460,6 +1739,7 @@ export type Database = {
           outcome?: string | null
           priority?: string | null
           reported_by?: string | null
+          severity?: string
           status?: string
           title?: string
           updated_at?: string
@@ -1557,6 +1837,10 @@ export type Database = {
         Row: {
           address: string | null
           approved: boolean
+          billing_tier: string
+          brand_accent_color: string | null
+          brand_logo_url: string | null
+          brand_name: string | null
           contact_name: string | null
           created_at: string
           data_protection_contact: string | null
@@ -1572,6 +1856,10 @@ export type Database = {
         Insert: {
           address?: string | null
           approved?: boolean
+          billing_tier?: string
+          brand_accent_color?: string | null
+          brand_logo_url?: string | null
+          brand_name?: string | null
           contact_name?: string | null
           created_at?: string
           data_protection_contact?: string | null
@@ -1587,6 +1875,10 @@ export type Database = {
         Update: {
           address?: string | null
           approved?: boolean
+          billing_tier?: string
+          brand_accent_color?: string | null
+          brand_logo_url?: string | null
+          brand_name?: string | null
           contact_name?: string | null
           created_at?: string
           data_protection_contact?: string | null
@@ -1760,6 +2052,7 @@ export type Database = {
           examiner_claim: string | null
           experience_years: number | null
           id: string
+          onboarding_state: string
           profile_id: string
           qualifications: string | null
           references_provided: string | null
@@ -1768,6 +2061,7 @@ export type Database = {
           send_experience: string[]
           status: Database["public"]["Enums"]["tutor_status"]
           subjects: string[]
+          temp_password_issued: boolean
         }
         Insert: {
           age_groups?: string[]
@@ -1779,6 +2073,7 @@ export type Database = {
           examiner_claim?: string | null
           experience_years?: number | null
           id?: string
+          onboarding_state?: string
           profile_id: string
           qualifications?: string | null
           references_provided?: string | null
@@ -1787,6 +2082,7 @@ export type Database = {
           send_experience?: string[]
           status?: Database["public"]["Enums"]["tutor_status"]
           subjects?: string[]
+          temp_password_issued?: boolean
         }
         Update: {
           age_groups?: string[]
@@ -1798,6 +2094,7 @@ export type Database = {
           examiner_claim?: string | null
           experience_years?: number | null
           id?: string
+          onboarding_state?: string
           profile_id?: string
           qualifications?: string | null
           references_provided?: string | null
@@ -1806,6 +2103,7 @@ export type Database = {
           send_experience?: string[]
           status?: Database["public"]["Enums"]["tutor_status"]
           subjects?: string[]
+          temp_password_issued?: boolean
         }
         Relationships: [
           {
@@ -1958,6 +2256,44 @@ export type Database = {
             columns: ["tutor_id"]
             isOneToOne: false
             referencedRelation: "tutor_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      weekly_reports: {
+        Row: {
+          ai_platform_summary: string | null
+          ai_tutor_summary: string | null
+          generated_at: string
+          id: string
+          learner_id: string
+          tutor_notes_summary: string | null
+          week_start: string
+        }
+        Insert: {
+          ai_platform_summary?: string | null
+          ai_tutor_summary?: string | null
+          generated_at?: string
+          id?: string
+          learner_id: string
+          tutor_notes_summary?: string | null
+          week_start: string
+        }
+        Update: {
+          ai_platform_summary?: string | null
+          ai_tutor_summary?: string | null
+          generated_at?: string
+          id?: string
+          learner_id?: string
+          tutor_notes_summary?: string | null
+          week_start?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "weekly_reports_learner_id_fkey"
+            columns: ["learner_id"]
+            isOneToOne: false
+            referencedRelation: "learners"
             referencedColumns: ["id"]
           },
         ]

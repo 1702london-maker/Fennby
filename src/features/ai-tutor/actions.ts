@@ -5,7 +5,7 @@ import OpenAI from "openai";
 import { withRole } from "@/lib/auth/withRole";
 import { createClient } from "@/lib/supabase/server";
 import type { ActionResult } from "@/lib/action-result";
-import { containsProfanity } from "@/lib/moderation";
+import { containsProfanity, containsSexualContent } from "@/lib/moderation";
 
 async function getOwnLearnerId(profileId: string, supabase: Awaited<ReturnType<typeof createClient>>) {
   const { data } = await supabase.from("learners").select("id").eq("auth_id", profileId).maybeSingle();
@@ -92,10 +92,14 @@ export const sendAiTutorMessage = withRole(
       content: parsed.data.content,
     });
 
-    // A real safeguarding trigger, not a UI filter: this writes a case a
-    // safeguarding lead can see and notifies the parent directly, the same
-    // way any other concern on Fennby reaches them — never silent.
-    if (containsProfanity(parsed.data.content)) {
+    // Two distinct escalation tiers, not one flat "flagged" bucket. Sexual
+    // content from a child is a safeguarding escalation — critical severity,
+    // an active alert, and the full triggering message logged verbatim for
+    // the DSL — on top of (not instead of) the standard passive visibility
+    // every AI Tutor conversation already has for the parent.
+    const isSexual = containsSexualContent(parsed.data.content);
+    const isProfane = containsProfanity(parsed.data.content);
+    if (isSexual || isProfane) {
       const { data: learner } = await supabase
         .from("learners")
         .select("id, parent_id, preferred_name")
@@ -103,19 +107,24 @@ export const sendAiTutorMessage = withRole(
         .maybeSingle();
 
       await supabase.from("safeguarding_cases").insert({
-        title: `Language flag: ${learner?.preferred_name ?? "a child"} in AI Tutor`,
+        title: isSexual
+          ? `URGENT: Sexual content flagged — ${learner?.preferred_name ?? "a child"} in AI Tutor`
+          : `Language flag: ${learner?.preferred_name ?? "a child"} in AI Tutor`,
         learner_id: learnerId,
         reported_by: "AI Tutor (automatic)",
-        concern_type: "language",
-        priority: "low",
-        description: "Inappropriate language was detected automatically in an AI Tutor conversation. The parent has been notified.",
+        concern_type: isSexual ? "sexual_content" : "language",
+        priority: isSexual ? "high" : "low",
+        severity: isSexual ? "critical" : "medium",
+        description: isSexual
+          ? `Sexual content was detected automatically in an AI Tutor conversation and requires immediate DSL review. Full triggering message: "${parsed.data.content}"`
+          : "Inappropriate language was detected automatically in an AI Tutor conversation. The parent has been notified.",
         status: "open",
       });
 
       if (learner?.parent_id) {
         await supabase.from("notifications").insert({
           profile_id: learner.parent_id,
-          type: "ai_tutor_language_flag",
+          type: isSexual ? "ai_tutor_safeguarding_alert" : "ai_tutor_language_flag",
           payload: { learnerId, learnerName: learner.preferred_name, conversationId: parsed.data.conversationId },
         });
       }

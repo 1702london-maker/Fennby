@@ -2,10 +2,15 @@
 
 import { withRole } from "@/lib/auth/withRole";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import type { ActionResult } from "@/lib/action-result";
 import type { Database } from "@/types/database";
 
 type TutorStatus = Database["public"]["Enums"]["tutor_status"];
+
+function generateTempPassword() {
+  return `Fennby-${Math.random().toString(36).slice(2, 8)}-${Math.random().toString(36).slice(2, 6)}`;
+}
 
 export const setTutorApplicationStatus = withRole(
   ["admin"],
@@ -38,6 +43,33 @@ export const setTutorApplicationStatus = withRole(
         { onConflict: "id" }
       );
       if (upsertError) return { ok: false, error: upsertError.message };
+
+      // Part 8.1 state 4→5: approval issues a real temporary password via
+      // the admin API and moves the tutor straight to "must reset it before
+      // anything else" — the generated password is never left in permanent
+      // use. State transitions are logged to the audit trail, not inferred.
+      const tempPassword = generateTempPassword();
+      const admin = createAdminClient();
+      await admin.auth.admin.updateUserById(application.profile_id, { password: tempPassword });
+
+      await supabase
+        .from("tutor_applications")
+        .update({ onboarding_state: "password_reset_required", temp_password_issued: true })
+        .eq("id", applicationId);
+
+      await supabase.from("notifications").insert({
+        profile_id: application.profile_id,
+        type: "tutor_application_approved",
+        payload: { tempPassword },
+      });
+
+      await supabase.from("audit_logs").insert({
+        actor_id: session.id,
+        action: "tutor_onboarding_transition",
+        entity: "tutor_applications",
+        entity_id: applicationId,
+        diff: { onboarding_state: "password_reset_required" },
+      });
     } else if (status === "suspended") {
       // Cancel future sessions for a suspended tutor — closing a safeguarding gap,
       // not left as a follow-up job.

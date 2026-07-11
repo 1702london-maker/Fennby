@@ -90,7 +90,7 @@ export default function RegisterParentPage() {
         setError(result.error);
         return;
       }
-      router.push("/parent");
+      router.push("/parent/billing");
       router.refresh();
     } catch {
       // withRole() throws (rather than returning an ActionResult) when

@@ -102,6 +102,7 @@ export const roleNav: Record<Role, NavLink[]> = {
     { href: "/tutor/lessons", label: "Lessons" },
     { href: "/tutor/messages", label: "Messages" },
     { href: "/tutor/training", label: "Training" },
+    { href: "/tutor/curriculum", label: "Curriculum" },
     { href: "/tutor/profile", label: "Profile" },
     { href: "/tutor/earnings", label: "Earnings" },
   ],
@@ -125,6 +126,7 @@ export const roleNav: Record<Role, NavLink[]> = {
     { href: "/admin/users", label: "Users" },
     { href: "/admin/learners", label: "Learners" },
     { href: "/admin/tutors", label: "Tutors" },
+    { href: "/admin/curriculum", label: "Curriculum" },
     { href: "/admin/schools", label: "Schools" },
     { href: "/admin/questions", label: "Questions" },
     { href: "/admin/assessments", label: "Assessments" },
@@ -143,6 +145,7 @@ export const roleNav: Record<Role, NavLink[]> = {
   authority: [
     { href: "/authority/dashboard", label: "Regional Dashboard" },
     { href: "/authority/impact", label: "Impact Reports" },
+    { href: "/authority/referrals", label: "Referrals" },
     { href: "/trust", label: "Safeguarding Framework" },
     { href: "/contact", label: "Contact" },
   ],

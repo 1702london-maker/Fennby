@@ -88,7 +88,7 @@ export const signTutorAgreement = withRole(
     const supabase = await createClient();
     const { data: application } = await supabase
       .from("tutor_applications")
-      .select("id, status")
+      .select("id, status, onboarding_state")
       .eq("profile_id", session.id)
       .maybeSingle();
 
@@ -98,7 +98,11 @@ export const signTutorAgreement = withRole(
 
     const { error } = await supabase
       .from("tutor_applications")
-      .update({ agreement_signed_at: new Date().toISOString(), status: "training_pending" })
+      .update({
+        agreement_signed_at: new Date().toISOString(),
+        status: "training_pending",
+        onboarding_state: "verified",
+      })
       .eq("id", application.id);
     if (error) return { ok: false, error: error.message };
 
@@ -106,6 +110,53 @@ export const signTutorAgreement = withRole(
       .from("tutor_profiles")
       .update({ status: "training_pending" })
       .eq("id", session.id);
+
+    await supabase.from("audit_logs").insert({
+      actor_id: session.id,
+      action: "tutor_onboarding_transition",
+      entity: "tutor_applications",
+      entity_id: application.id,
+      diff: { onboarding_state: "verified" },
+    });
+
+    return { ok: true, data: null };
+  }
+);
+
+// Part 8.1 state 5→6: the system-generated temporary password can never
+// remain in permanent use — this is the one action that clears
+// password_reset_required, and only after Supabase Auth confirms the
+// new password was actually set.
+const resetPasswordSchema = z.object({ newPassword: z.string().min(12) });
+
+export const completeForcedPasswordReset = withRole(
+  ["tutor"],
+  async (session, input: z.infer<typeof resetPasswordSchema>): Promise<ActionResult> => {
+    const parsed = resetPasswordSchema.safeParse(input);
+    if (!parsed.success) return { ok: false, error: "validation_failed" };
+
+    const supabase = await createClient();
+    const { data: application } = await supabase
+      .from("tutor_applications")
+      .select("id, onboarding_state")
+      .eq("profile_id", session.id)
+      .maybeSingle();
+    if (!application || application.onboarding_state !== "password_reset_required") {
+      return { ok: false, error: "forbidden" };
+    }
+
+    const { error: pwError } = await supabase.auth.updateUser({ password: parsed.data.newPassword });
+    if (pwError) return { ok: false, error: pwError.message };
+
+    await supabase.from("tutor_applications").update({ onboarding_state: "agreement_pending" }).eq("id", application.id);
+
+    await supabase.from("audit_logs").insert({
+      actor_id: session.id,
+      action: "tutor_onboarding_transition",
+      entity: "tutor_applications",
+      entity_id: application.id,
+      diff: { onboarding_state: "agreement_pending" },
+    });
 
     return { ok: true, data: null };
   }

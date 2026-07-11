@@ -6,6 +6,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { publicTopLinks, campsDropdown, roleNav, publicPathPrefixes } from "@/lib/nav-config";
 import { useHasSendProfile } from "@/lib/send-context";
+import { NotificationBell } from "@/components/NotificationBell";
 import { Button } from "@/components/Button";
 import type { Role } from "@/lib/types";
 
@@ -103,9 +104,7 @@ export function Header() {
             </Button>
           ) : (
             <>
-              <button aria-label="Notifications" className="rounded-full p-2 hover:bg-teal-100 min-h-[44px] min-w-[44px]">
-                🔔
-              </button>
+              <NotificationBell />
               <span className="rounded-full bg-teal-100 px-3 py-2 text-sm font-semibold min-h-[44px] flex items-center">
                 Account
               </span>

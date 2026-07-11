@@ -14,6 +14,7 @@ import {
   getRecentMessages,
   getRevisionItems,
   getLearnerAchievements,
+  getLatestWeeklyReport,
 } from "@/features/parent/queries";
 import { getWorkshopSummaryForLearner } from "@/features/parent/workshopQueries";
 import { getAiTutorHistoryForLearner } from "@/features/ai-tutor/queries";
@@ -54,7 +55,7 @@ export default async function ParentDashboard({
 
   const child = learners.find((l) => l.id === childId) ?? learners[0];
 
-  const [latestResult, moodTrend, sessions, messages, revisionItems, achievements, workshop, aiTutorHistory] = await Promise.all([
+  const [latestResult, moodTrend, sessions, messages, revisionItems, achievements, workshop, aiTutorHistory, weeklyReport] = await Promise.all([
     getLatestResult(child.id),
     getMoodTrend(child.id),
     getUpcomingSessions(child.id),
@@ -63,6 +64,7 @@ export default async function ParentDashboard({
     getLearnerAchievements(child.id),
     getWorkshopSummaryForLearner(child.id),
     getAiTutorHistoryForLearner(child.id),
+    getLatestWeeklyReport(child.id),
   ]);
 
   return (
@@ -294,6 +296,35 @@ export default async function ParentDashboard({
               </div>
             ) : (
               <p className="text-sm text-charcoal-teal/70">No AI Tutor conversations yet.</p>
+            )}
+          </Card>
+        </section>
+
+        <section className="mt-6">
+          <Card tint="teal">
+            <h2 className="font-display font-bold text-lg mb-1">Weekly report</h2>
+            <p className="text-xs font-semibold text-charcoal-teal/60 mb-4">
+              Three sources, clearly labelled — never disguised as one or the other.
+            </p>
+            {weeklyReport ? (
+              <div className="space-y-4">
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-wide text-teal-900 mb-1">AI-analysed platform data</p>
+                  <p className="text-sm text-charcoal-teal/85">{weeklyReport.ai_platform_summary ?? "No summary yet."}</p>
+                </div>
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-wide text-plum-700 mb-1">Human tutor notes</p>
+                  <p className="text-sm text-charcoal-teal/85">{weeklyReport.tutor_notes_summary ?? "No tutor notes this week."}</p>
+                </div>
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-wide text-brick-600 mb-1">AI Tutor interaction summary</p>
+                  <p className="text-sm text-charcoal-teal/85">{weeklyReport.ai_tutor_summary ?? "No AI Tutor activity this week."}</p>
+                </div>
+              </div>
+            ) : (
+              <p className="text-sm text-charcoal-teal/70">
+                No weekly report generated yet — this fills in automatically once {child.preferred_name} has a full week of activity.
+              </p>
             )}
           </Card>
         </section>

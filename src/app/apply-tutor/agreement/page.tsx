@@ -41,6 +41,23 @@ export default async function TutorAgreementPage() {
     );
   }
 
+  if (application.onboarding_state === "password_reset_required") {
+    return (
+      <PageShell>
+        <main className="max-w-xl mx-auto px-6 py-20 text-center">
+          <Card tint="teal">
+            <span className="text-5xl" aria-hidden>🔑</span>
+            <h1 className="font-display font-bold text-2xl mt-4 mb-2">Set your password first</h1>
+            <p className="text-charcoal-teal/80 leading-relaxed mb-6">
+              Before you can sign the agreement, replace the temporary password we sent you.
+            </p>
+            <Button href="/apply-tutor/reset-password" variant="primary">Set your password</Button>
+          </Card>
+        </main>
+      </PageShell>
+    );
+  }
+
   if (application.status !== "approved") {
     return (
       <PageShell>
