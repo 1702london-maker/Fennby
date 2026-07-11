@@ -1,16 +1,16 @@
 import Link from "next/link";
 
 // Fennby's real differentiator vs. competitors like GoStudent: audience
-// segmentation lives here, not buried in header dropdowns. These route to
-// /login pre-selected on the right role tab (or straight to the dedicated
-// child login), not to the dashboard itself — the dashboard route requires
-// a real session and would otherwise bounce through a confusing redirect.
+// segmentation lives here, not buried in header dropdowns. Each button leads
+// to that audience's own landing page first (what you get, why it's safe),
+// which then carries its own login/get-started route — not a bare login
+// form, so a first-time visitor understands what they're signing up for.
 const destinations = [
-  { label: "👪 Parents", href: "/login?as=parent" },
-  { label: "🧒 Kids", href: "/child-login" },
-  { label: "🎓 Tutors", href: "/login?as=tutor" },
-  { label: "🏫 Schools", href: "/login?as=school_admin" },
-  { label: "🏛️ Council", href: "/login?as=authority" },
+  { label: "👪 Parents", href: "/for-families" },
+  { label: "🧒 Kids", href: "/for-kids" },
+  { label: "🎓 Tutors", href: "/for-tutors" },
+  { label: "🏫 Schools", href: "/for-schools" },
+  { label: "🏛️ Council", href: "/for-local-authorities" },
   { label: "🧩 SEND", href: "/send-accessibility" },
 ];
 

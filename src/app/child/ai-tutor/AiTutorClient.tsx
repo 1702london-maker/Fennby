@@ -78,7 +78,7 @@ export function AiTutorClient() {
         )}
       </Card>
       {error && <p className="text-sm text-brick-600 font-semibold mb-3">{error}</p>}
-      <div className="flex items-center gap-2">
+      <div className="sticky bottom-24 sm:bottom-20 flex items-center gap-2 bg-mist-50/95 backdrop-blur rounded-full py-2">
         <input
           value={draft}
           onChange={(e) => setDraft(e.target.value)}

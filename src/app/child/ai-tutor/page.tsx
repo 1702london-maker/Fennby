@@ -18,13 +18,13 @@ export default async function AiTutorPage() {
 
   return (
     <PageShell>
-      <main className="max-w-2xl mx-auto px-6 py-10">
+      <main className="max-w-2xl mx-auto px-6 pt-10 pb-32">
         <h1 className="font-display font-bold text-3xl mb-1">AI Tutor</h1>
         <Card tint="teal" className="mb-6">
           <p className="text-sm text-charcoal-teal/85">
-            A practice helper you can chat with any time — not a replacement for your real
-            tutor, and every message here is visible to your parent, just like everything
-            else on Fennby.
+            A practice helper you can chat with any time, not a replacement for your real
+            tutor. Every message here is visible to your parent, just like everything else
+            on Fennby.
           </p>
         </Card>
         <AiTutorClient />

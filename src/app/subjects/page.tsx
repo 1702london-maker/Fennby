@@ -68,9 +68,17 @@ export default async function SubjectsPage() {
           </div>
         </section>
 
+        <Card tint="coral" className="mb-10">
+          <p className="text-charcoal-teal/85 leading-relaxed">
+            Every subject and level comes with our SEND accommodations built in at no extra
+            cost, and 20% off for any child with a SEND profile. See{" "}
+            <a href="/send-accessibility" className="font-semibold text-brick-600 hover:underline">SEND &amp; Accessibility</a>.
+          </p>
+        </Card>
+
         <div className="flex flex-wrap gap-4">
           <Button href="/register/parent" variant="primary">Create a parent account</Button>
-          <Button href="/for-families" variant="outline">Explore For Families</Button>
+          <Button href="/for-families" variant="outline">Explore for parents</Button>
         </div>
       </main>
     </PageShell>

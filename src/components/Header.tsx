@@ -40,43 +40,30 @@ export function Header() {
         </Link>
 
         {/* Desktop nav — kept deliberately minimal; audience segmentation
-            (parents/kids/tutors/schools/council) lives in the floating bar */}
-        <nav className="hidden lg:flex items-center gap-1 flex-1">
-          {publicMode
-            ? publicTopLinks.map((l) => (
-                <Link
-                  key={l.href}
-                  href={l.href}
-                  className={`px-4 py-2 rounded-full text-sm font-semibold min-h-[44px] flex items-center transition-colors ${
-                    l.href === "/trust" ? "text-brick-600" : "text-charcoal-teal hover:bg-teal-100"
-                  }`}
-                >
-                  {l.label}
-                </Link>
-              ))
-            : links.map((l) => (
-                <Link
-                  key={l.href}
-                  href={l.href}
-                  className={`px-4 py-2 rounded-full text-sm font-semibold min-h-[44px] flex items-center transition-colors ${
-                    pathname === l.href ? "bg-teal-900 text-white" : "text-teal-900 hover:bg-teal-100"
-                  }`}
-                >
-                  {l.label}
-                </Link>
-              ))}
+            (parents/kids/tutors/schools/council) lives in the floating bar.
+            Once logged in, per-role navigation lives in the left sidebar,
+            not here — this bar stays the same everywhere so Trust &
+            Safeguarding and Report a concern are always in the same place. */}
+        <nav className="hidden lg:flex items-center gap-1 flex-1 flex-wrap">
+          {publicMode &&
+            publicTopLinks.map((l) => (
+              <Link
+                key={l.href}
+                href={l.href}
+                className={`px-3 py-2 rounded-full text-sm font-semibold min-h-[44px] flex items-center transition-colors whitespace-nowrap ${
+                  l.href === "/trust" ? "text-brick-600" : "text-charcoal-teal hover:bg-teal-100"
+                }`}
+              >
+                {l.label}
+              </Link>
+            ))}
         </nav>
 
         <div className="hidden lg:flex items-center gap-3 shrink-0">
           {publicMode ? (
-            <>
-              <Link href="/login" className="text-sm font-semibold text-teal-900 hover:underline px-2 min-h-[44px] flex items-center">
-                Log in
-              </Link>
-              <Button href="/register" variant="primary" className="px-5 py-2 text-sm">
-                Get started
-              </Button>
-            </>
+            <Button href="/get-started" variant="primary" className="px-5 py-2 text-sm">
+              Get started
+            </Button>
           ) : (
             <>
               <button aria-label="Notifications" className="rounded-full p-2 hover:bg-teal-100 min-h-[44px] min-w-[44px]">
@@ -127,9 +114,11 @@ export function Header() {
                 </Link>
               ))}
               <div className="flex gap-3 pt-3">
-                <Button href="/login" variant="outline" className="flex-1 justify-center">Log in</Button>
-                <Button href="/register" variant="primary" className="flex-1 justify-center">Get started</Button>
+                <Button href="/get-started" variant="primary" className="flex-1 justify-center">Get started</Button>
               </div>
+              <Link href="/report-concern" className="block font-semibold text-brick-600 py-2 min-h-[44px] flex items-center" onClick={() => setMobileOpen(false)}>
+                Report a concern
+              </Link>
             </>
           ) : (
             <>

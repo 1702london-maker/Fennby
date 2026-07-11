@@ -17,8 +17,12 @@ export interface NavDropdown {
 export const publicTopLinks: NavLink[] = [
   { href: "/#how-it-works", label: "How it works" },
   { href: "/subjects", label: "Subjects" },
-  { href: "/trust", label: "Trust & Safeguarding" },
-  { href: "/pricing", label: "Pricing" },
+  { href: "/for-tutors", label: "Vetted Tutors" },
+  { href: "/apply-tutor", label: "Apply to Tutor" },
+  { href: "/summer-camps", label: "Summer Camps" },
+  { href: "/vocational", label: "Vocational & Craft" },
+  { href: "/home-ed-eotas", label: "Home Ed & EOTAS" },
+  { href: "/trust", label: "Safeguarding" },
 ];
 
 // Kept for pages that still link into a specific audience's detail pages
@@ -156,4 +160,5 @@ export const publicPathPrefixes = [
   "/send-accessibility",
   "/home-ed-eotas",
   "/for-local-authorities",
+  "/get-started",
 ];

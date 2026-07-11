@@ -33,8 +33,18 @@ export default function ForFamiliesPage() {
             </Card>
           ))}
         </div>
+        <Card tint="teal" className="mb-10">
+          <p className="text-charcoal-teal/85 leading-relaxed">
+            Fennby is built with SEND families in mind from the ground up, not as an add-on.
+            Every accommodation is free on every plan, and any child with a SEND profile gets
+            20% off their family subscription. See{" "}
+            <a href="/send-accessibility" className="font-semibold text-teal-900 hover:underline">SEND &amp; Accessibility</a>.
+          </p>
+        </Card>
+
         <div className="flex flex-wrap gap-4">
           <Button href="/register/parent" variant="primary">Create a parent account</Button>
+          <Button href="/login?as=parent" variant="outline">Log in</Button>
           <Button href="/pricing" variant="secondary">See pricing</Button>
         </div>
       </main>
