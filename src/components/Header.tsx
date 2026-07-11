@@ -13,20 +13,28 @@ import { Button } from "@/components/Button";
 import type { Role } from "@/lib/types";
 
 function isPublicPath(pathname: string) {
-  return pathname === "/" || publicPathPrefixes.some((p) => pathname.startsWith(p));
+  return pathname === "/" || publicPathPrefixes.some((p) => pathname === p || pathname.startsWith(`${p}/`));
+}
+
+// A plain startsWith("/child") also matches "/child-login" — a sibling
+// public route, not a segment of the child dashboard — which was leaking
+// the full child sidebar/nav onto the login page. isSection checks the
+// prefix is followed by "/" or the end of the string, a real path segment.
+function isSection(pathname: string, prefix: string) {
+  return pathname === prefix || pathname.startsWith(`${prefix}/`);
 }
 
 // Derived from the actual URL section — matches the same prefixes the
 // server-side middleware enforces, so the nav shown always matches which
 // role-scoped area the signed-in user is really in.
 function sectionRoleFromPath(pathname: string): Role {
-  if (pathname.startsWith("/child")) return "child";
-  if (pathname.startsWith("/tutor")) return "tutor";
-  if (pathname.startsWith("/school")) return "school_admin";
-  if (pathname.startsWith("/teacher")) return "teacher";
-  if (pathname.startsWith("/admin")) return "admin";
-  if (pathname.startsWith("/safeguarding")) return "safeguarding";
-  if (pathname.startsWith("/authority")) return "authority";
+  if (isSection(pathname, "/child")) return "child";
+  if (isSection(pathname, "/tutor")) return "tutor";
+  if (isSection(pathname, "/school")) return "school_admin";
+  if (isSection(pathname, "/teacher")) return "teacher";
+  if (isSection(pathname, "/admin")) return "admin";
+  if (isSection(pathname, "/safeguarding")) return "safeguarding";
+  if (isSection(pathname, "/authority")) return "authority";
   return "parent";
 }
 

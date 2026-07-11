@@ -179,4 +179,5 @@ export const publicPathPrefixes = [
   "/ai-tutor-safety",
   "/how-it-works",
   "/foundry",
+  "/child-login",
 ];
