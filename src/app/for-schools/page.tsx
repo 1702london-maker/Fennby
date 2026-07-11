@@ -15,19 +15,36 @@ export default function ForSchoolsPage() {
   return (
     <PageShell>
       <main className="max-w-7xl mx-auto px-6 py-16">
-        <h1 className="font-display font-bold text-4xl mb-4">For education providers</h1>
-        <p className="text-charcoal-teal/80 max-w-2xl mb-4">
-          A genuine institutional reporting layer — not just a bolt-on tutoring widget. Fennby
-          gives your setting a live view of pupil progress alongside evidence you can actually
-          use in statutory reporting.
-        </p>
-        <p className="text-charcoal-teal/80 max-w-2xl mb-10">
-          Built for the realities of real settings — mainstream schools, alternative provision,
-          and EOTAS (Education Otherwise Than in School) settings alike: Pupil Premium strategy
-          statements, SEND progress tracking, homework that doesn&apos;t need re-typing into
-          three different systems, and safeguarding evidence a governor, local authority
-          officer, or Ofsted inspector could actually follow — whichever kind of setting you run.
-        </p>
+        <section className="grid md:grid-cols-2 gap-12 items-center mb-14">
+          <div>
+            <span className="inline-block bg-teal-100 text-teal-900 text-xs font-bold px-3 py-1 rounded-full mb-4">
+              FOR EDUCATION PROVIDERS
+            </span>
+            <h1 className="font-display font-bold text-4xl sm:text-5xl leading-tight text-charcoal-teal text-balance">
+              A genuine institutional reporting layer, not a bolt-on tutoring widget.
+            </h1>
+            <p className="mt-6 text-lg text-charcoal-teal/80 leading-relaxed max-w-lg">
+              Fennby gives your setting a live view of pupil progress alongside evidence you can
+              actually use in statutory reporting. Built for mainstream schools, alternative
+              provision, and EOTAS settings alike.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-4">
+              <Button href="/school/demo" variant="primary">Book a demo</Button>
+              <Button href="/register/school" variant="outline">Register your school</Button>
+            </div>
+          </div>
+          <div className="flex justify-center">
+            <Card tint="teal" className="w-full max-w-sm">
+              <p className="font-display font-bold text-sm text-teal-900 mb-3">Ready for statutory reporting</p>
+              <ul className="space-y-2 text-sm text-charcoal-teal/85">
+                <li>✓ Pupil Premium strategy statement evidence</li>
+                <li>✓ SEND progress tracking, built in</li>
+                <li>✓ Safeguarding a governor can follow</li>
+                <li>✓ School-scoped staff accounts only</li>
+              </ul>
+            </Card>
+          </div>
+        </section>
         <div className="grid sm:grid-cols-2 gap-4 mb-10">
           {features.map((f) => (
             <Card key={f.title}>

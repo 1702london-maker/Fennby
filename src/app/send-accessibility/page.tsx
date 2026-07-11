@@ -18,19 +18,35 @@ export default function SendAccessibilityPage() {
   return (
     <PageShell>
       <main>
-        <section className="max-w-7xl mx-auto px-6 pt-16 pb-12 text-center">
-          <span className="inline-block bg-teal-100 text-teal-900 text-xs font-bold px-3 py-1 rounded-full mb-4">
-            SEND &amp; ACCESSIBILITY
-          </span>
-          <h1 className="font-display font-bold text-4xl leading-tight text-balance max-w-3xl mx-auto">
-            Accommodation isn&apos;t a special mode. It&apos;s built into the ordinary settings every family can open.
-          </h1>
-          <p className="mt-6 text-lg text-charcoal-teal/80 leading-relaxed max-w-2xl mx-auto">
-            Over 1.6 million children in England have an identified special educational need. Fennby
-            never asks a family to prove a diagnosis before switching on font size, extra time, or
-            read-aloud — these are available to everyone, on every plan, always.
-          </p>
-          <Button href="/register/parent" variant="primary" className="mt-8">Get started</Button>
+        <section className="max-w-7xl mx-auto px-6 pt-16 pb-12 grid md:grid-cols-2 gap-12 items-center">
+          <div>
+            <span className="inline-block bg-teal-100 text-teal-900 text-xs font-bold px-3 py-1 rounded-full mb-4">
+              SEND &amp; ACCESSIBILITY
+            </span>
+            <h1 className="font-display font-bold text-4xl sm:text-5xl leading-tight text-charcoal-teal text-balance">
+              Accommodation isn&apos;t a special mode. It&apos;s built into the ordinary settings every family can open.
+            </h1>
+            <p className="mt-6 text-lg text-charcoal-teal/80 leading-relaxed max-w-lg">
+              Over 1.6 million children in England have an identified special educational need.
+              Fennby never asks a family to prove a diagnosis before switching on font size,
+              extra time, or read-aloud, these are available to everyone, on every plan, always.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-4">
+              <Button href="/register/parent" variant="primary">Get started</Button>
+              <Button href="/for-families" variant="outline">Explore for parents</Button>
+            </div>
+          </div>
+          <div className="flex justify-center">
+            <Card tint="coral" className="w-full max-w-sm">
+              <p className="font-display font-bold text-sm text-brick-600 mb-3">Free on every plan, 20% off too</p>
+              <ul className="space-y-2 text-sm text-charcoal-teal/85">
+                <li>✓ No diagnosis or EHCP required</li>
+                <li>✓ Chosen by your child, in their Settings</li>
+                <li>✓ Visible to you and their tutor</li>
+                <li>✓ 20% off for any SEND child</li>
+              </ul>
+            </Card>
+          </div>
         </section>
 
         <section className="max-w-7xl mx-auto px-6 py-12">

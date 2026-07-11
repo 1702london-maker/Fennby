@@ -1,6 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
 
+// Order matters on mobile: For Families and Trust & Safety sit on the
+// left of their row, which leaves School and Company enough width to sit
+// beside them instead of the row overflowing or wrapping awkwardly.
 const columns = [
   {
     title: "For Families",
@@ -14,15 +17,6 @@ const columns = [
     ],
   },
   {
-    title: "For Schools",
-    links: [
-      { href: "/school", label: "School Dashboard" },
-      { href: "/school/reports", label: "Pupil Premium Reports" },
-      { href: "/school/network", label: "School Network" },
-      { href: "/school/demo", label: "Book a Demo" },
-    ],
-  },
-  {
     title: "Trust & Safety",
     links: [
       { href: "/trust", label: "Safeguarding Framework" },
@@ -30,6 +24,15 @@ const columns = [
       { href: "/trust#data", label: "Data & Privacy" },
       { href: "/trust#report", label: "Report a Concern" },
       { href: "/trust#accessibility", label: "Accessibility" },
+    ],
+  },
+  {
+    title: "For Schools",
+    links: [
+      { href: "/school", label: "School Dashboard" },
+      { href: "/school/reports", label: "Pupil Premium Reports" },
+      { href: "/school/network", label: "School Network" },
+      { href: "/school/demo", label: "Book a Demo" },
     ],
   },
   {
@@ -54,8 +57,8 @@ const socials = [
 export function Footer() {
   return (
     <footer className="bg-teal-100 mt-20">
-      <div className="max-w-7xl mx-auto px-6 py-14 grid sm:grid-cols-2 lg:grid-cols-5 gap-10">
-        <div>
+      <div className="max-w-7xl mx-auto px-6 py-14 grid grid-cols-2 lg:grid-cols-5 gap-x-6 gap-y-10">
+        <div className="col-span-2 lg:col-span-1">
           <Image src="/brand/fennby-logo-stacked.svg" alt="Fennby" width={100} height={110} />
           <p className="text-sm text-charcoal-teal/80 mt-4 max-w-[220px]">
             The only tutoring platform where nothing about your child is hidden from you.

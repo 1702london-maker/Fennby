@@ -21,18 +21,35 @@ export default function ForTutorsPage() {
   return (
     <PageShell>
       <main>
-        <section className="max-w-4xl mx-auto px-6 pt-16 pb-10 text-center">
-          <span className="inline-block bg-teal-100 text-teal-900 text-xs font-bold px-3 py-1 rounded-full mb-4">
-            VETTED TUTORS
-          </span>
-          <h1 className="font-display font-bold text-4xl leading-tight max-w-2xl mx-auto">
-            Every tutor on Fennby is checked, trained, and visible, so you never have to wonder.
-          </h1>
-          <p className="mt-6 text-lg text-charcoal-teal/80 leading-relaxed max-w-2xl mx-auto">
-            You&apos;re trusting someone with your child&apos;s learning, and sometimes their
-            confidence too. Here&apos;s exactly how we make sure that trust is deserved, not just
-            promised.
-          </p>
+        <section className="max-w-7xl mx-auto px-6 pt-16 pb-10 grid md:grid-cols-2 gap-12 items-center">
+          <div>
+            <span className="inline-block bg-teal-100 text-teal-900 text-xs font-bold px-3 py-1 rounded-full mb-4">
+              VETTED TUTORS
+            </span>
+            <h1 className="font-display font-bold text-4xl sm:text-5xl leading-tight text-charcoal-teal text-balance">
+              Every tutor on Fennby is checked, trained, and visible, so you never have to wonder.
+            </h1>
+            <p className="mt-6 text-lg text-charcoal-teal/80 leading-relaxed max-w-lg">
+              You&apos;re trusting someone with your child&apos;s learning, and sometimes their
+              confidence too. Here&apos;s exactly how we make sure that trust is deserved, not
+              just promised.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-4">
+              <Button href="/apply-tutor" variant="primary">Apply to tutor</Button>
+              <Button href="/login?as=tutor" variant="outline">Log in</Button>
+            </div>
+          </div>
+          <div className="flex justify-center">
+            <Card tint="plum" className="w-full max-w-sm">
+              <p className="font-display font-bold text-sm text-plum-700 mb-3">Every tutor, before day one</p>
+              <ul className="space-y-2 text-sm text-charcoal-teal/85">
+                <li>✓ Identity + enhanced DBS check cleared</li>
+                <li>✓ Signed conduct &amp; safeguarding agreement</li>
+                <li>✓ Safeguarding and SEND training complete</li>
+                <li>✓ Keeps 100% of session earnings</li>
+              </ul>
+            </Card>
+          </div>
         </section>
 
         <section className="max-w-6xl mx-auto px-6 py-8">

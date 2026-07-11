@@ -20,17 +20,37 @@ export default function HomeEdEotasPage() {
   return (
     <PageShell>
       <main className="max-w-7xl mx-auto px-6 py-16">
-        <span className="inline-block bg-teal-100 text-teal-900 text-xs font-bold px-3 py-1 rounded-full mb-4">
-          FOR FAMILIES
-        </span>
-        <h1 className="font-display font-bold text-4xl mb-4 max-w-2xl">
-          Home Ed &amp; EOTAS — a genuinely structured education, without school enrolment.
-        </h1>
-        <p className="text-charcoal-teal/80 max-w-2xl mb-10">
-          Whatever brought you to educating outside mainstream school, Fennby gives you the full
-          subject range, real mock exams, and tutor support to build a curriculum-aligned
-          education you can actually track — not a collection of disconnected worksheets.
-        </p>
+        <section className="grid md:grid-cols-2 gap-12 items-center mb-14">
+          <div>
+            <span className="inline-block bg-teal-100 text-teal-900 text-xs font-bold px-3 py-1 rounded-full mb-4">
+              HOME ED &amp; EOTAS
+            </span>
+            <h1 className="font-display font-bold text-4xl sm:text-5xl leading-tight text-charcoal-teal text-balance">
+              A genuinely structured education, without school enrolment.
+            </h1>
+            <p className="mt-6 text-lg text-charcoal-teal/80 leading-relaxed max-w-lg">
+              Whatever brought you to educating outside mainstream school, Fennby gives you the
+              full subject range, real mock exams, and tutor support to build a
+              curriculum-aligned education you can actually track, not a pile of disconnected
+              worksheets.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-4">
+              <Button href="/register/parent" variant="primary">Create a parent account</Button>
+              <Button href="/send-accessibility" variant="outline">See SEND &amp; Accessibility</Button>
+            </div>
+          </div>
+          <div className="flex justify-center">
+            <Card tint="sage" className="w-full max-w-sm">
+              <p className="font-display font-bold text-sm text-charcoal-teal mb-3">No school enrolment required</p>
+              <ul className="space-y-2 text-sm text-charcoal-teal/85">
+                <li>✓ Full subject range, KS1 to A-Level</li>
+                <li>✓ Digital, print-and-shade &amp; timed mocks</li>
+                <li>✓ AI Tutor plus vetted human tutors</li>
+                <li>✓ Every accommodation included, free</li>
+              </ul>
+            </Card>
+          </div>
+        </section>
 
         <div className="grid sm:grid-cols-2 gap-4 mb-12">
           {reasons.map((r) => (

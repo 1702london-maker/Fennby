@@ -4,7 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { publicTopLinks, roleNav, publicPathPrefixes } from "@/lib/nav-config";
+import { publicTopLinks, campsDropdown, roleNav, publicPathPrefixes } from "@/lib/nav-config";
 import { Button } from "@/components/Button";
 import type { Role } from "@/lib/types";
 
@@ -29,6 +29,7 @@ function sectionRoleFromPath(pathname: string): Role {
 export function Header() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [campsOpen, setCampsOpen] = useState(false);
   const publicMode = isPublicPath(pathname);
   const links = roleNav[sectionRoleFromPath(pathname)];
 
@@ -48,16 +49,44 @@ export function Header() {
             logo and the CTA, left to right, instead of clumping together. */}
         <nav className="hidden lg:flex items-center justify-between flex-1">
           {publicMode &&
-            publicTopLinks.map((l) => (
-              <Link
-                key={l.href}
-                href={l.href}
-                className={`px-2 py-2 rounded-full text-sm font-semibold min-h-[44px] flex items-center transition-colors whitespace-nowrap ${
-                  l.href === "/trust" ? "text-brick-600" : "text-charcoal-teal hover:bg-teal-100"
-                }`}
-              >
-                {l.label}
-              </Link>
+            publicTopLinks.map((l, i) => (
+              <span key={l.href} className="contents">
+                <Link
+                  href={l.href}
+                  className={`px-2 py-2 rounded-full text-sm font-semibold min-h-[44px] flex items-center transition-colors whitespace-nowrap ${
+                    l.href === "/trust" ? "text-brick-600" : "text-charcoal-teal hover:bg-teal-100"
+                  }`}
+                >
+                  {l.label}
+                </Link>
+                {i === 1 && (
+                  <div
+                    className="relative"
+                    onMouseEnter={() => setCampsOpen(true)}
+                    onMouseLeave={() => setCampsOpen(false)}
+                  >
+                    <button
+                      className="px-2 py-2 rounded-full text-sm font-semibold min-h-[44px] flex items-center whitespace-nowrap text-charcoal-teal hover:bg-teal-100"
+                      aria-expanded={campsOpen}
+                    >
+                      {campsDropdown.label} ▾
+                    </button>
+                    {campsOpen && (
+                      <div className="absolute top-full left-0 bg-white rounded-2xl shadow-lg border border-teal-100 py-2 min-w-[200px] z-50">
+                        {campsDropdown.items.map((item) => (
+                          <Link
+                            key={item.href}
+                            href={item.href}
+                            className="block px-4 py-2.5 text-sm font-semibold text-charcoal-teal hover:bg-teal-100 whitespace-nowrap"
+                          >
+                            {item.label}
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </span>
             ))}
         </nav>
 
@@ -113,6 +142,12 @@ export function Header() {
               {publicTopLinks.map((l) => (
                 <Link key={l.href} href={l.href} className="block font-semibold py-2 min-h-[44px] flex items-center" onClick={() => setMobileOpen(false)}>
                   {l.label}
+                </Link>
+              ))}
+              <p className="text-xs font-bold text-charcoal-teal/50 pt-2">{campsDropdown.label.toUpperCase()}</p>
+              {campsDropdown.items.map((item) => (
+                <Link key={item.href} href={item.href} className="block font-semibold py-2 pl-3 min-h-[44px] flex items-center" onClick={() => setMobileOpen(false)}>
+                  {item.label}
                 </Link>
               ))}
               <div className="flex gap-3 pt-3">

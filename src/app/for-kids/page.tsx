@@ -18,18 +18,33 @@ export default function ForKidsPage() {
   return (
     <PageShell>
       <main>
-        <section className="max-w-5xl mx-auto px-6 pt-16 pb-10 text-center">
-          <span className="inline-block bg-coral-100 text-brick-600 text-xs font-bold px-3 py-1 rounded-full mb-4">
-            HEY, YOU!
-          </span>
-          <h1 className="font-display font-bold text-4xl sm:text-5xl leading-tight max-w-2xl mx-auto">
-            Welcome to Fennby, your own corner of the internet for getting brilliant at stuff.
-          </h1>
-          <p className="mt-6 text-lg text-charcoal-teal/80 leading-relaxed max-w-xl mx-auto">
-            Practice, mock exams, an AI Tutor who never gets tired of your questions, craft
-            projects you actually finish, and badges to show for all of it. Ask a grown-up to
-            get you set up, and this is what you&apos;ll find waiting.
-          </p>
+        <section className="max-w-7xl mx-auto px-6 pt-16 pb-10 grid md:grid-cols-2 gap-12 items-center">
+          <div>
+            <span className="inline-block bg-coral-100 text-brick-600 text-xs font-bold px-3 py-1 rounded-full mb-4">
+              HEY, YOU!
+            </span>
+            <h1 className="font-display font-bold text-4xl sm:text-5xl leading-tight text-charcoal-teal text-balance">
+              Welcome to Fennby, your own corner of the internet for getting brilliant at stuff.
+            </h1>
+            <p className="mt-6 text-lg text-charcoal-teal/80 leading-relaxed max-w-lg">
+              Practice, mock exams, an AI Tutor who never gets tired of your questions, craft
+              projects you actually finish, and badges to show for all of it. Ask a grown-up to
+              get you set up, and this is what you&apos;ll find waiting.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-4">
+              <Button href="/child-login" variant="primary">Log in to my Kids Portal</Button>
+            </div>
+          </div>
+          <div className="flex justify-center">
+            <Card tint="coral" className="w-full max-w-sm text-center">
+              <span className="text-4xl" aria-hidden>🏅</span>
+              <p className="font-display font-bold text-lg mt-3">Collect badges as you go</p>
+              <p className="text-sm text-charcoal-teal/80 mt-2">
+                Every mock exam, every practice streak, every craft project finished, all of it
+                earns you something to show for it.
+              </p>
+            </Card>
+          </div>
         </section>
 
         <section className="max-w-6xl mx-auto px-6 py-8">

@@ -17,12 +17,21 @@ export interface NavDropdown {
 export const publicTopLinks: NavLink[] = [
   { href: "/#how-it-works", label: "How it works" },
   { href: "/subjects", label: "Subjects" },
+  { href: "/ai-tutor-safety", label: "AI Tutor" },
   { href: "/for-tutors", label: "Vetted Tutors" },
-  { href: "/summer-camps", label: "Summer Camps" },
-  { href: "/vocational", label: "Vocational & Craft" },
   { href: "/home-ed-eotas", label: "Home Ed & EOTAS" },
   { href: "/trust", label: "Safeguarding" },
 ];
+
+// Summer Camps and Vocational & Craft share a single dropdown on the main
+// nav instead of two separate top-level items.
+export const campsDropdown: NavDropdown = {
+  label: "Camps & Craft",
+  items: [
+    { href: "/summer-camps", label: "Summer Camps" },
+    { href: "/vocational", label: "Vocational & Craft Track" },
+  ],
+};
 
 // Kept for pages that still link into a specific audience's detail pages
 // (e.g. the footer) — no longer rendered as header dropdowns.
@@ -160,4 +169,5 @@ export const publicPathPrefixes = [
   "/home-ed-eotas",
   "/for-local-authorities",
   "/get-started",
+  "/ai-tutor-safety",
 ];
