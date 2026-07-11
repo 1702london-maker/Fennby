@@ -21,6 +21,7 @@ export const publicTopLinks: NavLink[] = [
   { href: "/for-tutors", label: "Vetted Tutors" },
   { href: "/home-ed-eotas", label: "Home Ed & EOTAS" },
   { href: "/foundry", label: "The Foundry" },
+  { href: "/pricing", label: "Pricing" },
   { href: "/trust", label: "Safeguarding" },
 ];
 

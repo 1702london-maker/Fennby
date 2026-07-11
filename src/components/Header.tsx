@@ -111,12 +111,16 @@ export function Header() {
               </span>
             </>
           )}
-          <Link
-            href="/trust#report"
-            className="text-sm font-semibold text-brick-600 hover:underline min-h-[44px] flex items-center whitespace-nowrap"
-          >
-            Safeguarding
-          </Link>
+          {/* Public mode already has Safeguarding in the main nav — showing
+              it again here would just be a duplicate link. */}
+          {!publicMode && (
+            <Link
+              href="/trust#report"
+              className="text-sm font-semibold text-brick-600 hover:underline min-h-[44px] flex items-center whitespace-nowrap"
+            >
+              Safeguarding
+            </Link>
+          )}
         </div>
 
         {/* Mobile hamburger */}
