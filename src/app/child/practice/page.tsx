@@ -56,19 +56,31 @@ export default async function ChildPracticePage() {
         <section>
           <h2 className="font-display font-bold text-lg mb-4">All subjects</h2>
           <div className="grid sm:grid-cols-2 gap-4">
-            {subjects.map((s) => (
-              <Card key={s.key}>
-                <p className="font-display font-bold">{s.name}</p>
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {topics.filter((t) => t.subject_key === s.key).map((t) => (
-                    <span key={t.key} className="text-xs bg-teal-100 text-teal-900 px-3 py-1 rounded-full">
-                      {t.name}
-                    </span>
-                  ))}
-                </div>
-                <Button variant="outline" className="mt-4">Start a quick quiz</Button>
-              </Card>
-            ))}
+            {subjects.map((s) => {
+              const subjectTopics = topics.filter((t) => t.subject_key === s.key);
+              const firstTopic = subjectTopics[0];
+              return (
+                <Card key={s.key}>
+                  <p className="font-display font-bold">{s.name}</p>
+                  <div className="flex flex-wrap gap-2 mt-2 mb-4">
+                    {subjectTopics.map((t) => (
+                      <a
+                        key={t.key}
+                        href={`/child/practice/${t.key}`}
+                        className="text-xs bg-teal-100 text-teal-900 px-3 py-1 rounded-full hover:bg-teal-900 hover:text-white transition-colors"
+                      >
+                        {t.name}
+                      </a>
+                    ))}
+                  </div>
+                  {firstTopic ? (
+                    <Button href={`/child/practice/${firstTopic.key}`} variant="outline">Start a quick quiz</Button>
+                  ) : (
+                    <p className="text-xs text-charcoal-teal/50">More questions coming soon for this subject.</p>
+                  )}
+                </Card>
+              );
+            })}
           </div>
         </section>
       </main>

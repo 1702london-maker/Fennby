@@ -20,17 +20,23 @@ export function AiTutorClient() {
   const [error, setError] = useState<string | null>(null);
   const [ended, setEnded] = useState(false);
   const startedRef = useRef(false);
+  // The cleanup closure below only ever sees the conversationId that was in
+  // scope when the effect first ran (null, since the id arrives async) —
+  // a ref always reads the current value instead of a stale one.
+  const conversationIdRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (startedRef.current) return;
     startedRef.current = true;
     startAiTutorConversation(undefined).then((r) => {
-      if (r.ok) setConversationId(r.data.conversationId);
+      if (r.ok) {
+        setConversationId(r.data.conversationId);
+        conversationIdRef.current = r.data.conversationId;
+      }
     });
     return () => {
-      if (conversationId) endAiTutorConversation(conversationId);
+      if (conversationIdRef.current) endAiTutorConversation(conversationIdRef.current);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const send = async () => {

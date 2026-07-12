@@ -10,6 +10,7 @@ import {
   getLatestBadge,
 } from "@/features/child/queries";
 import { TodayInteractive } from "./TodayInteractive";
+import { getAgeTier, AGE_TIER_COPY } from "@/lib/ageTier";
 
 export default async function ChildToday() {
   const learner = await getMyLearnerProfile();
@@ -30,12 +31,17 @@ export default async function ChildToday() {
     getLatestBadge(learner.id),
   ]);
 
+  // Age is derived from the date of birth a parent set at registration —
+  // the dashboard's tone adapts to it, the child never chooses it.
+  const ageTier = getAgeTier(learner.date_of_birth);
+  const tierCopy = AGE_TIER_COPY[ageTier];
+
   return (
     <PageShell>
       <main className="max-w-4xl mx-auto px-6 py-10">
         <p className="text-lg text-charcoal-teal/70">Hiya {learner.avatar_emoji}</p>
         <h1 className="font-display font-bold text-3xl sm:text-4xl mt-1">
-          Ready for today&apos;s challenge, {learner.preferred_name}?
+          {tierCopy.greeting(learner.preferred_name)}
         </h1>
 
         <TodayInteractive />
