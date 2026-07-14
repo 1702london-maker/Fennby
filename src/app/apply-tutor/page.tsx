@@ -9,17 +9,21 @@ import { signUp, login } from "@/features/auth/actions";
 import { submitTutorApplication } from "@/features/tutors/applicationActions";
 
 const sendOptions = ["Dyslexia", "Autism", "ADHD", "Speech and language needs"];
+const examBoardOptions = ["GL Assessment", "CEM", "FSCE", "AQA", "Edexcel", "OCR", "WJEC"];
 
 export default function ApplyTutorPage() {
   const router = useRouter();
   const [account, setAccount] = useState({ fullName: "", email: "", password: "" });
   const [form, setForm] = useState({ experienceYears: "", subjects: "", dbsReference: "", examinerClaim: "" });
   const [sendExperience, setSendExperience] = useState<string[]>([]);
+  const [examBoards, setExamBoards] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const toggleSend = (opt: string) =>
     setSendExperience((s) => (s.includes(opt) ? s.filter((x) => x !== opt) : [...s, opt]));
+  const toggleExamBoard = (opt: string) =>
+    setExamBoards((s) => (s.includes(opt) ? s.filter((x) => x !== opt) : [...s, opt]));
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,6 +57,7 @@ export default function ApplyTutorPage() {
       subjects: form.subjects,
       dbsReference: form.dbsReference,
       sendExperience,
+      examBoards,
       examinerClaim: form.examinerClaim || undefined,
     });
     setLoading(false);
@@ -136,6 +141,27 @@ export default function ApplyTutorPage() {
                 className="w-full rounded-2xl border-2 border-teal-100 px-4 py-3 min-h-[44px] focus:border-teal-700 outline-none"
                 placeholder="e.g. Verbal Reasoning, Maths"
               />
+            </div>
+            <div>
+              <p className="block text-sm font-semibold mb-2">Exam boards / test providers you&apos;re experienced with (optional)</p>
+              <div className="flex flex-wrap gap-2">
+                {examBoardOptions.map((opt) => (
+                  <button
+                    type="button"
+                    key={opt}
+                    onClick={() => toggleExamBoard(opt)}
+                    className={`text-sm font-semibold px-3 py-2 min-h-[36px] rounded-full transition-colors ${
+                      examBoards.includes(opt) ? "bg-teal-900 text-white" : "bg-teal-100 text-teal-900"
+                    }`}
+                  >
+                    {opt}
+                  </button>
+                ))}
+              </div>
+              <p className="text-xs text-charcoal-teal/60 mt-2">
+                Families searching for tutors experienced with a specific test (e.g. FSCE&apos;s
+                new curriculum-based 11+) can filter by this.
+              </p>
             </div>
             <div>
               <p className="block text-sm font-semibold mb-2">SEND experience or specialisms (optional)</p>

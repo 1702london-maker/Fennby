@@ -5,7 +5,7 @@ import { EmptyState } from "@/components/EmptyState";
 import { getApprovedTutors, getMyLearners } from "@/features/parent/queries";
 import { hasSendProfile } from "@/lib/send";
 
-export default async function BrowseTutorsPage({ searchParams }: { searchParams: { all?: string } }) {
+export default async function BrowseTutorsPage({ searchParams }: { searchParams: { all?: string; examBoard?: string } }) {
   // Soft SEND-experience weighting: any learner's shared diagnosis or EHCP
   // note nudges matching tutors toward the top of the list, without hiding
   // anyone else.
@@ -24,7 +24,8 @@ export default async function BrowseTutorsPage({ searchParams }: { searchParams:
   const showAll = searchParams?.all === "1";
   const sendOnly = familyHasSend && !showAll;
 
-  const tutors = await getApprovedTutors(sendHints, sendOnly);
+  const examBoardFilter = searchParams?.examBoard;
+  const tutors = await getApprovedTutors(sendHints, sendOnly, examBoardFilter);
 
   return (
     <PageShell>
@@ -43,7 +44,23 @@ export default async function BrowseTutorsPage({ searchParams }: { searchParams:
             </a>
           </p>
         )}
-        {!familyHasSend && <div className="mb-8" />}
+        {!familyHasSend && <div className="mb-4" />}
+
+        <div className="flex flex-wrap gap-2 mb-8">
+          <a
+            href="/parent/tutors"
+            className={`text-xs font-bold px-3 py-2 rounded-full transition-colors ${!examBoardFilter ? "bg-teal-900 text-white" : "bg-teal-100 text-teal-900"}`}
+          >
+            All tutors
+          </a>
+          <a
+            href="/parent/tutors?examBoard=FSCE"
+            className={`text-xs font-bold px-3 py-2 rounded-full transition-colors ${examBoardFilter === "FSCE" ? "bg-plum-700 text-white" : "bg-plum-700/10 text-plum-700"}`}
+          >
+            Curriculum-based 11+ (FSCE) experienced
+          </a>
+        </div>
+
         {tutors.length ? (
           <div className="grid gap-4">
             {tutors.map((t) => (
@@ -68,6 +85,11 @@ export default async function BrowseTutorsPage({ searchParams }: { searchParams:
                           ✓ Verified examiner: {t.examiner_boards_verified.join(", ")}
                         </span>
                       )}
+                      {t.exam_boards && t.exam_boards.length > 0 && (
+                        <span className="bg-plum-700/10 text-plum-700 text-xs font-bold px-2 py-0.5 rounded-full">
+                          Experienced with: {t.exam_boards.join(", ")}
+                        </span>
+                      )}
                     </div>
                     <p className="text-sm text-charcoal-teal/70">{t.subjects?.join(" · ") || "No subjects listed"}</p>
                     {t.bio && <p className="text-sm text-charcoal-teal/80 mt-2 max-w-md">{t.bio}</p>}
@@ -88,10 +110,23 @@ export default async function BrowseTutorsPage({ searchParams }: { searchParams:
           <Card>
             <EmptyState
               emoji="🎓"
-              title={sendOnly ? "No SEND-accredited tutors approved yet" : "No approved tutors yet"}
-              description={sendOnly ? "Try showing all approved tutors while we grow our SEND-accredited network." : "Approved tutors will appear here for families to browse."}
+              title={
+                examBoardFilter
+                  ? `No ${examBoardFilter}-experienced tutors approved yet`
+                  : sendOnly
+                    ? "No SEND-accredited tutors approved yet"
+                    : "No approved tutors yet"
+              }
+              description={
+                examBoardFilter
+                  ? "Try browsing all tutors while we grow this specialism."
+                  : sendOnly
+                    ? "Try showing all approved tutors while we grow our SEND-accredited network."
+                    : "Approved tutors will appear here for families to browse."
+              }
             />
-            {sendOnly && <Button href="?all=1" variant="outline" className="mt-4">Show all approved tutors</Button>}
+            {examBoardFilter && <Button href="/parent/tutors" variant="outline" className="mt-4">Show all tutors</Button>}
+            {!examBoardFilter && sendOnly && <Button href="?all=1" variant="outline" className="mt-4">Show all approved tutors</Button>}
           </Card>
         )}
       </main>

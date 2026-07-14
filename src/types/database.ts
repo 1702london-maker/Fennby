@@ -1418,6 +1418,7 @@ export type Database = {
         Row: {
           capacity: number | null
           created_at: string
+          exam_board: string | null
           id: string
           price: number
           sitting_date: string
@@ -1428,6 +1429,7 @@ export type Database = {
         Insert: {
           capacity?: number | null
           created_at?: string
+          exam_board?: string | null
           id?: string
           price: number
           sitting_date: string
@@ -1438,6 +1440,7 @@ export type Database = {
         Update: {
           capacity?: number | null
           created_at?: string
+          exam_board?: string | null
           id?: string
           price?: number
           sitting_date?: string

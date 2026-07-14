@@ -108,7 +108,10 @@ export async function getLearnerAchievements(learnerId: string) {
 // `sendOnly` is a real hard filter, used as the default view for any parent
 // with a SEND child — only tutors who've indicated SEND experience/training
 // are shown at all, unless the parent explicitly asks to see everyone.
-export async function getApprovedTutors(sendPreferenceHints: string[] = [], sendOnly = false) {
+// `examBoard` is a real hard filter (e.g. "FSCE") for parents specifically
+// looking for tutors experienced with a curriculum-based 11+ test rather
+// than the old reasoning-heavy format.
+export async function getApprovedTutors(sendPreferenceHints: string[] = [], sendOnly = false, examBoard?: string) {
   const supabase = await createClient();
   // Part 8.1 state 7: onboarding_state must be "verified" (agreement
   // signed) before a tutor can appear here at all — status "approved" on
@@ -122,6 +125,9 @@ export async function getApprovedTutors(sendPreferenceHints: string[] = [], send
   let tutors = (data ?? []).filter((t) => t.application?.onboarding_state === "verified");
   if (sendOnly) {
     tutors = tutors.filter((t) => (t.send_experience ?? []).length > 0);
+  }
+  if (examBoard) {
+    tutors = tutors.filter((t) => (t.exam_boards ?? []).some((b) => b.toLowerCase() === examBoard.toLowerCase()));
   }
   if (!sendPreferenceHints.length) return tutors;
 

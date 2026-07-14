@@ -7,7 +7,7 @@ import { createSitting } from "@/features/mockExamSittings/adminActions";
 
 export function CreateSittingForm() {
   const router = useRouter();
-  const [form, setForm] = useState({ title: "", subjectKey: "", sittingDate: "", price: "", capacity: "" });
+  const [form, setForm] = useState({ title: "", subjectKey: "", examBoard: "", sittingDate: "", price: "", capacity: "" });
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -20,6 +20,7 @@ export function CreateSittingForm() {
       sittingDate: form.sittingDate,
       price: form.price,
       subjectKey: form.subjectKey || undefined,
+      examBoard: form.examBoard || undefined,
       capacity: form.capacity || undefined,
     });
     setLoading(false);
@@ -27,7 +28,7 @@ export function CreateSittingForm() {
       setError(result.error);
       return;
     }
-    setForm({ title: "", subjectKey: "", sittingDate: "", price: "", capacity: "" });
+    setForm({ title: "", subjectKey: "", examBoard: "", sittingDate: "", price: "", capacity: "" });
     router.refresh();
   };
 
@@ -42,6 +43,10 @@ export function CreateSittingForm() {
           <label className="block text-sm font-semibold mb-1">Subject (optional)</label>
           <input value={form.subjectKey} onChange={(e) => setForm({ ...form, subjectKey: e.target.value })} className="w-full rounded-2xl border-2 border-teal-100 px-4 py-3 min-h-[44px] focus:border-teal-700 outline-none" />
         </div>
+      </div>
+      <div>
+        <label className="block text-sm font-semibold mb-1">Exam board / test provider (optional)</label>
+        <input value={form.examBoard} onChange={(e) => setForm({ ...form, examBoard: e.target.value })} placeholder="e.g. GL Assessment, FSCE, CEM" className="w-full rounded-2xl border-2 border-teal-100 px-4 py-3 min-h-[44px] focus:border-teal-700 outline-none" />
       </div>
       <div className="grid sm:grid-cols-3 gap-4">
         <div>

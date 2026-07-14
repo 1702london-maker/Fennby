@@ -32,7 +32,14 @@ export default async function AdminMockExamsPage() {
             {sittings.map((s) => (
               <Card key={s.id} className="flex items-center justify-between gap-4">
                 <div>
-                  <p className="font-semibold">{s.title}</p>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <p className="font-semibold">{s.title}</p>
+                    {s.exam_board && (
+                      <span className="text-xs font-bold bg-plum-700/10 text-plum-700 px-2 py-0.5 rounded-full">
+                        {s.exam_board}
+                      </span>
+                    )}
+                  </div>
                   <p className="text-sm text-charcoal-teal/70">
                     {new Date(s.sitting_date).toLocaleString("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })} · £{Number(s.price).toFixed(2)}
                     {s.capacity ? ` · capacity ${s.capacity}` : ""}
