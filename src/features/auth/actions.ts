@@ -71,8 +71,14 @@ export async function login(input: LoginInput): Promise<ActionResult<{ role: str
   // succeeded. The admin client sidesteps RLS entirely, and data.user.id
   // is already a verified identity from signInWithPassword() itself.
   const admin = createAdminClient();
-  const { data: profile } = await admin.from("profiles").select("role").eq("id", data.user.id).single();
-  if (!profile) return { ok: false, error: "internal" };
+  const { data: profile, error: profileError } = await admin
+    .from("profiles")
+    .select("role")
+    .eq("id", data.user.id)
+    .single();
+  if (!profile) {
+    return { ok: false, error: profileError?.message ?? "internal" };
+  }
 
   return { ok: true, data: { role: profile.role } };
 }
