@@ -24,8 +24,10 @@ export default function ChildLoginPage() {
       setError(result.error);
       return;
     }
+    // A trailing router.refresh() here was cancelling this push in
+    // production — push() already fetches fresh server data for the
+    // destination route, so it's redundant and actively harmful.
     router.push("/child/today");
-    router.refresh();
   };
 
   return (

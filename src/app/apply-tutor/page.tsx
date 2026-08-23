@@ -66,8 +66,9 @@ export default function ApplyTutorPage() {
       setError(fieldMessages || appResult.error);
       return;
     }
+    // A trailing router.refresh() here was cancelling this push — see
+    // src/app/login/page.tsx for the same fix and why.
     router.push("/apply-tutor/confirmation");
-    router.refresh();
   };
 
   return (

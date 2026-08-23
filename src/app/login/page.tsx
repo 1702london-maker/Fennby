@@ -53,8 +53,10 @@ function LoginForm() {
     // whichever tab was clicked before typing a password — middleware would
     // bounce a mismatched role away from a hardcoded dashboard anyway, so
     // this always uses what login() actually reports back.
+    // router.refresh() right after push() was cancelling the pending
+    // navigation (a real Next.js App Router footgun) — push() already
+    // fetches fresh server data for the destination, so it's redundant.
     router.push(searchParams.get("next") ?? roleHome[result.data.role] ?? "/");
-    router.refresh();
   };
 
   if (!tab) {

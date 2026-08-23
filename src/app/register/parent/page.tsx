@@ -90,8 +90,9 @@ export default function RegisterParentPage() {
         setError(result.error);
         return;
       }
+      // A trailing router.refresh() here was cancelling this push — see
+      // src/app/login/page.tsx for the same fix and why.
       router.push("/parent/billing");
-      router.refresh();
     } catch {
       // withRole() throws (rather than returning an ActionResult) when
       // there's no session at all — catch it here so the button never gets
