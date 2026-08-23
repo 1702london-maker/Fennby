@@ -62,7 +62,16 @@ export async function login(input: LoginInput): Promise<ActionResult<{ role: str
 
   // Callers need the real role to land on the right dashboard — "/" is a
   // public marketing page, not a landing spot for a signed-in account.
-  const { data: profile } = await supabase.from("profiles").select("role").eq("id", data.user.id).single();
+  //
+  // This must use the admin client, not the request-scoped one: right
+  // after signInWithPassword() in the same request, the anon-key client's
+  // RLS context hasn't caught up yet — the self-read policy on `profiles`
+  // (id = auth.uid()) intermittently sees zero rows, .single() throws, and
+  // this returned a hard "internal" error even though login had actually
+  // succeeded. The admin client sidesteps RLS entirely, and data.user.id
+  // is already a verified identity from signInWithPassword() itself.
+  const admin = createAdminClient();
+  const { data: profile } = await admin.from("profiles").select("role").eq("id", data.user.id).single();
   if (!profile) return { ok: false, error: "internal" };
 
   return { ok: true, data: { role: profile.role } };
