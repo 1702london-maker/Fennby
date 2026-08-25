@@ -1,7 +1,9 @@
 import { SimplePage } from "@/components/SimplePage";
 import { Card } from "@/components/Card";
-import { Button } from "@/components/Button";
 
+// No PDF export library or per-report queries exist yet — an "Export PDF"
+// button here would be clickable but silently do nothing. Honestly labelled
+// "Coming soon" instead, same convention as the brain games list.
 const reports = [
   "Cohort progress",
   "Pupil Premium report",
@@ -18,7 +20,9 @@ export default function AdminReportsPage() {
         {reports.map((r) => (
           <Card key={r} className="flex items-center justify-between">
             <span className="font-semibold">{r}</span>
-            <Button variant="outline" className="px-4 py-2 text-sm">Export PDF</Button>
+            <span className="inline-block text-xs font-bold bg-teal-100 text-charcoal-teal/60 px-3 py-2 rounded-full">
+              Coming soon
+            </span>
           </Card>
         ))}
       </div>
