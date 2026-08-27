@@ -1,14 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { PageShell } from "@/components/PageShell";
 import { Card } from "@/components/Card";
 import { Button } from "@/components/Button";
 import { childLogin } from "@/features/auth/actions";
 
 export default function ChildLoginPage() {
-  const router = useRouter();
   const [learnerUsername, setUsername] = useState("");
   const [pin, setPin] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -24,10 +22,10 @@ export default function ChildLoginPage() {
       setError(result.error);
       return;
     }
-    // A trailing router.refresh() here was cancelling this push in
-    // production — push() already fetches fresh server data for the
-    // destination route, so it's redundant and actively harmful.
-    router.push("/child/today");
+    // Supabase auth cookies are written by the Server Action response.
+    // A full document navigation guarantees middleware and Server
+    // Components see those cookies before the child dashboard renders.
+    window.location.assign("/child/today");
   };
 
   return (

@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { PageShell } from "@/components/PageShell";
 import { Card } from "@/components/Card";
 import { Button } from "@/components/Button";
@@ -28,7 +28,6 @@ const roleTabs: { key: RoleTab; label: string; emoji: string; blurb: string }[] 
 ];
 
 function LoginForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const initialTab = (searchParams.get("as") as RoleTab) ?? null;
   const [tab, setTab] = useState<RoleTab | null>(
@@ -49,14 +48,16 @@ function LoginForm() {
       setError(result.error);
       return;
     }
-    // The signed-in account's own real role decides where it lands, not
-    // whichever tab was clicked before typing a password — middleware would
-    // bounce a mismatched role away from a hardcoded dashboard anyway, so
-    // this always uses what login() actually reports back.
-    // router.refresh() right after push() was cancelling the pending
-    // navigation (a real Next.js App Router footgun) — push() already
-    // fetches fresh server data for the destination, so it's redundant.
-    router.push(searchParams.get("next") ?? roleHome[result.data.role] ?? "/");
+    const nextPath = searchParams.get("next");
+    const destination =
+      nextPath?.startsWith("/") && !nextPath.startsWith("//")
+        ? nextPath
+        : roleHome[result.data.role] ?? "/";
+
+    // Supabase auth cookies are written by the Server Action response.
+    // A full document navigation guarantees middleware and Server
+    // Components see those cookies before the protected dashboard renders.
+    window.location.assign(destination);
   };
 
   if (!tab) {
