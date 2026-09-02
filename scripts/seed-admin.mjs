@@ -22,36 +22,76 @@ async function findUserByEmail(email) {
   let page = 1;
 
   while (true) {
-    const { data, error } = await supabase.auth.admin.listUsers({ page, perPage: 1000 });
-    if (error) throw error;
+    const response = await fetch(`${supabaseUrl}/auth/v1/admin/users?page=${page}&per_page=1000`, {
+      headers: {
+        apikey: serviceRoleKey,
+        Authorization: `Bearer ${serviceRoleKey}`,
+      },
+    });
 
-    const user = data.users.find((candidate) => candidate.email?.toLowerCase() === email.toLowerCase());
+    if (!response.ok) {
+      throw new Error(`Auth user list failed: ${response.status} ${await response.text()}`);
+    }
+
+    const data = await response.json();
+    const users = data.users ?? [];
+    const user = users.find((candidate) => candidate.email?.toLowerCase() === email.toLowerCase());
     if (user) return user;
-    if (data.users.length < 1000) return null;
+    if (users.length < 1000) return null;
     page += 1;
   }
 }
 
+async function createAuthUser() {
+  const response = await fetch(`${supabaseUrl}/auth/v1/admin/users`, {
+    method: "POST",
+    headers: {
+      apikey: serviceRoleKey,
+      Authorization: `Bearer ${serviceRoleKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      email: adminEmail,
+      password: adminPassword,
+      email_confirm: true,
+      user_metadata: { full_name: adminName, role: "admin" },
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Auth user create failed: ${response.status} ${await response.text()}`);
+  }
+
+  return response.json();
+}
+
+async function updateAuthUser(userId) {
+  const response = await fetch(`${supabaseUrl}/auth/v1/admin/users/${userId}`, {
+    method: "PUT",
+    headers: {
+      apikey: serviceRoleKey,
+      Authorization: `Bearer ${serviceRoleKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      email: adminEmail,
+      password: adminPassword,
+      email_confirm: true,
+      user_metadata: { full_name: adminName, role: "admin" },
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Auth user update failed: ${response.status} ${await response.text()}`);
+  }
+
+  return response.json();
+}
+
 async function main() {
   const existing = await findUserByEmail(adminEmail);
-
-  const { data: authData, error: authError } = existing
-    ? await supabase.auth.admin.updateUserById(existing.id, {
-        email: adminEmail,
-        password: adminPassword,
-        email_confirm: true,
-        user_metadata: { full_name: adminName },
-      })
-    : await supabase.auth.admin.createUser({
-        email: adminEmail,
-        password: adminPassword,
-        email_confirm: true,
-        user_metadata: { full_name: adminName },
-      });
-
-  if (authError) throw authError;
-
-  const userId = authData.user.id;
+  const authUser = existing ? await updateAuthUser(existing.id) : await createAuthUser();
+  const userId = authUser.id;
   const { error: profileError } = await supabase.from("profiles").upsert({
     id: userId,
     role: "admin",
