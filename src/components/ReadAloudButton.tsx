@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 // Uses the browser's native SpeechSynthesis API. Reading speed is
 // user-adjustable via `rate`. Framed as a universal convenience — visible
@@ -17,6 +17,14 @@ export function ReadAloudButton({
   const [speaking, setSpeaking] = useState(false);
   const supported = typeof window !== "undefined" && "speechSynthesis" in window;
 
+  useEffect(() => {
+    return () => {
+      if (typeof window !== "undefined" && "speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, []);
+
   if (!supported) return null;
 
   const toggle = () => {
@@ -30,6 +38,7 @@ export function ReadAloudButton({
     utterance.rate = rate;
     utterance.onend = () => setSpeaking(false);
     utterance.onerror = () => setSpeaking(false);
+    window.speechSynthesis.cancel();
     window.speechSynthesis.speak(utterance);
     setSpeaking(true);
   };

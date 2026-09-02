@@ -15,7 +15,13 @@ export function VoiceInputButton({
 }) {
   const [supported, setSupported] = useState(true);
   const [listening, setListening] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
+  const onResultRef = useRef(onResult);
+
+  useEffect(() => {
+    onResultRef.current = onResult;
+  }, [onResult]);
 
   useEffect(() => {
     const SpeechRecognitionCtor =
@@ -30,12 +36,25 @@ export function VoiceInputButton({
     recognition.lang = "en-GB";
     recognition.onresult = (event) => {
       const transcript = event.results[0]?.[0]?.transcript ?? "";
-      if (transcript) onResult(transcript);
+      if (transcript) onResultRef.current(transcript);
     };
     recognition.onend = () => setListening(false);
-    recognition.onerror = () => setListening(false);
+    recognition.onerror = () => {
+      setListening(false);
+      setError("Voice dictation could not start. Check microphone permission and try again.");
+    };
     recognitionRef.current = recognition;
-  }, [onResult]);
+    return () => {
+      recognition.onresult = null;
+      recognition.onend = null;
+      recognition.onerror = null;
+      try {
+        recognition.abort();
+      } catch {
+        // Some browsers throw if recognition was never started.
+      }
+    };
+  }, []);
 
   if (!supported) {
     return (
@@ -46,6 +65,7 @@ export function VoiceInputButton({
   }
 
   return (
+    <>
     <button
       type="button"
       onClick={() => {
@@ -53,8 +73,14 @@ export function VoiceInputButton({
           recognitionRef.current?.stop();
           setListening(false);
         } else {
-          recognitionRef.current?.start();
-          setListening(true);
+          try {
+            setError(null);
+            recognitionRef.current?.start();
+            setListening(true);
+          } catch {
+            setListening(false);
+            setError("Voice dictation could not start. Check microphone permission and try again.");
+          }
         }
       }}
       aria-pressed={listening}
@@ -66,5 +92,7 @@ export function VoiceInputButton({
       <span aria-hidden>{listening ? "⏹️" : "🎙️"}</span>
       {listening ? "Listening…" : label}
     </button>
+    {error && <span className="text-xs font-semibold text-brick-600">{error}</span>}
+    </>
   );
 }
