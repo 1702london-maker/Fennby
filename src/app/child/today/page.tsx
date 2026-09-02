@@ -30,7 +30,7 @@ export default async function ChildToday() {
     getRevisionItemsForLearner(learner.id),
     getNextSession(learner.id),
     getLatestBadge(learner.id),
-    getBrainWarmupQuestions(),
+    getBrainWarmupQuestions(learner.id),
   ]);
 
   // Age is derived from the date of birth a parent set at registration —

@@ -12,6 +12,7 @@ export type WarmupQuestion = {
 
 const WARMUP_SIZE = 10;
 const WARMUP_POOL_READ_LIMIT = 1250;
+const RECENT_WARMUP_HISTORY_LIMIT = 300;
 
 function shuffle<T>(items: T[]) {
   return [...items].sort(() => Math.random() - 0.5);
@@ -48,15 +49,25 @@ export async function getMyLearnerProfile() {
   return data;
 }
 
-export async function getBrainWarmupQuestions(): Promise<WarmupQuestion[]> {
+export async function getBrainWarmupQuestions(learnerId: string): Promise<WarmupQuestion[]> {
   const supabase = await createClient();
-  const { data } = await supabase
-    .from("questions")
-    .select("id, subject_key, topic_key, text, options, correct_answer")
-    .eq("status", "published")
-    .eq("type", "multiple_choice")
-    .limit(WARMUP_POOL_READ_LIMIT);
+  const [{ data }, { data: recentAnswers }] = await Promise.all([
+    supabase
+      .from("questions")
+      .select("id, subject_key, topic_key, text, options, correct_answer")
+      .eq("status", "published")
+      .eq("type", "multiple_choice")
+      .limit(WARMUP_POOL_READ_LIMIT),
+    supabase
+      .from("brain_warmup_answers")
+      .select("question_id")
+      .eq("learner_id", learnerId)
+      .not("question_id", "is", null)
+      .order("answered_at", { ascending: false })
+      .limit(RECENT_WARMUP_HISTORY_LIMIT),
+  ]);
 
+  const recentlySeen = new Set((recentAnswers ?? []).map((answer) => answer.question_id).filter(Boolean));
   const questions = (data ?? [])
     .filter((q) => q.options.length >= 2)
     .map((q) => ({
@@ -67,7 +78,9 @@ export async function getBrainWarmupQuestions(): Promise<WarmupQuestion[]> {
       options: q.options,
       correctAnswer: q.correct_answer,
     }));
+  const unseenQuestions = questions.filter((q) => !recentlySeen.has(q.id));
 
+  if (unseenQuestions.length >= WARMUP_SIZE) return balanceWarmupPool(unseenQuestions);
   if (questions.length >= WARMUP_SIZE) return balanceWarmupPool(questions);
 
   return brainTeasers.map((q, index) => ({

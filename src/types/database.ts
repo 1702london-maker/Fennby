@@ -487,6 +487,67 @@ export type Database = {
           },
         ]
       }
+      brain_warmup_answers: {
+        Row: {
+          answered_at: string
+          choice_index: number
+          correct_answer: number
+          id: string
+          is_correct: boolean
+          learner_id: string
+          question_id: string | null
+          subject_key: string | null
+          topic_key: string | null
+          warmup_id: string
+        }
+        Insert: {
+          answered_at?: string
+          choice_index: number
+          correct_answer: number
+          id?: string
+          is_correct: boolean
+          learner_id: string
+          question_id?: string | null
+          subject_key?: string | null
+          topic_key?: string | null
+          warmup_id: string
+        }
+        Update: {
+          answered_at?: string
+          choice_index?: number
+          correct_answer?: number
+          id?: string
+          is_correct?: boolean
+          learner_id?: string
+          question_id?: string | null
+          subject_key?: string | null
+          topic_key?: string | null
+          warmup_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "brain_warmup_answers_learner_id_fkey"
+            columns: ["learner_id"]
+            isOneToOne: false
+            referencedRelation: "learners"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "brain_warmup_answers_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "questions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "brain_warmup_answers_warmup_id_fkey"
+            columns: ["warmup_id"]
+            isOneToOne: false
+            referencedRelation: "brain_warmups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       class_memberships: {
         Row: {
           class_id: string
