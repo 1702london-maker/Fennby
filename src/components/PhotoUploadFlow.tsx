@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { Card } from "@/components/Card";
 import { Button } from "@/components/Button";
+import { createClient } from "@/lib/supabase/client";
 
 // The one photo-upload interaction pattern used everywhere a child submits
 // a photo of written work — print-and-shade mock exams (Master Build
@@ -20,14 +21,49 @@ export function PhotoUploadFlow({
   uploadBody: string;
   processingTitle: string;
   processingBody: string;
-  onComplete: () => void | Promise<void>;
+  onComplete: (uploadedPath: string) => void | Promise<void>;
 }) {
   const [step, setStep] = useState<"upload" | "processing">("upload");
   const [dragOver, setDragOver] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
 
-  const startProcessing = () => {
+  const uploadFile = async (file: File | undefined) => {
+    if (!file) return;
+    setError(null);
     setStep("processing");
-    Promise.resolve(onComplete());
+    const supabase = createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      setStep("upload");
+      setError("Please sign in again before uploading.");
+      return;
+    }
+
+    const extension = file.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
+    const path = `${user.id}/${crypto.randomUUID()}.${extension}`;
+    const { error: uploadError } = await supabase.storage.from("learner-submissions").upload(path, file, {
+      cacheControl: "3600",
+      contentType: file.type || "application/octet-stream",
+      upsert: false,
+    });
+
+    if (uploadError) {
+      setStep("upload");
+      setError(uploadError.message);
+      return;
+    }
+
+    try {
+      await onComplete(path);
+    } catch (err) {
+      setStep("upload");
+      setError(err instanceof Error ? err.message : "Upload saved, but the submission could not be recorded.");
+    }
   };
 
   if (step === "processing") {
@@ -61,7 +97,7 @@ export function PhotoUploadFlow({
         onDrop={(e) => {
           e.preventDefault();
           setDragOver(false);
-          startProcessing();
+          uploadFile(e.dataTransfer.files[0]);
         }}
         className={`rounded-2xl border-2 border-dashed p-10 mb-6 transition-colors ${
           dragOver ? "border-teal-700 bg-teal-100" : "border-teal-100"
@@ -69,9 +105,25 @@ export function PhotoUploadFlow({
       >
         <p className="text-charcoal-teal/70 text-sm">Drag and drop your photo here</p>
       </div>
+      {error && <p className="text-sm font-semibold text-brick-600 mb-4">{error}</p>}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*,.pdf"
+        className="hidden"
+        onChange={(e) => uploadFile(e.target.files?.[0])}
+      />
+      <input
+        ref={cameraInputRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        className="hidden"
+        onChange={(e) => uploadFile(e.target.files?.[0])}
+      />
       <div className="flex flex-col sm:flex-row gap-3 justify-center">
-        <Button variant="outline" onClick={startProcessing}>📁 Choose a file</Button>
-        <Button variant="secondary" onClick={startProcessing}>📷 Use camera</Button>
+        <Button variant="outline" onClick={() => fileInputRef.current?.click()}>📁 Choose a file</Button>
+        <Button variant="secondary" onClick={() => cameraInputRef.current?.click()}>📷 Use camera</Button>
       </div>
     </Card>
   );

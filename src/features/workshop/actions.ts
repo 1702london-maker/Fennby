@@ -94,14 +94,14 @@ export const logReteach = withRole(
 // destination table.
 export const submitHomeworkHelp = withRole(
   ["child"],
-  async (session): Promise<ActionResult<{ requestId: string }>> => {
+  async (session, photoUrl?: string): Promise<ActionResult<{ requestId: string }>> => {
     const supabase = await createClient();
     const learnerId = await getOwnLearnerId(session.id, supabase);
     if (!learnerId) return { ok: false, error: "not_found" };
 
     const { data, error } = await supabase
       .from("homework_help_requests")
-      .insert({ learner_id: learnerId, status: "processing" })
+      .insert({ learner_id: learnerId, photo_url: photoUrl ?? null, status: "processing" })
       .select("id")
       .single();
     if (error || !data) return { ok: false, error: error?.message ?? "submit_failed" };

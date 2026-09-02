@@ -199,10 +199,13 @@ export type Database = {
           completed_at: string | null
           id: string
           learner_id: string
+          marking_notes: string | null
+          marking_status: string
           mode: string | null
           source_id: string | null
           source_type: string
           started_at: string
+          uploaded_image_url: string | null
         }
         Insert: {
           accommodations_used?: Json | null
@@ -210,10 +213,13 @@ export type Database = {
           completed_at?: string | null
           id?: string
           learner_id: string
+          marking_notes?: string | null
+          marking_status?: string
           mode?: string | null
           source_id?: string | null
           source_type?: string
           started_at?: string
+          uploaded_image_url?: string | null
         }
         Update: {
           accommodations_used?: Json | null
@@ -221,10 +227,13 @@ export type Database = {
           completed_at?: string | null
           id?: string
           learner_id?: string
+          marking_notes?: string | null
+          marking_status?: string
           mode?: string | null
           source_id?: string | null
           source_type?: string
           started_at?: string
+          uploaded_image_url?: string | null
         }
         Relationships: [
           {

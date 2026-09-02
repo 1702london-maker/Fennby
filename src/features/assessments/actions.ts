@@ -162,3 +162,40 @@ export const submitAssessmentAttempt = withRole(
     return { ok: true, data: { score } };
   }
 );
+
+export const submitPrintShadeUpload = withRole(
+  ["child"],
+  async (session, uploadedImageUrl: string): Promise<ActionResult<{ attemptId: string }>> => {
+    if (!uploadedImageUrl || uploadedImageUrl.length > 1000) return { ok: false, error: "validation_failed" };
+
+    const supabase = await createClient();
+    const learnerId = await getOwnLearnerId(session.id, supabase);
+    if (!learnerId) return { ok: false, error: "not_found" };
+
+    const { data: assessment } = await supabase
+      .from("assessments")
+      .select("id")
+      .eq("published", true)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (!assessment) return { ok: false, error: "assessment_not_found" };
+
+    const { data: attempt, error } = await supabase
+      .from("assessment_attempts")
+      .insert({
+        assessment_id: assessment.id,
+        learner_id: learnerId,
+        mode: "print_shade",
+        source_type: "mock",
+        uploaded_image_url: uploadedImageUrl,
+        marking_status: "pending",
+      })
+      .select("id")
+      .single();
+
+    if (error || !attempt) return { ok: false, error: error?.message ?? "submit_failed" };
+    return { ok: true, data: { attemptId: attempt.id } };
+  },
+);

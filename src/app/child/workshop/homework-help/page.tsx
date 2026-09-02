@@ -30,8 +30,9 @@ export default function HomeworkHelpPage() {
             uploadBody="Same as uploading a print-and-shade mock exam — ask a grown-up to help you take a clear photo, or drag a file in below."
             processingTitle="Looking at your question..."
             processingBody="Hang tight, this only takes a moment."
-            onComplete={async () => {
-              await submitHomeworkHelp();
+            onComplete={async (uploadedPath) => {
+              const result = await submitHomeworkHelp(uploadedPath);
+              if (!result.ok) throw new Error(result.error);
               setTimeout(() => setDone(true), 2200);
             }}
           />

@@ -5,6 +5,7 @@ import { PageShell } from "@/components/PageShell";
 import { Card } from "@/components/Card";
 import { Button } from "@/components/Button";
 import { PhotoUploadFlow } from "@/components/PhotoUploadFlow";
+import { submitPrintShadeUpload } from "@/features/assessments/actions";
 
 type Step = "download" | "upload" | "submitted";
 
@@ -38,7 +39,9 @@ export default function PrintShadeFlow() {
             uploadBody="Ask a grown-up to help you take a clear photo, or drag a file in below."
             processingTitle="Sending it off..."
             processingBody="Hang tight, this only takes a moment."
-            onComplete={() => {
+            onComplete={async (uploadedPath) => {
+              const result = await submitPrintShadeUpload(uploadedPath);
+              if (!result.ok) throw new Error(result.error);
               setTimeout(() => setStep("submitted"), 1200);
             }}
           />
