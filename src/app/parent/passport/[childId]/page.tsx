@@ -5,17 +5,18 @@ import { Button } from "@/components/Button";
 import { AchievementBadge } from "@/components/AchievementBadge";
 import { TopicHeatmap } from "@/components/TopicHeatmap";
 import { createClient } from "@/lib/supabase/server";
-import { getExamHistory, getRevisionItems, getLearnerAchievements } from "@/features/parent/queries";
+import { getCradleRecords, getExamHistory, getRevisionItems, getLearnerAchievements } from "@/features/parent/queries";
 
 export default async function LearningPassport({ params }: { params: { childId: string } }) {
   const supabase = await createClient();
   const { data: learner } = await supabase.from("learners").select("*").eq("id", params.childId).maybeSingle();
   if (!learner) notFound();
 
-  const [results, revision, achievements, { data: notes }, { data: regs }] = await Promise.all([
+  const [results, revision, achievements, cradleRecords, { data: notes }, { data: regs }] = await Promise.all([
     getExamHistory(learner.id),
     getRevisionItems(learner.id),
     getLearnerAchievements(learner.id),
+    getCradleRecords(learner.id),
     supabase.from("lesson_notes").select("*").eq("learner_id", learner.id).order("created_at", { ascending: false }),
     supabase.from("activity_registrations").select("*, activities(title)").eq("learner_id", learner.id),
   ]);
@@ -91,6 +92,47 @@ export default async function LearningPassport({ params }: { params: { childId: 
               <p className="text-sm text-charcoal-teal/70">No tutor sessions logged yet.</p>
             )}
           </Card>
+        </section>
+
+        <section className="mb-6">
+          <h2 className="font-display font-bold text-lg mb-3">Cradle records</h2>
+          {cradleRecords.length ? (
+            <div className="space-y-3">
+              {cradleRecords.map((record) => (
+                <Card key={record.id}>
+                  <div className="flex items-start justify-between gap-3 mb-3">
+                    <div>
+                      <p className="font-semibold">
+                        {record.session_type === "vocational" ? "Craft session" : "Tutor session"} ·{" "}
+                        {new Date(record.started_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
+                      </p>
+                      <p className="text-xs text-charcoal-teal/60">
+                        {record.recording_status.replace("_", " ")}
+                        {record.ended_at ? ` · ended ${new Date(record.ended_at).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}` : " · live or not ended"}
+                      </p>
+                    </div>
+                    <Button href={`/cradle/${record.id}`} variant="outline" className="px-3 py-1.5 text-xs">
+                      Open room
+                    </Button>
+                  </div>
+                  {record.whiteboard_snapshot ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={record.whiteboard_snapshot}
+                      alt="Saved Cradle whiteboard"
+                      className="w-full rounded-2xl border-2 border-teal-100 bg-white"
+                    />
+                  ) : (
+                    <p className="text-sm text-charcoal-teal/70">No whiteboard snapshot saved for this session yet.</p>
+                  )}
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <Card>
+              <p className="text-sm text-charcoal-teal/70">No Cradle sessions recorded yet.</p>
+            </Card>
+          )}
         </section>
 
         <section className="mb-6">
