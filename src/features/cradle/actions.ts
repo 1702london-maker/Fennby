@@ -158,6 +158,17 @@ export async function saveWhiteboardState(input: z.infer<typeof whiteboardStateS
   return { ok: true, data: null };
 }
 
+export async function getCradleWrapUpQuestions(limit = 6) {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("questions")
+    .select("id, text, options, correct_answer")
+    .eq("status", "published")
+    .limit(100);
+
+  return [...(data ?? [])].sort(() => Math.random() - 0.5).slice(0, limit);
+}
+
 // Recording status must always be visible to every participant — this
 // action is what changes it, and every participant's UI polls/reads the
 // same cradle_sessions row, so there's no silent recording state only the

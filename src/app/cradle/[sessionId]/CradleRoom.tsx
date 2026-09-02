@@ -4,8 +4,10 @@ import { useEffect, useRef, useState } from "react";
 import { Card } from "@/components/Card";
 import { Button } from "@/components/Button";
 import { joinCradleSession, setRecordingStatus, endCradleSession, saveWhiteboardState } from "@/features/cradle/actions";
+import { submitAssessmentAttempt } from "@/features/assessments/actions";
 
 type WhiteboardStroke = { x0: number; y0: number; x1: number; y1: number };
+type WrapUpQuestion = { id: string; text: string; options: string[]; correctAnswer: number };
 
 export function CradleRoom({
   sessionId,
@@ -13,17 +15,25 @@ export function CradleRoom({
   peerAnonymityEnabled,
   initialRecordingStatus,
   initialWhiteboardStrokes,
+  wrapUpQuestions,
 }: {
   sessionId: string;
   isHost: boolean;
   peerAnonymityEnabled: boolean;
   initialRecordingStatus: "not_recording" | "recording" | "recorded";
   initialWhiteboardStrokes: WhiteboardStroke[];
+  wrapUpQuestions: WrapUpQuestion[];
 }) {
   const [status, setStatus] = useState<"connecting" | "connected" | "error" | "not_configured">("connecting");
   const [error, setError] = useState<string | null>(null);
   const [recordingStatus, setRecordingLocal] = useState(initialRecordingStatus);
   const [cameraOn, setCameraOn] = useState(!peerAnonymityEnabled);
+  const [sessionEnded, setSessionEnded] = useState(false);
+  const [wrapUpStarted, setWrapUpStarted] = useState(false);
+  const [wrapUpIndex, setWrapUpIndex] = useState(0);
+  const [wrapUpAnswers, setWrapUpAnswers] = useState<{ questionId: string; choiceIndex: number }[]>([]);
+  const [wrapUpScore, setWrapUpScore] = useState<number | null>(null);
+  const [wrapUpError, setWrapUpError] = useState<string | null>(null);
   const localVideoRef = useRef<HTMLDivElement>(null);
   const remoteVideoRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -205,6 +215,87 @@ export function CradleRoom({
     });
   };
 
+  const closeLiveRoom = async () => {
+    await persistWhiteboard();
+    if (isHost) await endCradleSession(sessionId);
+    roomRef.current?.disconnect();
+    setSessionEnded(true);
+  };
+
+  const startWrapUp = () => {
+    if (!wrapUpQuestions.length) {
+      setWrapUpError("No Wrap-Up questions are available yet.");
+      return;
+    }
+    setWrapUpStarted(true);
+    setWrapUpError(null);
+  };
+
+  const answerWrapUp = async (choiceIndex: number) => {
+    const question = wrapUpQuestions[wrapUpIndex];
+    const next = [...wrapUpAnswers, { questionId: question.id, choiceIndex }];
+    setWrapUpAnswers(next);
+
+    if (wrapUpIndex + 1 < wrapUpQuestions.length) {
+      setWrapUpIndex((i) => i + 1);
+      return;
+    }
+
+    const result = await submitAssessmentAttempt({
+      mode: "practice",
+      answers: next,
+      sourceType: "wrap_up_cradle",
+      sourceId: sessionId,
+    });
+    if (result.ok) {
+      setWrapUpScore(result.data.score);
+      setWrapUpStarted(false);
+    } else {
+      setWrapUpError(result.error);
+    }
+  };
+
+  if (wrapUpStarted && wrapUpScore === null) {
+    const question = wrapUpQuestions[wrapUpIndex];
+    return (
+      <Card>
+        <p className="text-xs font-bold text-charcoal-teal/60 mb-2">CRADLE WRAP-UP · QUESTION {wrapUpIndex + 1} OF {wrapUpQuestions.length}</p>
+        <p className="font-display font-bold text-xl mb-6">{question.text}</p>
+        <div className="grid gap-3">
+          {question.options.map((option, index) => (
+            <button
+              key={option}
+              onClick={() => answerWrapUp(index)}
+              className="text-left px-5 py-4 rounded-2xl bg-teal-100 hover:bg-teal-100/70 font-semibold min-h-[44px] transition-colors"
+            >
+              {option}
+            </button>
+          ))}
+        </div>
+        {wrapUpError && <p className="mt-4 text-sm font-semibold text-brick-600">{wrapUpError}</p>}
+      </Card>
+    );
+  }
+
+  if (sessionEnded) {
+    return (
+      <Card tint="coral" className="text-center py-10">
+        <p className="font-display font-bold text-xl mb-2">Cradle session ended</p>
+        {wrapUpScore === null ? (
+          <>
+            <p className="text-sm text-charcoal-teal/80 mb-5">
+              The whiteboard has been saved. Finish with a quick {wrapUpQuestions.length || 6}-question Wrap-Up.
+            </p>
+            <Button variant="primary" onClick={startWrapUp}>Start Wrap-Up</Button>
+            {wrapUpError && <p className="mt-4 text-sm font-semibold text-brick-600">{wrapUpError}</p>}
+          </>
+        ) : (
+          <p className="text-sm text-charcoal-teal/80">Wrap-Up complete — {wrapUpScore}% saved to your progress.</p>
+        )}
+      </Card>
+    );
+  }
+
   if (status === "not_configured") {
     return (
       <Card tint="teal">
@@ -253,11 +344,7 @@ export function CradleRoom({
             <Button
               variant="ghost"
               className="px-3 py-1.5 text-xs"
-              onClick={async () => {
-                await persistWhiteboard();
-                await endCradleSession(sessionId);
-                roomRef.current?.disconnect();
-              }}
+              onClick={closeLiveRoom}
             >
               End session
             </Button>
@@ -280,7 +367,14 @@ export function CradleRoom({
       </div>
 
       <Card>
-        <p className="text-xs font-bold text-charcoal-teal/60 mb-2">SHARED WHITEBOARD</p>
+        <div className="flex items-center justify-between gap-3 mb-2">
+          <p className="text-xs font-bold text-charcoal-teal/60">SHARED WHITEBOARD</p>
+          {!isHost && (
+            <Button variant="outline" className="px-3 py-1.5 text-xs" onClick={closeLiveRoom}>
+              Leave &amp; Wrap-Up
+            </Button>
+          )}
+        </div>
         <canvas
           ref={canvasRef}
           width={640}

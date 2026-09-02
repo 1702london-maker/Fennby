@@ -3,6 +3,7 @@ import { PageShell } from "@/components/PageShell";
 import { EmptyState } from "@/components/EmptyState";
 import { getSessionProfile } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
+import { getCradleWrapUpQuestions } from "@/features/cradle/actions";
 import { CradleRoom } from "./CradleRoom";
 
 type WhiteboardStroke = { x0: number; y0: number; x1: number; y1: number };
@@ -51,6 +52,8 @@ export default async function CradleSessionPage({ params }: { params: Promise<{ 
     );
   }
 
+  const wrapUpQuestions = await getCradleWrapUpQuestions();
+
   return (
     <PageShell>
       <main className="max-w-4xl mx-auto px-6 py-10">
@@ -68,6 +71,12 @@ export default async function CradleSessionPage({ params }: { params: Promise<{ 
           peerAnonymityEnabled={cradleSession.peer_anonymity_enabled}
           initialRecordingStatus={cradleSession.recording_status as "not_recording" | "recording" | "recorded"}
           initialWhiteboardStrokes={getWhiteboardStrokes(cradleSession.whiteboard_strokes)}
+          wrapUpQuestions={wrapUpQuestions.map((q) => ({
+            id: q.id,
+            text: q.text,
+            options: q.options,
+            correctAnswer: q.correct_answer,
+          }))}
         />
       </main>
     </PageShell>
