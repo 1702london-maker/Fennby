@@ -69,6 +69,7 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error(error.message ?? error);
+  console.error("Admin seed failed:");
+  console.error(JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
   process.exit(1);
 });
