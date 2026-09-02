@@ -5,6 +5,22 @@ import { getSessionProfile } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { CradleRoom } from "./CradleRoom";
 
+type WhiteboardStroke = { x0: number; y0: number; x1: number; y1: number };
+
+function getWhiteboardStrokes(value: unknown): WhiteboardStroke[] {
+  if (!Array.isArray(value)) return [];
+  return value.filter((stroke): stroke is WhiteboardStroke => {
+    if (!stroke || typeof stroke !== "object") return false;
+    const candidate = stroke as Record<string, unknown>;
+    return (
+      typeof candidate.x0 === "number" &&
+      typeof candidate.y0 === "number" &&
+      typeof candidate.x1 === "number" &&
+      typeof candidate.y1 === "number"
+    );
+  });
+}
+
 export default async function CradleSessionPage({ params }: { params: Promise<{ sessionId: string }> }) {
   const { sessionId } = await params;
   const session = await getSessionProfile();
@@ -51,6 +67,7 @@ export default async function CradleSessionPage({ params }: { params: Promise<{ 
           isHost={cradleSession.host_id === session.id}
           peerAnonymityEnabled={cradleSession.peer_anonymity_enabled}
           initialRecordingStatus={cradleSession.recording_status as "not_recording" | "recording" | "recorded"}
+          initialWhiteboardStrokes={getWhiteboardStrokes(cradleSession.whiteboard_strokes)}
         />
       </main>
     </PageShell>

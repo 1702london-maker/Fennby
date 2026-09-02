@@ -81,6 +81,19 @@ const joinSchema = z.object({
   anonymizedDisplayName: z.string().optional(),
 });
 
+const whiteboardStrokeSchema = z.object({
+  x0: z.number(),
+  y0: z.number(),
+  x1: z.number(),
+  y1: z.number(),
+});
+
+const whiteboardStateSchema = z.object({
+  sessionId: z.string().uuid(),
+  strokes: z.array(whiteboardStrokeSchema).max(5000),
+  snapshot: z.string().startsWith("data:image/png;base64,").max(1_500_000).nullable().optional(),
+});
+
 export async function joinCradleSession(input: z.infer<typeof joinSchema>): Promise<ActionResult<{ token: string; roomName: string }>> {
   const session = await getSessionProfile();
   if (!session) return { ok: false, error: "unauthenticated" };
@@ -114,6 +127,35 @@ export async function joinCradleSession(input: z.infer<typeof joinSchema>): Prom
   token.addGrant(new VideoGrant({ room: cradleSession.video_room_sid ?? undefined }));
 
   return { ok: true, data: { token: token.toJwt(), roomName: cradleSession.video_room_sid ?? "" } };
+}
+
+export async function saveWhiteboardState(input: z.infer<typeof whiteboardStateSchema>): Promise<ActionResult> {
+  const session = await getSessionProfile();
+  if (!session) return { ok: false, error: "unauthenticated" };
+
+  const parsed = whiteboardStateSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, error: "validation_failed" };
+
+  const supabase = await createClient();
+  const { data: participant } = await supabase
+    .from("cradle_participants")
+    .select("id")
+    .eq("session_id", parsed.data.sessionId)
+    .eq("profile_id", session.id)
+    .maybeSingle();
+
+  if (!participant) return { ok: false, error: "not_a_participant" };
+
+  const { error } = await supabase
+    .from("cradle_sessions")
+    .update({
+      whiteboard_strokes: parsed.data.strokes,
+      whiteboard_snapshot: parsed.data.snapshot ?? null,
+    })
+    .eq("id", parsed.data.sessionId);
+
+  if (error) return { ok: false, error: error.message };
+  return { ok: true, data: null };
 }
 
 // Recording status must always be visible to every participant — this

@@ -3,18 +3,22 @@
 import { useEffect, useRef, useState } from "react";
 import { Card } from "@/components/Card";
 import { Button } from "@/components/Button";
-import { joinCradleSession, setRecordingStatus, endCradleSession } from "@/features/cradle/actions";
+import { joinCradleSession, setRecordingStatus, endCradleSession, saveWhiteboardState } from "@/features/cradle/actions";
+
+type WhiteboardStroke = { x0: number; y0: number; x1: number; y1: number };
 
 export function CradleRoom({
   sessionId,
   isHost,
   peerAnonymityEnabled,
   initialRecordingStatus,
+  initialWhiteboardStrokes,
 }: {
   sessionId: string;
   isHost: boolean;
   peerAnonymityEnabled: boolean;
   initialRecordingStatus: "not_recording" | "recording" | "recorded";
+  initialWhiteboardStrokes: WhiteboardStroke[];
 }) {
   const [status, setStatus] = useState<"connecting" | "connected" | "error" | "not_configured">("connecting");
   const [error, setError] = useState<string | null>(null);
@@ -26,6 +30,8 @@ export function CradleRoom({
   const roomRef = useRef<import("twilio-video").Room | null>(null);
   const dataTrackRef = useRef<import("twilio-video").LocalDataTrack | null>(null);
   const localVideoTrackRef = useRef<import("twilio-video").LocalVideoTrack | null>(null);
+  const strokesRef = useRef<WhiteboardStroke[]>(initialWhiteboardStrokes);
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -83,8 +89,10 @@ export function CradleRoom({
           } else if (track.kind === "data") {
             (track as import("twilio-video").RemoteDataTrack).on("message", (message: string) => {
               try {
-                const stroke = JSON.parse(message);
-                drawRemoteStroke(stroke);
+                const stroke = JSON.parse(message) as WhiteboardStroke;
+                strokesRef.current = [...strokesRef.current, stroke];
+                drawStroke(stroke);
+                scheduleWhiteboardSave();
               } catch {
                 /* ignore malformed whiteboard messages */
               }
@@ -107,17 +115,6 @@ export function CradleRoom({
       }
     }
 
-    function drawRemoteStroke(stroke: { x0: number; y0: number; x1: number; y1: number }) {
-      const ctx = canvasRef.current?.getContext("2d");
-      if (!ctx) return;
-      ctx.strokeStyle = "#146B6B";
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      ctx.moveTo(stroke.x0, stroke.y0);
-      ctx.lineTo(stroke.x1, stroke.y1);
-      ctx.stroke();
-    }
-
     connect();
     return () => {
       cancelled = true;
@@ -126,11 +123,48 @@ export function CradleRoom({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    redrawWhiteboard();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Shared whiteboard: local strokes drawn on canvas are broadcast over the
   // Twilio DataTrack so every participant's canvas stays in sync — a real
   // shared whiteboard, not a per-user scratchpad.
   const drawing = useRef(false);
   const lastPoint = useRef<{ x: number; y: number } | null>(null);
+
+  const drawStroke = (stroke: WhiteboardStroke) => {
+    const ctx = canvasRef.current?.getContext("2d");
+    if (!ctx) return;
+    ctx.strokeStyle = "#146B6B";
+    ctx.lineWidth = 3;
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.moveTo(stroke.x0, stroke.y0);
+    ctx.lineTo(stroke.x1, stroke.y1);
+    ctx.stroke();
+  };
+
+  const redrawWhiteboard = () => {
+    const canvas = canvasRef.current;
+    const ctx = canvas?.getContext("2d");
+    if (!canvas || !ctx) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    strokesRef.current.forEach(drawStroke);
+  };
+
+  const persistWhiteboard = async () => {
+    const snapshot = canvasRef.current?.toDataURL("image/png") ?? null;
+    await saveWhiteboardState({ sessionId, strokes: strokesRef.current, snapshot });
+  };
+
+  const scheduleWhiteboardSave = () => {
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    saveTimerRef.current = setTimeout(() => {
+      void persistWhiteboard();
+    }, 1200);
+  };
 
   const onPointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
     drawing.current = true;
@@ -146,14 +180,11 @@ export function CradleRoom({
     const rect = canvasRef.current!.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-    const ctx = canvasRef.current!.getContext("2d")!;
-    ctx.strokeStyle = "#146B6B";
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    ctx.moveTo(lastPoint.current.x, lastPoint.current.y);
-    ctx.lineTo(x, y);
-    ctx.stroke();
-    dataTrackRef.current?.send(JSON.stringify({ x0: lastPoint.current.x, y0: lastPoint.current.y, x1: x, y1: y }));
+    const stroke = { x0: lastPoint.current.x, y0: lastPoint.current.y, x1: x, y1: y };
+    drawStroke(stroke);
+    strokesRef.current = [...strokesRef.current, stroke];
+    dataTrackRef.current?.send(JSON.stringify(stroke));
+    scheduleWhiteboardSave();
     lastPoint.current = { x, y };
   };
 
@@ -223,6 +254,7 @@ export function CradleRoom({
               variant="ghost"
               className="px-3 py-1.5 text-xs"
               onClick={async () => {
+                await persistWhiteboard();
                 await endCradleSession(sessionId);
                 roomRef.current?.disconnect();
               }}

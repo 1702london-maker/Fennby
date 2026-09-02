@@ -713,6 +713,8 @@ export type Database = {
           started_at: string
           video_provider: string
           video_room_sid: string | null
+          whiteboard_snapshot: string | null
+          whiteboard_strokes: Json
         }
         Insert: {
           ended_at?: string | null
@@ -725,6 +727,8 @@ export type Database = {
           started_at?: string
           video_provider?: string
           video_room_sid?: string | null
+          whiteboard_snapshot?: string | null
+          whiteboard_strokes?: Json
         }
         Update: {
           ended_at?: string | null
@@ -737,6 +741,8 @@ export type Database = {
           started_at?: string
           video_provider?: string
           video_room_sid?: string | null
+          whiteboard_snapshot?: string | null
+          whiteboard_strokes?: Json
         }
         Relationships: [
           {
