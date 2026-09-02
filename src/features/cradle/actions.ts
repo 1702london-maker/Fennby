@@ -5,6 +5,7 @@ import twilio from "twilio";
 import { withRole } from "@/lib/auth/withRole";
 import { getSessionProfile } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import type { ActionResult } from "@/lib/action-result";
 
 function getTwilioEnv() {
@@ -30,7 +31,21 @@ export const createCradleSession = withRole(
     if (!parsed.success) return { ok: false, error: "validation_failed" };
 
     const supabase = await createClient();
+    const admin = createAdminClient();
     const roomName = `cradle-${crypto.randomUUID()}`;
+    let learnerId: string | null = null;
+
+    if (parsed.data.lessonSessionId) {
+      const { data: lessonSession, error: lessonError } = await admin
+        .from("lesson_sessions")
+        .select("learner_id, tutor_id")
+        .eq("id", parsed.data.lessonSessionId)
+        .maybeSingle();
+
+      if (lessonError || !lessonSession) return { ok: false, error: "lesson_session_not_found" };
+      if (lessonSession.tutor_id !== session.id) return { ok: false, error: "forbidden" };
+      learnerId = lessonSession.learner_id;
+    }
 
     const twilioEnv = getTwilioEnv();
     if (twilioEnv) {
@@ -45,7 +60,7 @@ export const createCradleSession = withRole(
     // A message thread is created alongside the session so Cradle chat
     // feeds the same parent-visible transparency layer as everything else
     // (Part 2.3) — not a side channel that only exists inside the video UI.
-    const { data: thread } = await supabase.from("message_threads").insert({}).select("id").single();
+    const { data: thread } = await admin.from("message_threads").insert({ learner_id: learnerId }).select("id").single();
 
     const { data: cradleSession, error } = await supabase
       .from("cradle_sessions")
@@ -63,7 +78,7 @@ export const createCradleSession = withRole(
     if (error || !cradleSession) return { ok: false, error: error?.message ?? "create_failed" };
 
     if (thread) {
-      await supabase.from("message_threads").update({ cradle_session_id: cradleSession.id }).eq("id", thread.id);
+      await admin.from("message_threads").update({ cradle_session_id: cradleSession.id }).eq("id", thread.id);
     }
 
     await supabase.from("cradle_participants").insert({
