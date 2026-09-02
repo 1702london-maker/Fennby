@@ -23,15 +23,20 @@ export const submitMoodCheckin = withRole(["child"], async (session, mood: MoodT
   return { ok: true, data: null };
 });
 
-export const completeBrainWarmup = withRole(["child"], async (session): Promise<ActionResult> => {
+export const completeBrainWarmup = withRole(
+  ["child"],
+  async (session, result?: { score?: number; total?: number }): Promise<ActionResult> => {
   const learnerId = await getOwnLearnerId(session.id);
   if (!learnerId) return { ok: false, error: "not_found" };
 
   const supabase = await createClient();
+  const total = Math.max(1, result?.total ?? 1);
+  const score = Math.max(0, Math.min(total, result?.score ?? 0));
   const { error } = await supabase.from("brain_warmups").insert({
     learner_id: learnerId,
-    activity_type: "pattern_recognition",
+    activity_type: "mixed_question_bank",
     completed_at: new Date().toISOString(),
+    score: Math.round((score / total) * 100),
   });
   if (error) return { ok: false, error: error.message };
   return { ok: true, data: null };

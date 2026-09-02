@@ -6,6 +6,7 @@ import { BrainWarmupCard } from "@/components/BrainWarmupCard";
 import { Card } from "@/components/Card";
 import { Button } from "@/components/Button";
 import { submitMoodCheckin, completeBrainWarmup } from "@/features/child/actions";
+import type { WarmupQuestion } from "@/features/child/queries";
 import type { Mood } from "@/lib/mock-data";
 import type { Database } from "@/types/database";
 
@@ -17,7 +18,7 @@ const moodToDbMood: Record<Mood, Database["public"]["Enums"]["mood_type"]> = {
   tough: "frustrated",
 };
 
-export function TodayInteractive() {
+export function TodayInteractive({ warmupQuestions }: { warmupQuestions: WarmupQuestion[] }) {
   const [warmupDone, setWarmupDone] = useState(false);
 
   return (
@@ -27,9 +28,10 @@ export function TodayInteractive() {
           <MoodCheckIn onSelect={(mood: Mood) => submitMoodCheckin(moodToDbMood[mood])} />
         </Card>
         <BrainWarmupCard
-          onComplete={() => {
+          questions={warmupQuestions}
+          onComplete={(result) => {
             setWarmupDone(true);
-            completeBrainWarmup();
+            completeBrainWarmup(result);
           }}
         />
       </div>

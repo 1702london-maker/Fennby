@@ -1,4 +1,41 @@
 import { createClient } from "@/lib/supabase/server";
+import { brainTeasers } from "@/lib/mock-data";
+
+export type WarmupQuestion = {
+  id: string;
+  subjectKey: string;
+  topicKey: string;
+  question: string;
+  options: string[];
+  correctAnswer: number;
+};
+
+const WARMUP_SIZE = 10;
+const WARMUP_POOL_READ_LIMIT = 1250;
+
+function shuffle<T>(items: T[]) {
+  return [...items].sort(() => Math.random() - 0.5);
+}
+
+function balanceWarmupPool(questions: WarmupQuestion[]) {
+  const bySubject = new Map<string, WarmupQuestion[]>();
+  for (const question of shuffle(questions)) {
+    const subject = question.subjectKey || "general";
+    bySubject.set(subject, [...(bySubject.get(subject) ?? []), question]);
+  }
+
+  const selected: WarmupQuestion[] = [];
+  while (selected.length < WARMUP_SIZE && bySubject.size) {
+    for (const [subject, subjectQuestions] of Array.from(bySubject.entries())) {
+      const next = subjectQuestions.shift();
+      if (next) selected.push(next);
+      if (!subjectQuestions.length) bySubject.delete(subject);
+      if (selected.length >= WARMUP_SIZE) break;
+    }
+  }
+
+  return selected;
+}
 
 export async function getMyLearnerProfile() {
   const supabase = await createClient();
@@ -9,6 +46,38 @@ export async function getMyLearnerProfile() {
 
   const { data } = await supabase.from("learners").select("*").eq("auth_id", user.id).maybeSingle();
   return data;
+}
+
+export async function getBrainWarmupQuestions(): Promise<WarmupQuestion[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("questions")
+    .select("id, subject_key, topic_key, text, options, correct_answer")
+    .eq("status", "published")
+    .eq("type", "multiple_choice")
+    .limit(WARMUP_POOL_READ_LIMIT);
+
+  const questions = (data ?? [])
+    .filter((q) => q.options.length >= 2)
+    .map((q) => ({
+      id: q.id,
+      subjectKey: q.subject_key ?? "general",
+      topicKey: q.topic_key ?? "general",
+      question: q.text,
+      options: q.options,
+      correctAnswer: q.correct_answer,
+    }));
+
+  if (questions.length >= WARMUP_SIZE) return balanceWarmupPool(questions);
+
+  return brainTeasers.map((q, index) => ({
+    id: `fallback-${index}`,
+    subjectKey: "general",
+    topicKey: "brain-training",
+    question: q.question,
+    options: q.options,
+    correctAnswer: 0,
+  }));
 }
 
 export async function getRevisionItemsForLearner(learnerId: string) {

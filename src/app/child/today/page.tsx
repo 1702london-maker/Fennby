@@ -8,6 +8,7 @@ import {
   getRevisionItemsForLearner,
   getNextSession,
   getLatestBadge,
+  getBrainWarmupQuestions,
 } from "@/features/child/queries";
 import { TodayInteractive } from "./TodayInteractive";
 import { getAgeTier, AGE_TIER_COPY } from "@/lib/ageTier";
@@ -25,10 +26,11 @@ export default async function ChildToday() {
     );
   }
 
-  const [revisionItems, nextSession, latestBadge] = await Promise.all([
+  const [revisionItems, nextSession, latestBadge, warmupQuestions] = await Promise.all([
     getRevisionItemsForLearner(learner.id),
     getNextSession(learner.id),
     getLatestBadge(learner.id),
+    getBrainWarmupQuestions(),
   ]);
 
   // Age is derived from the date of birth a parent set at registration —
@@ -44,7 +46,7 @@ export default async function ChildToday() {
           {tierCopy.greeting(learner.preferred_name)}
         </h1>
 
-        <TodayInteractive />
+        <TodayInteractive warmupQuestions={warmupQuestions} />
 
         <section className="grid md:grid-cols-2 gap-6 mt-8">
           <Card>

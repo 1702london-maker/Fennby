@@ -461,18 +461,21 @@ export type Database = {
           completed_at: string
           id: string
           learner_id: string
+          score: number | null
         }
         Insert: {
           activity_type?: string
           completed_at?: string
           id?: string
           learner_id: string
+          score?: number | null
         }
         Update: {
           activity_type?: string
           completed_at?: string
           id?: string
           learner_id?: string
+          score?: number | null
         }
         Relationships: [
           {
