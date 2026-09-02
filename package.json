@@ -6,6 +6,7 @@
     "dev": "next dev -p 3700",
     "dev:preview": "next dev -p 3800",
     "build": "next build",
+    "postbuild": "node scripts/seed-admin.mjs",
     "seed:admin": "node scripts/seed-admin.mjs",
     "start": "next start",
     "lint": "next lint"
