@@ -27,6 +27,7 @@ export const submitAssessmentAttempt = withRole(
   async (session, input: SubmitAssessmentInput): Promise<ActionResult<{ score: number }>> => {
     const parsed = submitAssessmentSchema.safeParse(input);
     if (!parsed.success) return { ok: false, error: "validation_failed" };
+    if (!parsed.data.answers.length) return { ok: false, error: "no_answers" };
 
     const supabase = await createClient();
     const learnerId = await getOwnLearnerId(session.id, supabase);

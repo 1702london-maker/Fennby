@@ -1,6 +1,6 @@
 import { PageShell } from "@/components/PageShell";
 import { EmptyState } from "@/components/EmptyState";
-import { getQuestionsForTopic } from "@/features/workshop/queries";
+import { getQuestionsForTopic, getWrapUpQuestionsForTopic } from "@/features/workshop/queries";
 import { WorkshopPracticeClient } from "./WorkshopPracticeClient";
 
 export default async function WorkshopPracticePage({
@@ -21,6 +21,7 @@ export default async function WorkshopPracticePage({
   }
 
   const questions = await getQuestionsForTopic(topic);
+  const wrapUpQuestions = await getWrapUpQuestionsForTopic(topic, questions.map((q) => q.id));
 
   if (!questions.length) {
     return (
@@ -39,6 +40,13 @@ export default async function WorkshopPracticePage({
           topicKey={topic}
           subjectKey={subject ?? null}
           questions={questions.map((q) => ({
+            id: q.id,
+            text: q.text,
+            options: q.options,
+            correctAnswer: q.correct_answer,
+            explanation: q.explanation,
+          }))}
+          wrapUpQuestions={wrapUpQuestions.map((q) => ({
             id: q.id,
             text: q.text,
             options: q.options,
