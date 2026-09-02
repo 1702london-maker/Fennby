@@ -6,6 +6,7 @@ export async function getPublishedAssessment() {
     .from("assessments")
     .select("*")
     .eq("published", true)
+    .order("created_at", { ascending: false })
     .limit(1)
     .maybeSingle();
 
