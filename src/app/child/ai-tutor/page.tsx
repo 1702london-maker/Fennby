@@ -2,6 +2,7 @@ import { PageShell } from "@/components/PageShell";
 import { Card } from "@/components/Card";
 import { EmptyState } from "@/components/EmptyState";
 import { getMyLearnerProfile } from "@/features/child/queries";
+import { getAiTutorWrapUpQuestions } from "@/features/ai-tutor/queries";
 import { AiTutorClient } from "./AiTutorClient";
 
 export default async function AiTutorPage() {
@@ -16,6 +17,8 @@ export default async function AiTutorPage() {
     );
   }
 
+  const wrapUpQuestions = await getAiTutorWrapUpQuestions();
+
   return (
     <PageShell>
       <main className="max-w-2xl mx-auto px-6 pt-10 pb-32">
@@ -27,7 +30,14 @@ export default async function AiTutorPage() {
             on Fennby.
           </p>
         </Card>
-        <AiTutorClient />
+        <AiTutorClient
+          wrapUpQuestions={wrapUpQuestions.map((q) => ({
+            id: q.id,
+            text: q.text,
+            options: q.options,
+            correctAnswer: q.correct_answer,
+          }))}
+        />
       </main>
     </PageShell>
   );

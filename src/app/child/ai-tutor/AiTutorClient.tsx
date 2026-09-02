@@ -6,19 +6,32 @@ import { Button } from "@/components/Button";
 import { VoiceInputButton } from "@/components/VoiceInputButton";
 import { ReadAloudButton } from "@/components/ReadAloudButton";
 import { startAiTutorConversation, sendAiTutorMessage, endAiTutorConversation } from "@/features/ai-tutor/actions";
+import { submitAssessmentAttempt } from "@/features/assessments/actions";
 
 interface DisplayMessage {
   role: "user" | "assistant";
   content: string;
 }
 
-export function AiTutorClient() {
+interface WrapUpQuestion {
+  id: string;
+  text: string;
+  options: string[];
+  correctAnswer: number;
+}
+
+export function AiTutorClient({ wrapUpQuestions }: { wrapUpQuestions: WrapUpQuestion[] }) {
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [messages, setMessages] = useState<DisplayMessage[]>([]);
   const [draft, setDraft] = useState("");
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [ended, setEnded] = useState(false);
+  const [wrapUpStarted, setWrapUpStarted] = useState(false);
+  const [wrapUpIndex, setWrapUpIndex] = useState(0);
+  const [wrapUpAnswers, setWrapUpAnswers] = useState<{ questionId: string; choiceIndex: number }[]>([]);
+  const [wrapUpScore, setWrapUpScore] = useState<number | null>(null);
+  const [wrapUpError, setWrapUpError] = useState<string | null>(null);
   const startedRef = useRef(false);
   // The cleanup closure below only ever sees the conversationId that was in
   // scope when the effect first ran (null, since the id arrives async) —
@@ -58,6 +71,63 @@ export function AiTutorClient() {
     }
     setMessages((m) => [...m, { role: "assistant", content: result.data.reply }]);
   };
+
+  const startWrapUp = async () => {
+    if (conversationId) await endAiTutorConversation(conversationId);
+    setEnded(true);
+    if (!wrapUpQuestions.length) {
+      setWrapUpError("No Wrap-Up questions are available yet.");
+      return;
+    }
+    setWrapUpStarted(true);
+  };
+
+  const answerWrapUp = async (choiceIndex: number) => {
+    if (!conversationId) return;
+    const question = wrapUpQuestions[wrapUpIndex];
+    const next = [...wrapUpAnswers, { questionId: question.id, choiceIndex }];
+    setWrapUpAnswers(next);
+
+    if (wrapUpIndex + 1 < wrapUpQuestions.length) {
+      setWrapUpIndex((i) => i + 1);
+      return;
+    }
+
+    const result = await submitAssessmentAttempt({
+      mode: "practice",
+      answers: next,
+      sourceType: "wrap_up_ai_tutor",
+      sourceId: conversationId,
+    });
+    if (result.ok) {
+      setWrapUpScore(result.data.score);
+      setWrapUpStarted(false);
+    } else {
+      setWrapUpError(result.error);
+    }
+  };
+
+  if (wrapUpStarted && wrapUpScore === null) {
+    const question = wrapUpQuestions[wrapUpIndex];
+    return (
+      <Card>
+        <p className="text-xs font-bold text-charcoal-teal/60 mb-2">AI TUTOR WRAP-UP · QUESTION {wrapUpIndex + 1} OF {wrapUpQuestions.length}</p>
+        <p className="font-display font-bold text-xl mb-6">{question.text}</p>
+        <div className="grid gap-3">
+          {question.options.map((option, index) => (
+            <button
+              key={option}
+              onClick={() => answerWrapUp(index)}
+              className="text-left px-5 py-4 rounded-2xl bg-teal-100 hover:bg-teal-100/70 font-semibold min-h-[44px] transition-colors"
+            >
+              {option}
+            </button>
+          ))}
+        </div>
+        {wrapUpError && <p className="mt-4 text-sm font-semibold text-brick-600">{wrapUpError}</p>}
+      </Card>
+    );
+  }
 
   return (
     <>
@@ -103,22 +173,25 @@ export function AiTutorClient() {
         <div className="mt-4 text-center">
           <Button
             variant="outline"
-            onClick={() => {
-              if (conversationId) endAiTutorConversation(conversationId);
-              setEnded(true);
-            }}
+            onClick={startWrapUp}
           >
             End session &amp; do a Wrap-Up
           </Button>
         </div>
       )}
-      {ended && (
+      {ended && !wrapUpStarted && (
         <Card tint="coral" className="mt-4 text-center">
           <p className="font-display font-bold mb-2">Session ended — nice work!</p>
-          <p className="text-sm text-charcoal-teal/80 mb-4">
-            Head to The Workshop for a quick Wrap-Up check on what you just covered.
-          </p>
-          <Button href="/child/workshop" variant="primary">Go to The Workshop</Button>
+          {wrapUpScore === null ? (
+            <>
+              <p className="text-sm text-charcoal-teal/80 mb-4">
+                {wrapUpError ?? "Your Wrap-Up will appear here when questions are available."}
+              </p>
+              <Button href="/child/workshop" variant="primary">Go to The Workshop</Button>
+            </>
+          ) : (
+            <p className="text-sm text-charcoal-teal/80">Wrap-Up complete — {wrapUpScore}% saved to your progress.</p>
+          )}
         </Card>
       )}
     </>
