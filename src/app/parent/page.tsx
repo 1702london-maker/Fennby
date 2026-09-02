@@ -18,6 +18,7 @@ import {
 } from "@/features/parent/queries";
 import { getWorkshopSummaryForLearner } from "@/features/parent/workshopQueries";
 import { getAiTutorHistoryForLearner } from "@/features/ai-tutor/queries";
+import { getAssessmentResultNoun } from "@/lib/resultLabels";
 import { GenerateReportButton } from "./GenerateReportButton";
 
 const dbMoodToIcon = {
@@ -95,7 +96,7 @@ export default async function ParentDashboard({
           <Card tint="coral" className="mb-8">
             <p className="font-semibold text-charcoal-teal/70 text-sm">Latest result</p>
             <p className="font-display font-bold text-xl mt-1">
-              {child.preferred_name} scored {latestResult.score}% on her most recent mock.
+              {child.preferred_name} scored {latestResult.score}% on her most recent {getAssessmentResultNoun(latestResult.assessment_attempts)}.
             </p>
           </Card>
         ) : (

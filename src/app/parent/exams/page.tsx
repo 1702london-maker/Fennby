@@ -4,6 +4,7 @@ import { EmptyState } from "@/components/EmptyState";
 import { ProgressRing } from "@/components/ProgressRing";
 import { getMyLearners, getExamHistory } from "@/features/parent/queries";
 import { getOpenSittings, getMySittingPurchases } from "@/features/mockExamSittings/actions";
+import { getAssessmentResultLabel } from "@/lib/resultLabels";
 import { SittingRegisterButton } from "./SittingRegisterButton";
 
 export default async function ParentExamsPage({
@@ -96,7 +97,7 @@ export default async function ParentExamsPage({
               <Card key={e.id}>
                 <div className="flex flex-wrap items-center justify-between gap-4">
                   <div>
-                    <p className="font-display font-bold text-lg">Mock exam</p>
+                    <p className="font-display font-bold text-lg">{getAssessmentResultLabel(e.assessment_attempts)}</p>
                     <p className="text-sm text-charcoal-teal/70">{new Date(e.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}</p>
                   </div>
                   <ProgressRing progress={e.score} size={72} color="teal" />

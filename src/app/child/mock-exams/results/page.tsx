@@ -4,12 +4,7 @@ import { Button } from "@/components/Button";
 import { ProgressRing } from "@/components/ProgressRing";
 import { EmptyState } from "@/components/EmptyState";
 import { getMyLearnerProfile, getLatestResultWithTopics } from "@/features/child/queries";
-
-const modeLabels: Record<string, string> = {
-  digital: "Digital Mock",
-  "print-shade": "Print & Shade",
-  simulation: "Full Exam Simulation",
-};
+import { getAssessmentResultLabel } from "@/lib/resultLabels";
 
 export default async function ExamResults({
   searchParams,
@@ -33,6 +28,8 @@ export default async function ExamResults({
   const score = result?.score ?? Number(scoreParam ?? 0);
   const topics = result?.topic_performance ?? [];
   const weakest = topics.length ? [...topics].sort((a, b) => a.score - b.score)[0] : null;
+  const assessmentAttempt = result?.assessment_attempts ?? null;
+  const resultLabel = getAssessmentResultLabel(assessmentAttempt, mode);
   const accommodations = result?.assessment_attempts?.accommodations_used as {
     extra_time_percent?: number;
     read_aloud?: boolean;
@@ -46,7 +43,7 @@ export default async function ExamResults({
         <Card tint="coral" className="text-center py-10">
           <p className="text-6xl mb-4">🎉</p>
           <p className="font-display font-bold text-2xl">You did it!</p>
-          <p className="text-sm text-charcoal-teal/60 mt-1">{modeLabels[mode] ?? "Mock Exam"}</p>
+          <p className="text-sm text-charcoal-teal/60 mt-1">{resultLabel}</p>
           {accommodations && (
             <p className="text-xs font-bold text-plum-700 bg-plum-700/10 inline-block px-3 py-1 rounded-full mt-3">
               Taken with accommodations

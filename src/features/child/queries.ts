@@ -144,7 +144,7 @@ export async function getLatestResultWithTopics(learnerId: string) {
   const supabase = await createClient();
   const { data } = await supabase
     .from("assessment_results")
-    .select("*, topic_performance(*), assessment_attempts(accommodations_used)")
+    .select("*, topic_performance(*), assessment_attempts(accommodations_used, source_type, mode)")
     .eq("learner_id", learnerId)
     .order("created_at", { ascending: false })
     .limit(1)

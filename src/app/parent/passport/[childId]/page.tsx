@@ -5,6 +5,7 @@ import { Button } from "@/components/Button";
 import { AchievementBadge } from "@/components/AchievementBadge";
 import { TopicHeatmap } from "@/components/TopicHeatmap";
 import { createClient } from "@/lib/supabase/server";
+import { getAssessmentResultLabel } from "@/lib/resultLabels";
 import { getCradleRecords, getExamHistory, getRevisionItems, getLearnerAchievements } from "@/features/parent/queries";
 
 export default async function LearningPassport({ params }: { params: { childId: string } }) {
@@ -55,7 +56,7 @@ export default async function LearningPassport({ params }: { params: { childId: 
           {results.length ? (
             results.map((r) => (
               <Card key={r.id} className="mb-3">
-                <p className="font-semibold mb-2">Mock exam — {r.score}%</p>
+                <p className="font-semibold mb-2">{getAssessmentResultLabel(r.assessment_attempts)} — {r.score}%</p>
                 {r.topic_performance?.length ? (
                   <TopicHeatmap topics={r.topic_performance.map((t) => ({ topic: t.topic_key ?? "Topic", score: t.score }))} />
                 ) : null}
