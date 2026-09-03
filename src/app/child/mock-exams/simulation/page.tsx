@@ -9,7 +9,7 @@ export default async function FullSimulation() {
   if (!data || !data.questions.length) {
     return (
       <div className="min-h-screen bg-mist-50 flex items-center justify-center px-6">
-        <EmptyState emoji="📝" title="No mock exam available yet" description="Check back soon — new mocks are added regularly." />
+        <EmptyState emoji="📝" title="No mock exam available" description="Ask a grown-up or Fennby admin to publish a mock assessment before starting a full simulation." />
       </div>
     );
   }

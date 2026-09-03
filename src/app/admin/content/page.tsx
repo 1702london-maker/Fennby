@@ -1,5 +1,6 @@
 import { SimplePage } from "@/components/SimplePage";
 import { Card } from "@/components/Card";
+import { Button } from "@/components/Button";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function AdminContentPage() {
@@ -12,19 +13,27 @@ export default async function AdminContentPage() {
   ]);
 
   return (
-    <SimplePage eyebrow="Admin" title="Content management" body="Manage subjects, topics, activities, and achievements available across the platform.">
+    <SimplePage eyebrow="Admin" title="Content management" body="A live inventory of curriculum, question-bank, activity, and achievement content available across Fennby.">
       <div className="grid sm:grid-cols-2 gap-4">
         <Card>
           <p className="font-display font-bold mb-2">Subjects &amp; topics</p>
           <p className="text-sm text-charcoal-teal/70">{subjects.count ?? 0} subjects, {topics.count ?? 0} topics</p>
+          <Button href="/admin/curriculum" variant="outline" className="mt-4">Review curriculum</Button>
         </Card>
         <Card>
           <p className="font-display font-bold mb-2">Activities</p>
           <p className="text-sm text-charcoal-teal/70">{activities.count ?? 0} activities configured</p>
+          <Button href="/parent/activities" variant="outline" className="mt-4">View activity catalogue</Button>
         </Card>
         <Card>
           <p className="font-display font-bold mb-2">Achievements</p>
           <p className="text-sm text-charcoal-teal/70">{achievements.count ?? 0} achievement types</p>
+          <Button href="/child/badges" variant="outline" className="mt-4">View badge experience</Button>
+        </Card>
+        <Card tint="teal">
+          <p className="font-display font-bold mb-2">Question bank</p>
+          <p className="text-sm text-charcoal-teal/70">Published questions power warm-ups, Workshop practice, Wrap-Ups, and mock exams.</p>
+          <Button href="/admin/questions" variant="primary" className="mt-4">Open questions</Button>
         </Card>
       </div>
     </SimplePage>

@@ -9,7 +9,10 @@ export default async function AdminQuestionsPage() {
   return (
     <PageShell>
       <main className="max-w-4xl mx-auto px-6 py-10">
-        <h1 className="font-display font-bold text-3xl mb-8">Question bank</h1>
+        <h1 className="font-display font-bold text-3xl mb-2">Question bank</h1>
+        <p className="text-charcoal-teal/70 mb-8">
+          Published questions feed brain warm-ups, Workshop practice, Wrap-Ups, and mock exams.
+        </p>
         {questions.length ? (
           <Card className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -35,7 +38,7 @@ export default async function AdminQuestionsPage() {
           </Card>
         ) : (
           <Card>
-            <EmptyState emoji="❓" title="No questions in the bank yet" description="Questions are authored directly against the database for now." />
+            <EmptyState emoji="❓" title="No questions in the bank yet" description="Add published questions to unlock warm-ups, Workshop practice, Wrap-Ups, and mock exams." />
           </Card>
         )}
       </main>

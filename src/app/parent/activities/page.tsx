@@ -27,7 +27,7 @@ export default async function ParentActivitiesPage() {
             ))}
           </div>
         ) : (
-          <EmptyState emoji="🎨" title="No activities open right now" description="Check back soon — new dates are added regularly." />
+          <EmptyState emoji="🎨" title="No activities open right now" description="Open summer camps, craft clubs, vocational workshops, and competitions will appear here once approved by the Fennby team." />
         )}
       </main>
     </PageShell>

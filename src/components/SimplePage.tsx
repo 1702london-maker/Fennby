@@ -25,8 +25,8 @@ export function SimplePage({
         {children ?? (
           <Card tint="teal">
             <p className="text-charcoal-teal/80">
-              This page is available as an information view. Related live tools and records are
-              available from your dashboard navigation.
+              Related tools, records, and next actions are available from your dashboard
+              navigation.
             </p>
           </Card>
         )}

@@ -11,7 +11,7 @@ export default async function DigitalMock() {
     return (
       <PageShell>
         <main className="max-w-2xl mx-auto px-6 py-10">
-          <EmptyState emoji="📝" title="No mock exam available yet" description="Check back soon — new mocks are added regularly." />
+          <EmptyState emoji="📝" title="No mock exam available" description="Ask a grown-up or Fennby admin to publish a mock assessment before starting a digital paper." />
         </main>
       </PageShell>
     );

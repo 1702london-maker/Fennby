@@ -41,7 +41,7 @@ export default async function ChildCampsPage() {
             ))}
           </div>
         ) : (
-          <EmptyState emoji="☀️" title="No summer camps open right now" description="Check back soon — new dates are added regularly." />
+          <EmptyState emoji="☀️" title="No summer camps open right now" description="Your grown-up can see available activities from the family dashboard as soon as places open." />
         )}
       </main>
     </PageShell>

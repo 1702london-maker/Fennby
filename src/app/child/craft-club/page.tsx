@@ -41,7 +41,7 @@ export default async function ChildCraftClubPage() {
             ))}
           </div>
         ) : (
-          <EmptyState emoji="🧵" title="No craft club sessions open right now" description="Check back soon — new sessions are added regularly." />
+          <EmptyState emoji="🧵" title="No craft club sessions open right now" description="Your grown-up can see craft and vocational activities from the family dashboard as soon as places open." />
         )}
       </main>
     </PageShell>

@@ -4,7 +4,7 @@ import { Button } from "@/components/Button";
 
 const traits = [
   { icon: "🛡️", title: "You take safeguarding seriously, not as a checkbox", body: "We'd rather you slow a launch down to ask a hard question about a child's safety than ship something fast that skips it." },
-  { icon: "🔍", title: "You're honest about what isn't working yet", body: "Fennby's whole premise is transparency for families — that has to start internally. We'd rather hear \"this feature is half-built\" than a confident status update that isn't true." },
+  { icon: "🔍", title: "You are honest about risk and readiness", body: "Fennby's whole premise is transparency for families — that has to start internally. We value precise status, clear evidence, and early escalation when something needs attention." },
   { icon: "🧩", title: "You think in systems, not one-off fixes", body: "A safeguarding promise only means something if it's enforced structurally — in the database, in the RLS policy, in the workflow — not just written in a policy document." },
   { icon: "🌱", title: "You care about the whole child, not just the metric", body: "Mock exam scores matter, but so does a child's confidence, wellbeing, and the craft skills that don't show up on a league table." },
 ];

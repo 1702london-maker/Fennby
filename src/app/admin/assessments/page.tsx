@@ -9,7 +9,10 @@ export default async function AdminAssessmentsPage() {
   return (
     <PageShell>
       <main className="max-w-4xl mx-auto px-6 py-10">
-        <h1 className="font-display font-bold text-3xl mb-8">Assessments</h1>
+        <h1 className="font-display font-bold text-3xl mb-2">Assessments</h1>
+        <p className="text-charcoal-teal/70 mb-8">
+          Published assessments are the source for digital mocks, print-and-shade papers, and full simulations.
+        </p>
         {assessments.length ? (
           <div className="space-y-4">
             {assessments.map((a) => (
@@ -28,7 +31,7 @@ export default async function AdminAssessmentsPage() {
           </div>
         ) : (
           <Card>
-            <EmptyState emoji="📝" title="No assessments configured yet" description="Assessments are authored directly against the database for now." />
+            <EmptyState emoji="📝" title="No assessments configured yet" description="Create and publish an assessment to unlock digital, print-and-shade, and simulation mock flows." />
           </Card>
         )}
       </main>

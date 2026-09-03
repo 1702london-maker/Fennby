@@ -10,7 +10,7 @@ export default async function TutorStudentsPage() {
     return (
       <PageShell>
         <main className="max-w-2xl mx-auto px-6 py-16">
-          <EmptyState emoji="🎓" title="Not available yet" description="This page unlocks once your tutor application is approved." />
+          <EmptyState emoji="🎓" title="Approval required" description="Student records unlock once your tutor application has passed Fennby's safeguarding and quality checks." />
         </main>
       </PageShell>
     );
