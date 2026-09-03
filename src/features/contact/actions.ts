@@ -2,6 +2,7 @@
 
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { sendEmail } from "@/lib/email";
 import type { ActionResult } from "@/lib/action-result";
 
 const contactSchema = z.object({
@@ -22,5 +23,22 @@ export async function submitContactMessage(input: ContactInput): Promise<ActionR
   const supabase = await createClient();
   const { error } = await supabase.from("contact_messages").insert(parsed.data);
   if (error) return { ok: false, error: "submit_failed" };
+
+  const contactTo = process.env.FENNBY_CONTACT_TO;
+  if (contactTo) {
+    await sendEmail({
+      to: contactTo,
+      replyTo: parsed.data.email,
+      subject: `Fennby contact: ${parsed.data.topic}`,
+      text: [
+        `Name: ${parsed.data.name}`,
+        `Email: ${parsed.data.email}`,
+        `Topic: ${parsed.data.topic}`,
+        "",
+        parsed.data.message,
+      ].join("\n"),
+    });
+  }
+
   return { ok: true, data: null };
 }

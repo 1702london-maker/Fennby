@@ -139,6 +139,7 @@ export async function getPlatformSettingsSnapshot() {
     stripeCheckout: Boolean(process.env.STRIPE_SECRET_KEY),
     stripeSubscriptions: Boolean(process.env.STRIPE_SECRET_KEY && process.env.STRIPE_PRICE_ID_FAMILY_SUBSCRIPTION),
     stripeWebhook: Boolean(process.env.STRIPE_WEBHOOK_SECRET),
+    emailDelivery: Boolean(process.env.RESEND_API_KEY && process.env.FENNBY_EMAIL_FROM && process.env.FENNBY_CONTACT_TO),
     cradleVideo: Boolean(process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_API_KEY_SID && process.env.TWILIO_API_KEY_SECRET),
     publishedAssessments: publishedAssessments.count ?? 0,
     warmupQuestions: warmupQuestions.count ?? 0,

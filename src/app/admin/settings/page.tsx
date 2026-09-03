@@ -36,6 +36,7 @@ export default async function AdminSettingsPage() {
             <StatusRow label="Stripe checkout" ready={settings.stripeCheckout} />
             <StatusRow label="Stripe subscriptions" ready={settings.stripeSubscriptions} />
             <StatusRow label="Stripe webhook" ready={settings.stripeWebhook} />
+            <StatusRow label="Resend email delivery" ready={settings.emailDelivery} />
             <StatusRow label="Cradle video" ready={settings.cradleVideo} />
           </div>
         </Card>
