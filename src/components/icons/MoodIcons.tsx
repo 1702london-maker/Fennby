@@ -1,4 +1,4 @@
-import { Mood } from "@/lib/mock-data";
+import { Mood } from "@/lib/moods";
 
 // Flat, matte, rounded mood icons in the Fennby visual language — no gradients, no glossy effects.
 function Face({

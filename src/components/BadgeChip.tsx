@@ -1,7 +1,14 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Badge } from "@/lib/mock-data";
+
+type Badge = {
+  id: string;
+  name: string;
+  icon: string;
+  awardedAt?: string;
+  isNew?: boolean;
+};
 
 export function BadgeChip({ badge }: { badge: Badge }) {
   return (

@@ -1,5 +1,4 @@
-// Type layer mirroring the eventual Supabase/Postgres schema.
-// Local/mock-data only for now — this file is the contract the real DB will fulfil later.
+// Legacy UI type helpers. Database-backed routes should prefer src/types/database.ts.
 
 export type Role =
   | "child"

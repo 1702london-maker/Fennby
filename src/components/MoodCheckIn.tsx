@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { moodOptions, Mood } from "@/lib/mock-data";
+import { moodOptions, Mood } from "@/lib/moods";
 import { MoodIcon } from "@/components/icons/MoodIcons";
 
 export function MoodCheckIn({ onSelect }: { onSelect?: (m: Mood) => void }) {

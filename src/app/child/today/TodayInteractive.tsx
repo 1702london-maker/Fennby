@@ -7,7 +7,7 @@ import { Card } from "@/components/Card";
 import { Button } from "@/components/Button";
 import { submitMoodCheckin, completeBrainWarmup } from "@/features/child/actions";
 import type { WarmupQuestion } from "@/features/child/queries";
-import type { Mood } from "@/lib/mock-data";
+import type { Mood } from "@/lib/moods";
 import type { Database } from "@/types/database";
 
 const moodToDbMood: Record<Mood, Database["public"]["Enums"]["mood_type"]> = {

@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { brainTeasers } from "@/lib/mock-data";
+import { emergencyWarmupFallback } from "@/lib/warmup-fallback";
 
 export type WarmupQuestion = {
   id: string;
@@ -127,13 +127,13 @@ export async function getBrainWarmupQuestions(learnerId: string): Promise<Warmup
   if (unseenQuestions.length >= WARMUP_SIZE) return balanceWarmupPool(unseenQuestions);
   if (uniqueQuestions.length >= WARMUP_SIZE) return balanceWarmupPool(uniqueQuestions);
 
-  return brainTeasers.map((q, index) => ({
-    id: `fallback-${index}`,
+  return emergencyWarmupFallback.map((q) => ({
+    id: q.id,
     subjectKey: "general",
     topicKey: "brain-training",
     question: q.question,
     options: q.options,
-    correctAnswer: 0,
+    correctAnswer: q.answer,
   }));
 }
 
