@@ -21,7 +21,7 @@ export default async function AiTutorPage() {
 
   return (
     <PageShell>
-      <main className="max-w-2xl mx-auto px-6 pt-10 pb-32">
+      <main className="max-w-7xl mx-auto px-6 pt-10 pb-32">
         <h1 className="font-display font-bold text-3xl mb-1">AI Tutor</h1>
         <Card tint="teal" className="mb-6">
           <p className="text-sm text-charcoal-teal/85">
