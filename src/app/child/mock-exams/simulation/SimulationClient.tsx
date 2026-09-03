@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRef } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { Card } from "@/components/Card";
@@ -32,9 +33,17 @@ export function SimulationClient({
   const [answers, setAnswers] = useState<{ questionId: string; choiceIndex: number }[]>([]);
   const [secondsLeft, setSecondsLeft] = useState(totalSeconds);
   const [error, setError] = useState<string | null>(null);
+  const answersRef = useRef(answers);
+  const finishedRef = useRef(false);
+
+  useEffect(() => {
+    answersRef.current = answers;
+  }, [answers]);
 
   const finish = async (finalAnswers: { questionId: string; choiceIndex: number }[]) => {
+    if (finishedRef.current) return;
     if (!finalAnswers.length) return;
+    finishedRef.current = true;
     const result = await submitAssessmentAttempt({ assessmentId, mode: "simulation", answers: finalAnswers });
     if (!result.ok) {
       if (result.error === "warmup_required") {
@@ -48,11 +57,15 @@ export function SimulationClient({
   };
 
   useEffect(() => {
-    if (secondsLeft <= 0) {
-      finish(answers);
-      return;
-    }
-    const t = setTimeout(() => setSecondsLeft((s) => s - 1), 1000);
+    const t = setTimeout(() => {
+      setSecondsLeft((s) => {
+        if (s <= 1) {
+          void finish(answersRef.current);
+          return 0;
+        }
+        return s - 1;
+      });
+    }, 1000);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [secondsLeft]);

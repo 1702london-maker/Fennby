@@ -148,7 +148,7 @@ export function CradleRoom({
   const drawing = useRef(false);
   const lastPoint = useRef<{ x: number; y: number } | null>(null);
 
-  const drawStroke = (stroke: WhiteboardStroke) => {
+  function drawStroke(stroke: WhiteboardStroke) {
     const ctx = canvasRef.current?.getContext("2d");
     if (!ctx) return;
     ctx.strokeStyle = "#146B6B";
@@ -158,27 +158,27 @@ export function CradleRoom({
     ctx.moveTo(stroke.x0, stroke.y0);
     ctx.lineTo(stroke.x1, stroke.y1);
     ctx.stroke();
-  };
+  }
 
-  const redrawWhiteboard = () => {
+  function redrawWhiteboard() {
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext("2d");
     if (!canvas || !ctx) return;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     strokesRef.current.forEach(drawStroke);
-  };
+  }
 
-  const persistWhiteboard = async () => {
+  async function persistWhiteboard() {
     const snapshot = canvasRef.current?.toDataURL("image/png") ?? null;
     await saveWhiteboardState({ sessionId, strokes: strokesRef.current, snapshot });
-  };
+  }
 
-  const scheduleWhiteboardSave = () => {
+  function scheduleWhiteboardSave() {
     if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
     saveTimerRef.current = setTimeout(() => {
       void persistWhiteboard();
     }, 1200);
-  };
+  }
 
   const onPointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
     drawing.current = true;

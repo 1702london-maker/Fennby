@@ -27,8 +27,8 @@ export function VoiceInputButton({
     const SpeechRecognitionCtor =
       typeof window !== "undefined" ? window.SpeechRecognition ?? window.webkitSpeechRecognition : undefined;
     if (!SpeechRecognitionCtor) {
-      setSupported(false);
-      return;
+      const unsupportedTimer = setTimeout(() => setSupported(false), 0);
+      return () => clearTimeout(unsupportedTimer);
     }
     const recognition = new SpeechRecognitionCtor();
     recognition.continuous = false;

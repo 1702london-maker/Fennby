@@ -25,7 +25,7 @@ const roleHome: Record<string, string> = {
   authority: "/authority/dashboard",
 };
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const response = NextResponse.next({ request });
 
   const supabase = createServerClient(
@@ -74,9 +74,8 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL(home, request.url));
   }
 
-  // Part 7.4: server-side subscription gating on every protected parent/child
-  // route — never a client-side-only check. /parent/billing is exempt so a
-  // pending/suspended account can always reach the page that fixes it.
+  // Server-side subscription gating on every protected parent/child route.
+  // /parent/billing is exempt so a pending or suspended account can fix it.
   if (!request.nextUrl.pathname.startsWith("/parent/billing")) {
     let subscriptionStatus: string | null = null;
 

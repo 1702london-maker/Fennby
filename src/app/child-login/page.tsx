@@ -25,6 +25,7 @@ export default function ChildLoginPage() {
     // Supabase auth cookies are written by the Server Action response.
     // A full document navigation guarantees middleware and Server
     // Components see those cookies before the child dashboard renders.
+    // eslint-disable-next-line @next/next/no-location-assign-relative-destination
     window.location.assign("/child/today");
   };
 
