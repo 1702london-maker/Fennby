@@ -1,19 +1,7 @@
 import { PageShell } from "@/components/PageShell";
 import { Card } from "@/components/Card";
 import { Button } from "@/components/Button";
-
-// Only Memory Builder is a real, playable game right now — the rest are
-// honestly labelled "Coming soon" rather than a button that looks
-// clickable but silently does nothing.
-const games = [
-  { name: "Memory Builder", skill: "Working memory", minutes: 5, difficulty: "Easy", emoji: "🧠", live: true },
-  { name: "Pattern Recognition", skill: "Non-Verbal Reasoning", minutes: 5, difficulty: "Medium", emoji: "🔷", live: false },
-  { name: "Logic Puzzle", skill: "Verbal Reasoning", minutes: 7, difficulty: "Medium", emoji: "🧩", live: false },
-  { name: "Number Recall", skill: "Maths", minutes: 5, difficulty: "Easy", emoji: "🔢", live: false },
-  { name: "Reading Focus", skill: "English", minutes: 6, difficulty: "Medium", emoji: "📖", live: false },
-  { name: "Attention Switch", skill: "Concentration", minutes: 5, difficulty: "Hard", emoji: "🔀", live: false },
-  { name: "Reasoning Challenge", skill: "Verbal Reasoning", minutes: 8, difficulty: "Hard", emoji: "💡", live: false },
-];
+import { games } from "./gameData";
 
 export default function ChildGamesPage() {
   return (
@@ -28,13 +16,7 @@ export default function ChildGamesPage() {
               <p className="font-display font-bold text-lg mt-2">{g.name}</p>
               <p className="text-sm text-charcoal-teal/70">Trains: {g.skill}</p>
               <p className="text-xs text-charcoal-teal/60 mt-1">{g.minutes} mins · {g.difficulty}</p>
-              {g.live ? (
-                <Button href="/child/games/memory-builder" variant="secondary" className="mt-4">Start</Button>
-              ) : (
-                <span className="inline-block mt-4 text-xs font-bold bg-white/70 text-charcoal-teal/60 px-3 py-2 rounded-full">
-                  Coming soon
-                </span>
-              )}
+              <Button href={g.href} variant="secondary" className="mt-4">Start</Button>
             </Card>
           ))}
         </div>
