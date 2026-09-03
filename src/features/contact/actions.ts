@@ -40,6 +40,8 @@ export async function submitContactMessage(input: ContactInput): Promise<ActionR
     });
     if (!emailResult.ok) {
       console.error("Contact email send failed", emailResult);
+    } else {
+      console.info("Contact email send accepted", emailResult.data);
     }
   }
 
