@@ -25,8 +25,8 @@ export function SimplePage({
         {children ?? (
           <Card tint="teal">
             <p className="text-charcoal-teal/80">
-              This section is coming soon. In the meantime, sample data across the rest of
-              Fennby shows exactly what a real family, tutor, or school would see.
+              This page is available as an information view. Related live tools and records are
+              available from your dashboard navigation.
             </p>
           </Card>
         )}
