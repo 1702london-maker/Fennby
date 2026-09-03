@@ -63,6 +63,61 @@ export async function getOperationalMetrics() {
   };
 }
 
+export async function getAdminReportSummaries() {
+  const supabase = await createClient();
+  const [results, revisionItems, homework, assessments, openSittings, schools, learners, tutorApplications] = await Promise.all([
+    supabase.from("assessment_results").select("score, created_at"),
+    supabase.from("revision_items").select("status, priority"),
+    supabase.from("homework_help_requests").select("status"),
+    supabase.from("assessments").select("id", { count: "exact", head: true }).eq("status", "published"),
+    supabase.from("mock_exam_sittings").select("id", { count: "exact", head: true }).eq("status", "open"),
+    supabase.from("schools").select("approved"),
+    supabase.from("learners").select("id, send_notes, accessibility_needs, created_at"),
+    supabase.from("tutor_applications").select("status"),
+  ]);
+
+  const scores = results.data ?? [];
+  const averageScore = scores.length
+    ? Math.round(scores.reduce((sum, result) => sum + Number(result.score ?? 0), 0) / scores.length)
+    : 0;
+  const activeRevisionItems = (revisionItems.data ?? []).filter((item) => item.status !== "done");
+  const highPriorityRevisionItems = activeRevisionItems.filter((item) => item.priority === "high");
+  const sendLearners = (learners.data ?? []).filter((learner) => learner.send_notes || learner.accessibility_needs);
+
+  return [
+    {
+      title: "Assessment readiness",
+      value: `${assessments.count ?? 0} published`,
+      detail: `${openSittings.count ?? 0} open simulation sitting${openSittings.count === 1 ? "" : "s"} and ${scores.length} completed result${scores.length === 1 ? "" : "s"}.`,
+    },
+    {
+      title: "Cohort progress",
+      value: scores.length ? `${averageScore}% average` : "No results yet",
+      detail: scores.length ? "Average score across all recorded assessment results." : "No assessment result records are available yet.",
+    },
+    {
+      title: "Intervention impact",
+      value: `${highPriorityRevisionItems.length} high priority`,
+      detail: `${activeRevisionItems.length} active revision item${activeRevisionItems.length === 1 ? "" : "s"} not yet marked done.`,
+    },
+    {
+      title: "Homework completion",
+      value: `${homework.data?.length ?? 0} submitted`,
+      detail: `${(homework.data ?? []).filter((item) => item.status === "processing").length} homework help request${(homework.data ?? []).filter((item) => item.status === "processing").length === 1 ? "" : "s"} currently processing.`,
+    },
+    {
+      title: "SEND progress",
+      value: `${sendLearners.length} learner${sendLearners.length === 1 ? "" : "s"}`,
+      detail: "Learners with SEND notes or accessibility needs recorded.",
+    },
+    {
+      title: "Provider readiness",
+      value: `${(tutorApplications.data ?? []).filter((item) => item.status === "approved").length} approved tutors`,
+      detail: `${(schools.data ?? []).filter((school) => school.approved).length} approved school${(schools.data ?? []).filter((school) => school.approved).length === 1 ? "" : "s"} on the platform.`,
+    },
+  ];
+}
+
 export async function getAllUsers() {
   const supabase = await createClient();
   const { data } = await supabase.from("profiles").select("*").order("created_at", { ascending: false });
