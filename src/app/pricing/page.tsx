@@ -1,7 +1,7 @@
 import { PageShell } from "@/components/PageShell";
 import { Card } from "@/components/Card";
 import { Button } from "@/components/Button";
-import { billing } from "@/lib/mock-data";
+import { billingPlans } from "@/lib/billing-plans";
 
 export default function PricingPage() {
   return (
@@ -14,13 +14,13 @@ export default function PricingPage() {
           </p>
         </div>
         <div className="grid md:grid-cols-3 gap-6">
-          {billing.plans.map((p) => (
+          {billingPlans.map((p) => (
             <Card
               key={p.name}
-              tint={p.current ? "teal" : "white"}
-              className={p.current ? "ring-2 ring-teal-700" : ""}
+              tint={p.highlighted ? "teal" : "white"}
+              className={p.highlighted ? "ring-2 ring-teal-700" : ""}
             >
-              {p.current && (
+              {p.highlighted && (
                 <span className="inline-block bg-teal-900 text-white text-xs font-bold px-3 py-1 rounded-full mb-3">
                   MOST POPULAR
                 </span>
@@ -32,8 +32,8 @@ export default function PricingPage() {
                   <li key={f}>✓ {f}</li>
                 ))}
               </ul>
-              <Button href="/parent" variant={p.current ? "primary" : "outline"} className="w-full justify-center">
-                {p.current ? "Current plan" : "Choose plan"}
+              <Button href="/register/parent" variant={p.highlighted ? "primary" : "outline"} className="w-full justify-center">
+                Choose plan
               </Button>
             </Card>
           ))}
