@@ -36,7 +36,6 @@ export const createCradleSession = withRole(
     const parsed = createSessionSchema.safeParse(input);
     if (!parsed.success) return { ok: false, error: "validation_failed" };
 
-    const supabase = await createClient();
     const admin = createAdminClient();
     const roomName = `cradle-${crypto.randomUUID()}`;
     let learnerId: string | null = null;
@@ -68,7 +67,7 @@ export const createCradleSession = withRole(
     // (Part 2.3) — not a side channel that only exists inside the video UI.
     const { data: thread } = await admin.from("message_threads").insert({ learner_id: learnerId }).select("id").single();
 
-    const { data: cradleSession, error } = await supabase
+    const { data: cradleSession, error } = await admin
       .from("cradle_sessions")
       .insert({
         lesson_session_id: parsed.data.lessonSessionId ?? null,
