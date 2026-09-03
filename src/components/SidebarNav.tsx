@@ -37,8 +37,8 @@ export function SidebarNav() {
   if (isPublicPath(pathname)) return null;
 
   const role = sectionRoleFromPath(pathname);
-  // Same menu as every other child, plus one extra item — the SEND portal
-  // is additive, never a different, separated experience.
+  // Same core menu as every other child, plus Calm Corner for learners
+  // whose profile records SEND or accessibility support needs.
   const links =
     role === "child" && hasSend
       ? [...roleNav[role], { href: "/child/calm-corner", label: "🌿 Calm Corner" }]

@@ -82,6 +82,7 @@ export const roleNav: Record<Role, NavLink[]> = {
     { href: "/child/games", label: "Games" },
     { href: "/child/badges", label: "Badges" },
     { href: "/child/messages", label: "Messages" },
+    { href: "/child/send", label: "SEND Toolkit" },
     { href: "/child/craft-club", label: "Craft Club" },
     { href: "/child/camps", label: "Camps" },
   ],
