@@ -3,7 +3,7 @@ import { Card } from "@/components/Card";
 import { Button } from "@/components/Button";
 import { EmptyState } from "@/components/EmptyState";
 import { RevisionItemCard } from "@/components/RevisionItemCard";
-import { getMyLearnerProfile, getRevisionItemsForLearner, getSubjectsWithTopics } from "@/features/child/queries";
+import { getMyLearnerProfile, getRevisionItemsForLearner, getSubjectsWithAvailableTopics } from "@/features/child/queries";
 
 export default async function ChildPracticePage() {
   const learner = await getMyLearnerProfile();
@@ -20,7 +20,7 @@ export default async function ChildPracticePage() {
 
   const [revisionItems, { subjects, topics }] = await Promise.all([
     getRevisionItemsForLearner(learner.id),
-    getSubjectsWithTopics(),
+    getSubjectsWithAvailableTopics(),
   ]);
 
   return (
@@ -69,14 +69,14 @@ export default async function ChildPracticePage() {
                         href={`/child/practice/${t.key}`}
                         className="text-xs bg-teal-100 text-teal-900 px-3 py-1 rounded-full hover:bg-teal-900 hover:text-white transition-colors"
                       >
-                        {t.name}
+                        {t.name} · {t.questionCount}
                       </a>
                     ))}
                   </div>
                   {firstTopic ? (
                     <Button href={`/child/practice/${firstTopic.key}`} variant="outline">Start a quick quiz</Button>
                   ) : (
-                    <p className="text-xs text-charcoal-teal/50">More questions coming soon for this subject.</p>
+                    <p className="text-xs text-charcoal-teal/50">Practice bank being prepared for this subject.</p>
                   )}
                 </Card>
               );

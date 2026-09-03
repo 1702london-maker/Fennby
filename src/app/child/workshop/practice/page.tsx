@@ -27,7 +27,7 @@ export default async function WorkshopPracticePage({
     return (
       <PageShell>
         <main className="max-w-2xl mx-auto px-6 py-10">
-          <EmptyState emoji="📚" title="No practice questions here yet" description="Content for this topic is coming soon — check back shortly." />
+          <EmptyState emoji="📚" title="No practice questions here yet" description="Choose another Workshop topic with a question count, or use homework help if this is the topic you are stuck on." />
         </main>
       </PageShell>
     );
