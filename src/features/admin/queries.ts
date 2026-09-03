@@ -25,6 +25,44 @@ export async function getDashboardStats() {
   };
 }
 
+export async function getOperationalMetrics() {
+  const supabase = await createClient();
+  const [
+    paidPurchases,
+    unpaidPurchases,
+    openSafeguarding,
+    urgentSafeguarding,
+    homeworkQueue,
+    activeCradle,
+    recordedCradle,
+  ] = await Promise.all([
+    supabase.from("mock_exam_purchases").select("amount").not("paid_at", "is", null),
+    supabase.from("mock_exam_purchases").select("id", { count: "exact", head: true }).is("paid_at", null),
+    supabase.from("safeguarding_cases").select("id", { count: "exact", head: true }).eq("status", "open"),
+    supabase.from("safeguarding_cases").select("id", { count: "exact", head: true }).eq("status", "open").in("severity", ["critical", "high"]),
+    supabase.from("homework_help_requests").select("id", { count: "exact", head: true }).in("status", ["processing", "needs_review"]),
+    supabase.from("cradle_sessions").select("id", { count: "exact", head: true }).is("ended_at", null),
+    supabase.from("cradle_sessions").select("id", { count: "exact", head: true }).eq("recording_status", "recorded"),
+  ]);
+
+  const mockExamRevenue = (paidPurchases.data ?? []).reduce((sum, purchase) => sum + Number(purchase.amount ?? 0), 0);
+
+  return {
+    mockExamRevenue,
+    unpaidCheckouts: unpaidPurchases.count ?? 0,
+    openSafeguarding: openSafeguarding.count ?? 0,
+    urgentSafeguarding: urgentSafeguarding.count ?? 0,
+    homeworkQueue: homeworkQueue.count ?? 0,
+    activeCradle: activeCradle.count ?? 0,
+    recordedCradle: recordedCradle.count ?? 0,
+    integrations: {
+      aiTutor: Boolean(process.env.OPENAI_API_KEY),
+      stripe: Boolean(process.env.STRIPE_SECRET_KEY && process.env.STRIPE_WEBHOOK_SECRET),
+      cradleVideo: Boolean(process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_API_KEY_SID && process.env.TWILIO_API_KEY_SECRET),
+    },
+  };
+}
+
 export async function getAllUsers() {
   const supabase = await createClient();
   const { data } = await supabase.from("profiles").select("*").order("created_at", { ascending: false });
