@@ -87,7 +87,7 @@ export const createCradleSession = withRole(
       await admin.from("message_threads").update({ cradle_session_id: cradleSession.id }).eq("id", thread.id);
     }
 
-    await supabase.from("cradle_participants").insert({
+    await admin.from("cradle_participants").insert({
       session_id: cradleSession.id,
       profile_id: session.id,
       role_in_session: "host",
@@ -122,20 +122,47 @@ export async function joinCradleSession(input: z.infer<typeof joinSchema>): Prom
   const parsed = joinSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: "validation_failed" };
 
-  const supabase = await createClient();
-  const { data: cradleSession } = await supabase
+  const admin = createAdminClient();
+  const { data: cradleSession } = await admin
     .from("cradle_sessions")
-    .select("id, video_room_sid, ended_at")
+    .select(`
+      id,
+      host_id,
+      video_room_sid,
+      ended_at,
+      cradle_participants(id, profile_id),
+      lesson_sessions(
+        learner_id,
+        learners(parent_id, auth_id)
+      )
+    `)
     .eq("id", parsed.data.sessionId)
     .maybeSingle();
   if (!cradleSession || cradleSession.ended_at) return { ok: false, error: "not_found" };
 
-  await supabase.from("cradle_participants").insert({
-    session_id: cradleSession.id,
-    profile_id: session.id,
-    role_in_session: "participant",
-    anonymized_display_name: parsed.data.anonymizedDisplayName ?? null,
-  });
+  const learner = cradleSession.lesson_sessions?.learners;
+  const existingParticipant = cradleSession.cradle_participants?.find((participant) => participant.profile_id === session.id);
+  const canJoin =
+    cradleSession.host_id === session.id ||
+    Boolean(existingParticipant) ||
+    learner?.parent_id === session.id ||
+    learner?.auth_id === session.id;
+
+  if (!canJoin) return { ok: false, error: "forbidden" };
+
+  if (existingParticipant) {
+    await admin
+      .from("cradle_participants")
+      .update({ anonymized_display_name: parsed.data.anonymizedDisplayName ?? null })
+      .eq("id", existingParticipant.id);
+  } else {
+    await admin.from("cradle_participants").insert({
+      session_id: cradleSession.id,
+      profile_id: session.id,
+      role_in_session: cradleSession.host_id === session.id ? "host" : "participant",
+      anonymized_display_name: parsed.data.anonymizedDisplayName ?? null,
+    });
+  }
 
   const twilioEnv = getTwilioEnv();
   if (!twilioEnv) return { ok: false, error: "cradle_video_not_configured" };
