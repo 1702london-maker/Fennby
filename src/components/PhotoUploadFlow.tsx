@@ -6,6 +6,23 @@ import { Card } from "@/components/Card";
 import { Button } from "@/components/Button";
 import { createClient } from "@/lib/supabase/client";
 
+const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
+
+function friendlyUploadError(message?: string) {
+  if (!message) return "We couldn't save that upload. Please try again.";
+  const lower = message.toLowerCase();
+  if (lower.includes("bucket") || lower.includes("storage")) {
+    return "Uploads are not quite ready here. Please try again shortly.";
+  }
+  if (lower.includes("row-level security") || lower.includes("permission") || lower.includes("unauthorized")) {
+    return "We couldn't attach that upload to your account. Please sign in again and retry.";
+  }
+  if (lower.includes("payload") || lower.includes("too large") || lower.includes("size")) {
+    return "That file is too large. Please use a clearer, smaller photo or PDF.";
+  }
+  return "We couldn't save that upload. Please try again.";
+}
+
 // The one photo-upload interaction pattern used everywhere a child submits
 // a photo of written work — print-and-shade mock exams (Master Build
 // Specification 5.1) and Workshop homework help (Part 4.3). Same drag/drop,
@@ -32,6 +49,17 @@ export function PhotoUploadFlow({
   const uploadFile = async (file: File | undefined) => {
     if (!file) return;
     setError(null);
+
+    if (!file.type.startsWith("image/") && file.type !== "application/pdf") {
+      setError("Please upload a photo or PDF.");
+      return;
+    }
+
+    if (file.size > MAX_UPLOAD_BYTES) {
+      setError("That file is too large. Please use a photo or PDF under 10 MB.");
+      return;
+    }
+
     setStep("processing");
     const supabase = createClient();
     const {
@@ -54,7 +82,7 @@ export function PhotoUploadFlow({
 
     if (uploadError) {
       setStep("upload");
-      setError(uploadError.message);
+      setError(friendlyUploadError(uploadError.message));
       return;
     }
 
@@ -62,7 +90,7 @@ export function PhotoUploadFlow({
       await onComplete(path);
     } catch (err) {
       setStep("upload");
-      setError(err instanceof Error ? err.message : "Upload saved, but the submission could not be recorded.");
+      setError(friendlyUploadError(err instanceof Error ? err.message : undefined));
     }
   };
 

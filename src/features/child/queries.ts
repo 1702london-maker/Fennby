@@ -10,6 +10,13 @@ export type WarmupQuestion = {
   correctAnswer: number;
 };
 
+type TopicWithQuestionCount = {
+  key: string;
+  name: string;
+  subject_key: string;
+  questionCount: number;
+};
+
 const WARMUP_SIZE = 10;
 const WARMUP_POOL_READ_LIMIT = 1250;
 const RECENT_WARMUP_HISTORY_LIMIT = 300;
@@ -149,6 +156,33 @@ export async function getSubjectsWithTopics() {
   return {
     subjects: subjects ?? [],
     topics: topics ?? [],
+  };
+}
+
+export async function getSubjectsWithAvailableTopics() {
+  const supabase = await createClient();
+  const [{ data: subjects }, { data: topics }, { data: questions }] = await Promise.all([
+    supabase.from("subjects").select("*"),
+    supabase.from("topics").select("*"),
+    supabase.from("questions").select("topic_key").eq("status", "published"),
+  ]);
+
+  const counts = new Map<string, number>();
+  for (const question of questions ?? []) {
+    if (question.topic_key) counts.set(question.topic_key, (counts.get(question.topic_key) ?? 0) + 1);
+  }
+
+  const availableTopics: TopicWithQuestionCount[] = (topics ?? [])
+    .map((topic) => ({
+      ...topic,
+      questionCount: counts.get(topic.key) ?? 0,
+    }))
+    .filter((topic) => topic.questionCount > 0)
+    .sort((a, b) => a.name.localeCompare(b.name));
+
+  return {
+    subjects: subjects ?? [],
+    topics: availableTopics,
   };
 }
 

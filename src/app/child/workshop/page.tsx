@@ -3,7 +3,7 @@ import { PageShell } from "@/components/PageShell";
 import { Card } from "@/components/Card";
 import { Button } from "@/components/Button";
 import { EmptyState } from "@/components/EmptyState";
-import { getMyLearnerProfile, getSubjectsWithTopics } from "@/features/child/queries";
+import { getMyLearnerProfile, getSubjectsWithAvailableTopics } from "@/features/child/queries";
 
 export default async function WorkshopPage() {
   const learner = await getMyLearnerProfile();
@@ -17,7 +17,7 @@ export default async function WorkshopPage() {
     );
   }
 
-  const { subjects, topics } = await getSubjectsWithTopics();
+  const { subjects, topics } = await getSubjectsWithAvailableTopics();
 
   return (
     <PageShell>
@@ -49,11 +49,11 @@ export default async function WorkshopPage() {
                     href={`/child/workshop/practice?topic=${t.key}&subject=${s.key}`}
                     className="text-xs bg-teal-100 text-teal-900 px-3 py-1 rounded-full hover:bg-teal-100/70"
                   >
-                    {t.name}
+                    {t.name} · {t.questionCount}
                   </Link>
                 ))}
                 {!topics.some((t) => t.subject_key === s.key) && (
-                  <span className="text-xs text-charcoal-teal/50">Content coming soon</span>
+                  <span className="text-xs text-charcoal-teal/50">Practice bank being prepared</span>
                 )}
               </div>
             </Card>
