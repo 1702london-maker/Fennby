@@ -35,6 +35,7 @@ export function AiTutorClient({ wrapUpQuestions }: { wrapUpQuestions: WrapUpQues
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [messages, setMessages] = useState<DisplayMessage[]>([]);
   const [draft, setDraft] = useState("");
+  const [speakReplies, setSpeakReplies] = useState(true);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [ended, setEnded] = useState(false);
@@ -62,6 +63,18 @@ export function AiTutorClient({ wrapUpQuestions }: { wrapUpQuestions: WrapUpQues
       if (conversationIdRef.current) endAiTutorConversation(conversationIdRef.current);
     };
   }, []);
+
+  useEffect(() => {
+    if (!speakReplies || typeof window === "undefined" || !("speechSynthesis" in window)) return;
+    const reply = latestAssistantMessage(messages);
+    if (!reply) return;
+    const utterance = new SpeechSynthesisUtterance(reply);
+    utterance.lang = "en-GB";
+    utterance.rate = 0.95;
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(utterance);
+    return () => window.speechSynthesis.cancel();
+  }, [messages, speakReplies]);
 
   const send = async (content = draft) => {
     if (!content.trim() || !conversationId) return;
@@ -142,19 +155,40 @@ export function AiTutorClient({ wrapUpQuestions }: { wrapUpQuestions: WrapUpQues
         <aside className="space-y-5">
           <Card tint="dark" className="overflow-hidden">
             <div className="flex items-center gap-3">
-              <div className="grid h-14 w-14 place-items-center rounded-2xl bg-white text-2xl text-charcoal-teal" aria-hidden>
-                🎓
+              <div className="relative grid h-16 w-16 place-items-center rounded-2xl bg-white text-charcoal-teal" aria-hidden>
+                <span className="text-3xl">🎓</span>
+                <span className={`absolute -right-1 -top-1 h-4 w-4 rounded-full ${sending ? "bg-coral-600" : "bg-sage-600"}`} />
               </div>
               <div>
                 <p className="text-xs font-bold text-white/60">AI CLASSROOM</p>
                 <h2 className="font-display font-bold text-xl">Fennby Tutor</h2>
               </div>
             </div>
+            <div className="mt-5 rounded-3xl border border-white/15 bg-white/10 p-4">
+              <div className="flex items-end justify-center gap-2" aria-hidden>
+                <span className={`block h-8 w-3 rounded-full bg-coral-300 ${sending ? "animate-pulse" : ""}`} />
+                <span className={`block h-14 w-3 rounded-full bg-teal-100 ${sending ? "animate-pulse" : ""}`} />
+                <span className={`block h-10 w-3 rounded-full bg-sage-300 ${sending ? "animate-pulse" : ""}`} />
+                <span className={`block h-16 w-3 rounded-full bg-white ${sending ? "animate-pulse" : ""}`} />
+              </div>
+              <p className="mt-3 text-center text-xs font-semibold text-white/70">
+                {sending ? "Thinking through your question" : "Ready to speak and explain"}
+              </p>
+            </div>
             <div className="mt-5 grid gap-2 text-sm text-white/80">
               <p>Safe schoolwork help only</p>
               <p>Parent-visible history</p>
               <p>Voice input and read-aloud</p>
             </div>
+            <label className="mt-5 flex items-center justify-between gap-3 rounded-2xl bg-white/10 px-4 py-3 text-sm font-semibold">
+              <span>Speak replies</span>
+              <input
+                type="checkbox"
+                checked={speakReplies}
+                onChange={() => setSpeakReplies((value) => !value)}
+                className="h-5 w-5 accent-coral-500"
+              />
+            </label>
           </Card>
 
           <Card>
@@ -195,9 +229,18 @@ export function AiTutorClient({ wrapUpQuestions }: { wrapUpQuestions: WrapUpQues
                   )}
                 </div>
                 {latestAssistantMessage(messages) ? (
-                  <p className="text-lg leading-relaxed text-charcoal-teal whitespace-pre-wrap">
-                    {latestAssistantMessage(messages)}
-                  </p>
+                  <div className="grid lg:grid-cols-[1fr_12rem] gap-6 items-start">
+                    <p className="text-lg leading-relaxed text-charcoal-teal whitespace-pre-wrap">
+                      {latestAssistantMessage(messages)}
+                    </p>
+                    <div className="rounded-3xl bg-teal-100 p-4 text-center">
+                      <div className="mx-auto grid h-24 w-24 place-items-center rounded-full bg-white text-5xl" aria-hidden>
+                        👩‍🏫
+                      </div>
+                      <p className="mt-3 text-xs font-bold text-teal-900">VISUAL GUIDE</p>
+                      <p className="text-sm text-charcoal-teal/70">Listen, read, then try one step.</p>
+                    </div>
+                  </div>
                 ) : (
                   <div className="grid h-64 place-items-center text-center">
                     <div>

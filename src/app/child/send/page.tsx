@@ -3,8 +3,22 @@ import { Card } from "@/components/Card";
 import { Button } from "@/components/Button";
 import { EmptyState } from "@/components/EmptyState";
 import { getMyLearnerProfile } from "@/features/child/queries";
+import type { ChildLearningPreferencesInput } from "@/features/child/actions";
 import { hasSendProfile } from "@/lib/send";
+import { ChildPreferencesForm } from "./ChildPreferencesForm";
 import { SendToolkitClient } from "./SendToolkitClient";
+
+type LoosePreferences = {
+  extra_time_percent?: number;
+  read_aloud_default?: boolean;
+  dyslexia_font?: boolean;
+  chunked_content?: boolean;
+  low_stimulation_mode?: boolean;
+  symbol_support?: boolean;
+  sensory_break_reminders?: boolean;
+  text_size?: string;
+  colour_overlay?: string | null;
+} | null;
 
 function PreferenceRow({ label, value }: { label: string; value: string }) {
   return (
@@ -28,15 +42,24 @@ export default async function ChildSendToolkitPage() {
     );
   }
 
-  const preferences = learner.learning_preferences as {
-    extra_time_percent?: number;
-    read_aloud_default?: boolean;
-    dyslexia_font?: boolean;
-    chunked_content?: boolean;
-    low_stimulation?: boolean;
-    text_size?: string;
-    colour_overlay?: string;
-  } | null;
+  const preferences = learner.learning_preferences as LoosePreferences;
+  const formPreferences: Partial<ChildLearningPreferencesInput> = {
+    dyslexia_font: preferences?.dyslexia_font ?? false,
+    text_size: ["default", "large", "extra-large"].includes(preferences?.text_size ?? "")
+      ? preferences?.text_size as ChildLearningPreferencesInput["text_size"]
+      : "default",
+    colour_overlay: ["cream", "blue", "green", "rose"].includes(preferences?.colour_overlay ?? "")
+      ? preferences?.colour_overlay as ChildLearningPreferencesInput["colour_overlay"]
+      : null,
+    chunked_content: preferences?.chunked_content ?? false,
+    extra_time_percent: [0, 25, 50].includes(preferences?.extra_time_percent ?? -1)
+      ? preferences?.extra_time_percent as ChildLearningPreferencesInput["extra_time_percent"]
+      : 0,
+    low_stimulation_mode: preferences?.low_stimulation_mode ?? false,
+    symbol_support: preferences?.symbol_support ?? false,
+    sensory_break_reminders: preferences?.sensory_break_reminders ?? false,
+    read_aloud_default: preferences?.read_aloud_default ?? false,
+  };
   const hasProfile = hasSendProfile(learner);
 
   return (
@@ -54,17 +77,11 @@ export default async function ChildSendToolkitPage() {
           <Card tint={hasProfile ? "teal" : undefined}>
             <p className="text-xs font-bold text-teal-900 mb-2">PROFILE</p>
             <h2 className="font-display font-bold text-xl mb-4">{learner.preferred_name}&apos;s support profile</h2>
-            <dl>
+            <dl className="mb-5">
               <PreferenceRow label="SEND notes" value={learner.send_notes?.trim() || "None recorded"} />
               <PreferenceRow label="Accessibility needs" value={learner.accessibility_needs?.trim() || "None recorded"} />
-              <PreferenceRow label="Text size" value={preferences?.text_size ?? "Default"} />
-              <PreferenceRow label="Colour overlay" value={preferences?.colour_overlay ?? "None"} />
-              <PreferenceRow label="Extra time" value={`${preferences?.extra_time_percent ?? 0}%`} />
-              <PreferenceRow label="Read-aloud default" value={preferences?.read_aloud_default ? "On" : "Off"} />
-              <PreferenceRow label="Dyslexia font" value={preferences?.dyslexia_font ? "On" : "Off"} />
-              <PreferenceRow label="Chunked content" value={preferences?.chunked_content ? "On" : "Off"} />
-              <PreferenceRow label="Low stimulation" value={preferences?.low_stimulation ? "On" : "Off"} />
             </dl>
+            <ChildPreferencesForm initial={formPreferences} />
             <div className="mt-5 flex flex-wrap gap-3">
               <Button href="/child/calm-corner" variant="primary" className="px-4 py-2 text-sm">
                 Calm Corner
