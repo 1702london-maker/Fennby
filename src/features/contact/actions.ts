@@ -1,7 +1,7 @@
 "use server";
 
 import { z } from "zod";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { sendEmail } from "@/lib/email";
 import type { ActionResult } from "@/lib/action-result";
 
@@ -20,7 +20,7 @@ export async function submitContactMessage(input: ContactInput): Promise<ActionR
   if (!parsed.success) {
     return { ok: false, error: "validation_failed", fields: parsed.error.flatten().fieldErrors };
   }
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { error } = await supabase.from("contact_messages").insert(parsed.data);
   if (error) return { ok: false, error: "submit_failed" };
 
