@@ -3,9 +3,13 @@
 interface FennbySpeechAlternative {
   transcript: string;
 }
+interface FennbySpeechResult {
+  0?: FennbySpeechAlternative;
+  isFinal?: boolean;
+}
 interface SpeechRecognitionEvent extends Event {
   resultIndex: number;
-  results: { 0?: FennbySpeechAlternative }[];
+  results: FennbySpeechResult[];
 }
 interface SpeechRecognitionInstance extends EventTarget {
   continuous: boolean;

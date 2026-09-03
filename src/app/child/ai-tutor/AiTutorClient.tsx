@@ -49,25 +49,67 @@ function getBoardTopic(messages: DisplayMessage[]) {
   return "general";
 }
 
+function TutorVideo({ speaking, listening, thinking }: { speaking: boolean; listening: boolean; thinking: boolean }) {
+  return (
+    <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-charcoal-teal via-teal-900 to-coral-600 p-4 text-white">
+      <div className="absolute inset-0 opacity-25">
+        <div className={`h-full w-full bg-[radial-gradient(circle_at_35%_25%,white,transparent_32%)] ${speaking ? "animate-pulse" : ""}`} />
+      </div>
+      <div className="relative mx-auto grid h-32 w-32 place-items-center rounded-full border border-white/25 bg-white/15">
+        <div className="grid h-20 w-20 place-items-center rounded-full bg-white text-charcoal-teal">
+          <div className="grid gap-2 justify-items-center">
+            <div className="flex gap-2">
+              <span className="h-2.5 w-2.5 rounded-full bg-charcoal-teal" />
+              <span className="h-2.5 w-2.5 rounded-full bg-charcoal-teal" />
+            </div>
+            <span className={`block rounded-full bg-coral-600 transition-all ${speaking ? "h-4 w-9 animate-pulse" : "h-1.5 w-7"}`} />
+          </div>
+        </div>
+      </div>
+      <div className="relative mt-4 flex items-end justify-center gap-1.5" aria-hidden>
+        {[18, 34, 52, 28, 44].map((height, index) => (
+          <span
+            key={height}
+            className={`block w-2 rounded-full bg-white/80 ${speaking || thinking ? "animate-pulse" : ""}`}
+            style={{ height, animationDelay: `${index * 120}ms` }}
+          />
+        ))}
+      </div>
+      <p className="relative mt-3 text-center text-xs font-bold text-white/80">
+        {thinking ? "Thinking" : speaking ? "Speaking" : listening ? "Listening" : "Ready"}
+      </p>
+    </div>
+  );
+}
+
 function LessonWhiteboard({ topic, explanation }: { topic: string; explanation: string }) {
   const commonText = explanation || "Say, Hey Fennby, teach me about photosynthesis, or choose a starter lesson.";
 
   if (topic === "photosynthesis") {
     return (
       <svg viewBox="0 0 640 360" className="h-full w-full" role="img" aria-label="Photosynthesis diagram">
+        <style>{`
+          @keyframes drawLine { from { stroke-dashoffset: 180; } to { stroke-dashoffset: 0; } }
+          @keyframes floatLabel { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+          .board-draw { stroke-dasharray: 180; animation: drawLine 1.8s ease-out both; }
+          .board-draw-two { stroke-dasharray: 180; animation: drawLine 1.8s ease-out .45s both; }
+          .board-float { animation: floatLabel 2.4s ease-in-out infinite; }
+        `}</style>
         <rect width="640" height="360" rx="26" fill="#F7FBF8" />
-        <circle cx="112" cy="82" r="44" fill="#F6C85F" />
-        <path d="M112 150 C112 215 208 218 208 292" stroke="#146B6B" strokeWidth="10" fill="none" strokeLinecap="round" />
+        <g className="board-float">
+          <circle cx="112" cy="82" r="44" fill="#F6C85F" />
+        </g>
+        <path className="board-draw" d="M112 150 C112 215 208 218 208 292" stroke="#146B6B" strokeWidth="10" fill="none" strokeLinecap="round" />
         <ellipse cx="168" cy="178" rx="76" ry="34" fill="#9DBB75" transform="rotate(-16 168 178)" />
         <ellipse cx="255" cy="202" rx="76" ry="34" fill="#5FA777" transform="rotate(18 255 202)" />
-        <path d="M112 126 L177 161" stroke="#F07A5A" strokeWidth="5" strokeLinecap="round" />
-        <path d="M112 126 L237 184" stroke="#F07A5A" strokeWidth="5" strokeLinecap="round" />
+        <path className="board-draw" d="M112 126 L177 161" stroke="#F07A5A" strokeWidth="5" strokeLinecap="round" />
+        <path className="board-draw-two" d="M112 126 L237 184" stroke="#F07A5A" strokeWidth="5" strokeLinecap="round" />
         <rect x="378" y="54" width="184" height="64" rx="18" fill="#E2F1EF" />
         <rect x="390" y="154" width="164" height="64" rx="18" fill="#F9E2D7" />
         <rect x="390" y="256" width="164" height="64" rx="18" fill="#E8F0D5" />
-        <path d="M378 86 C314 90 300 122 260 174" stroke="#146B6B" strokeWidth="4" fill="none" strokeDasharray="8 8" />
-        <path d="M390 186 C322 184 292 194 255 202" stroke="#D9654F" strokeWidth="4" fill="none" strokeDasharray="8 8" />
-        <path d="M390 288 C315 288 260 270 208 292" stroke="#6F8D48" strokeWidth="4" fill="none" strokeDasharray="8 8" />
+        <path className="board-draw" d="M378 86 C314 90 300 122 260 174" stroke="#146B6B" strokeWidth="4" fill="none" strokeDasharray="8 8" />
+        <path className="board-draw-two" d="M390 186 C322 184 292 194 255 202" stroke="#D9654F" strokeWidth="4" fill="none" strokeDasharray="8 8" />
+        <path className="board-draw" d="M390 288 C315 288 260 270 208 292" stroke="#6F8D48" strokeWidth="4" fill="none" strokeDasharray="8 8" />
         <text x="470" y="84" textAnchor="middle" fill="#123F3F" fontSize="20" fontWeight="700">Sunlight</text>
         <text x="472" y="192" textAnchor="middle" fill="#123F3F" fontSize="18" fontWeight="700">Water + CO2</text>
         <text x="472" y="294" textAnchor="middle" fill="#123F3F" fontSize="18" fontWeight="700">Sugar + Oxygen</text>
@@ -119,6 +161,7 @@ export function AiTutorClient({ wrapUpQuestions }: { wrapUpQuestions: WrapUpQues
   const [speakReplies, setSpeakReplies] = useState(true);
   const [handsFree, setHandsFree] = useState(false);
   const [listening, setListening] = useState(false);
+  const [speaking, setSpeaking] = useState(false);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [ended, setEnded] = useState(false);
@@ -153,10 +196,18 @@ export function AiTutorClient({ wrapUpQuestions }: { wrapUpQuestions: WrapUpQues
     if (!reply) return;
     const utterance = new SpeechSynthesisUtterance(reply);
     utterance.lang = "en-GB";
-    utterance.rate = 0.95;
+    utterance.rate = 0.88;
+    utterance.pitch = 1.02;
+    utterance.volume = 1;
+    utterance.onstart = () => setSpeaking(true);
+    utterance.onend = () => setSpeaking(false);
+    utterance.onerror = () => setSpeaking(false);
     window.speechSynthesis.cancel();
     window.speechSynthesis.speak(utterance);
-    return () => window.speechSynthesis.cancel();
+    return () => {
+      setSpeaking(false);
+      window.speechSynthesis.cancel();
+    };
   }, [messages, speakReplies]);
 
   const send = async (content = draft) => {
@@ -178,6 +229,7 @@ export function AiTutorClient({ wrapUpQuestions }: { wrapUpQuestions: WrapUpQues
   const handleVoiceLesson = (text: string) => {
     const heard = text.trim();
     if (!heard) return;
+    if (speaking || sending) return;
     const lessonRequest = cleanWakePhrase(heard);
     if (handsFree || /^hey\s+fennby/i.test(heard)) {
       void send(lessonRequest || heard);
@@ -259,15 +311,7 @@ export function AiTutorClient({ wrapUpQuestions }: { wrapUpQuestions: WrapUpQues
               </div>
             </div>
             <div className="mt-5 rounded-3xl border border-white/15 bg-white/10 p-4">
-              <div className="flex items-end justify-center gap-2" aria-hidden>
-                <span className={`block h-8 w-3 rounded-full bg-coral-300 ${sending ? "animate-pulse" : ""}`} />
-                <span className={`block h-14 w-3 rounded-full bg-teal-100 ${sending ? "animate-pulse" : ""}`} />
-                <span className={`block h-10 w-3 rounded-full bg-sage-300 ${sending ? "animate-pulse" : ""}`} />
-                <span className={`block h-16 w-3 rounded-full bg-white ${sending ? "animate-pulse" : ""}`} />
-              </div>
-              <p className="mt-3 text-center text-xs font-semibold text-white/70">
-                {sending ? "Thinking through your question" : "Ready to speak and explain"}
-              </p>
+              <TutorVideo speaking={speaking} listening={listening} thinking={sending} />
             </div>
             <div className="mt-5 grid gap-2 text-sm text-white/80">
               <p>Safe schoolwork help only</p>
@@ -297,6 +341,7 @@ export function AiTutorClient({ wrapUpQuestions }: { wrapUpQuestions: WrapUpQues
                 label={listening ? "Listening" : "Say Hey Fennby"}
                 autoStart={handsFree}
                 continuous={handsFree}
+                enabled={!speaking && !sending}
                 onListeningChange={setListening}
                 onResult={handleVoiceLesson}
               />
@@ -422,7 +467,11 @@ export function AiTutorClient({ wrapUpQuestions }: { wrapUpQuestions: WrapUpQues
                     aria-label="Message"
                     className="min-w-0 flex-1 rounded-full border-2 border-teal-100 px-4 py-3 min-h-[44px] focus:border-teal-700 outline-none"
                   />
-                  <VoiceInputButton onResult={handleVoiceLesson} label={handsFree ? "Listening" : "Dictate"} />
+                  <VoiceInputButton
+                    onResult={handleVoiceLesson}
+                    label={handsFree ? "Listening" : "Dictate"}
+                    enabled={!speaking && !sending}
+                  />
                 </div>
                 <Button variant="primary" disabled={sending || !conversationId || !draft.trim()} onClick={() => send()} className="w-full mt-3">
                   {sending ? "Sending..." : "Send to tutor"}

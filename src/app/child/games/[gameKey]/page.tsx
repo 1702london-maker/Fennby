@@ -7,12 +7,16 @@ function isGameKey(value: string): value is GameKey {
   return games.some((game) => game.key === value);
 }
 
-export default function BrainGamePage({ params }: { params: { gameKey: string } }) {
-  if (params.gameKey === "memory-builder") redirect("/child/games/memory-builder");
-  if (!isGameKey(params.gameKey)) notFound();
+export default async function BrainGamePage({ params }: { params: Promise<{ gameKey: string }> }) {
+  const { gameKey } = await params;
 
-  const game = games.find((item) => item.key === params.gameKey);
+  if (gameKey === "memory-builder") redirect("/child/games/memory-builder");
+  if (!isGameKey(gameKey)) notFound();
+
+  const game = games.find((item) => item.key === gameKey);
   if (!game || game.key === "memory-builder") notFound();
+  const challenges = gameChallenges[game.key] ?? [];
+  if (!challenges.length) notFound();
 
   return (
     <PageShell>
@@ -23,7 +27,7 @@ export default function BrainGamePage({ params }: { params: { gameKey: string } 
         <p className="text-charcoal-teal/70 mb-8">
           {game.minutes} minute drill for {game.skill.toLowerCase()}.
         </p>
-        <BrainGameClient gameName={game.name} challenges={gameChallenges[game.key]} />
+        <BrainGameClient gameName={game.name} challenges={challenges} />
       </main>
     </PageShell>
   );

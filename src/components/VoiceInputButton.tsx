@@ -13,6 +13,7 @@ export function VoiceInputButton({
   continuous = false,
   interimResults = false,
   onListeningChange,
+  enabled = true,
 }: {
   onResult: (text: string) => void;
   label?: string;
@@ -20,6 +21,7 @@ export function VoiceInputButton({
   continuous?: boolean;
   interimResults?: boolean;
   onListeningChange?: (listening: boolean) => void;
+  enabled?: boolean;
 }) {
   const [supported, setSupported] = useState(true);
   const [listening, setListening] = useState(false);
@@ -36,6 +38,9 @@ export function VoiceInputButton({
   useEffect(() => {
     const SpeechRecognitionCtor =
       typeof window !== "undefined" ? window.SpeechRecognition ?? window.webkitSpeechRecognition : undefined;
+    if (!enabled) {
+      return;
+    }
     if (!SpeechRecognitionCtor) {
       const unsupportedTimer = setTimeout(() => setSupported(false), 0);
       return () => clearTimeout(unsupportedTimer);
@@ -47,6 +52,7 @@ export function VoiceInputButton({
     recognition.onresult = (event) => {
       const transcript = Array.from(event.results)
         .slice(event.resultIndex)
+        .filter((result) => result.isFinal ?? true)
         .map((result) => result[0]?.transcript ?? "")
         .join(" ")
         .trim();
@@ -84,10 +90,10 @@ export function VoiceInputButton({
         // Some browsers throw if recognition was never started.
       }
     };
-  }, [autoStart, continuous, interimResults]);
+  }, [autoStart, continuous, enabled, interimResults]);
 
   useEffect(() => {
-    if (!autoStart || !recognitionRef.current) return;
+    if (!autoStart || !enabled || !recognitionRef.current) return;
     const startTimer = setTimeout(() => {
       try {
         setError(null);
@@ -100,7 +106,7 @@ export function VoiceInputButton({
       }
     }, 0);
     return () => clearTimeout(startTimer);
-  }, [autoStart]);
+  }, [autoStart, enabled]);
 
   if (!supported) {
     return (
