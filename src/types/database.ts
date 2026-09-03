@@ -708,7 +708,9 @@ export type Database = {
           id: string
           lesson_session_id: string | null
           peer_anonymity_enabled: boolean
+          recording_provider_ref: string | null
           recording_status: string
+          recording_url: string | null
           session_type: string
           started_at: string
           video_provider: string
@@ -722,7 +724,9 @@ export type Database = {
           id?: string
           lesson_session_id?: string | null
           peer_anonymity_enabled?: boolean
+          recording_provider_ref?: string | null
           recording_status?: string
+          recording_url?: string | null
           session_type?: string
           started_at?: string
           video_provider?: string
@@ -736,7 +740,9 @@ export type Database = {
           id?: string
           lesson_session_id?: string | null
           peer_anonymity_enabled?: boolean
+          recording_provider_ref?: string | null
           recording_status?: string
+          recording_url?: string | null
           session_type?: string
           started_at?: string
           video_provider?: string

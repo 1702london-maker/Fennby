@@ -22,6 +22,12 @@ const createSessionSchema = z.object({
   peerAnonymityEnabled: z.boolean().default(false),
 });
 
+const recordingArtifactSchema = z.object({
+  sessionId: z.string().uuid(),
+  recordingUrl: z.string().url().max(2000).optional().or(z.literal("")),
+  providerRef: z.string().max(255).optional().or(z.literal("")),
+});
+
 // Only a tutor can start a Cradle session — a family joins one that's
 // already been created, never the reverse.
 export const createCradleSession = withRole(
@@ -197,6 +203,32 @@ export const setRecordingStatus = withRole(
       .update({ recording_status: status })
       .eq("id", sessionId)
       .eq("host_id", session.id);
+    if (error) return { ok: false, error: error.message };
+    return { ok: true, data: null };
+  }
+);
+
+export const saveRecordingArtifact = withRole(
+  ["tutor"],
+  async (session, input: z.infer<typeof recordingArtifactSchema>): Promise<ActionResult> => {
+    const parsed = recordingArtifactSchema.safeParse(input);
+    if (!parsed.success) return { ok: false, error: "validation_failed" };
+
+    const recordingUrl = parsed.data.recordingUrl?.trim() || null;
+    const providerRef = parsed.data.providerRef?.trim() || null;
+    if (!recordingUrl && !providerRef) return { ok: false, error: "recording_artifact_required" };
+
+    const supabase = await createClient();
+    const { error } = await supabase
+      .from("cradle_sessions")
+      .update({
+        recording_status: "recorded",
+        recording_url: recordingUrl,
+        recording_provider_ref: providerRef,
+      })
+      .eq("id", parsed.data.sessionId)
+      .eq("host_id", session.id);
+
     if (error) return { ok: false, error: error.message };
     return { ok: true, data: null };
   }

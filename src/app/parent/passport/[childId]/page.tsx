@@ -126,6 +126,20 @@ export default async function LearningPassport({ params }: { params: { childId: 
                   ) : (
                     <p className="text-sm text-charcoal-teal/70">No whiteboard snapshot saved for this session yet.</p>
                   )}
+                  <div className="border-t border-teal-100 mt-4 pt-4">
+                    <p className="text-xs font-bold text-charcoal-teal/60 mb-2">SESSION RECORDING</p>
+                    {record.recording_url ? (
+                      <video controls src={record.recording_url} className="w-full rounded-2xl border-2 border-teal-100 bg-charcoal-teal">
+                        <a href={record.recording_url}>Open session recording</a>
+                      </video>
+                    ) : record.recording_provider_ref ? (
+                      <p className="text-sm text-charcoal-teal/80">
+                        Recording saved with provider reference: <span className="font-semibold">{record.recording_provider_ref}</span>
+                      </p>
+                    ) : (
+                      <p className="text-sm text-charcoal-teal/70">No session recording artifact saved yet.</p>
+                    )}
+                  </div>
                 </Card>
               ))}
             </div>

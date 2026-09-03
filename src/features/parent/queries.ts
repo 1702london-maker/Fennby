@@ -63,7 +63,7 @@ export async function getCradleRecords(learnerId: string) {
   const supabase = await createClient();
   const { data } = await supabase
     .from("cradle_sessions")
-    .select("id, session_type, started_at, ended_at, recording_status, whiteboard_snapshot, lesson_sessions!inner(learner_id, subject, scheduled_at)")
+    .select("id, session_type, started_at, ended_at, recording_status, recording_url, recording_provider_ref, whiteboard_snapshot, lesson_sessions!inner(learner_id, subject, scheduled_at)")
     .eq("lesson_sessions.learner_id", learnerId)
     .order("started_at", { ascending: false })
     .limit(10);

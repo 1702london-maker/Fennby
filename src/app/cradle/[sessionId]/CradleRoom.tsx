@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Card } from "@/components/Card";
 import { Button } from "@/components/Button";
-import { joinCradleSession, setRecordingStatus, endCradleSession, saveWhiteboardState } from "@/features/cradle/actions";
+import { joinCradleSession, setRecordingStatus, endCradleSession, saveWhiteboardState, saveRecordingArtifact } from "@/features/cradle/actions";
 import { submitAssessmentAttempt } from "@/features/assessments/actions";
 
 type WhiteboardStroke = { x0: number; y0: number; x1: number; y1: number };
@@ -34,6 +34,10 @@ export function CradleRoom({
   const [wrapUpAnswers, setWrapUpAnswers] = useState<{ questionId: string; choiceIndex: number }[]>([]);
   const [wrapUpScore, setWrapUpScore] = useState<number | null>(null);
   const [wrapUpError, setWrapUpError] = useState<string | null>(null);
+  const [recordingUrl, setRecordingUrl] = useState("");
+  const [recordingRef, setRecordingRef] = useState("");
+  const [recordingSaveStatus, setRecordingSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [recordingSaveError, setRecordingSaveError] = useState<string | null>(null);
   const localVideoRef = useRef<HTMLDivElement>(null);
   const remoteVideoRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -199,9 +203,26 @@ export function CradleRoom({
   };
 
   const toggleRecording = async () => {
-    const next = recordingStatus === "recording" ? "not_recording" : "recording";
+    const next = recordingStatus === "recording" ? "recorded" : "recording";
     setRecordingLocal(next);
     await setRecordingStatus(sessionId, next);
+  };
+
+  const saveRecording = async () => {
+    setRecordingSaveStatus("saving");
+    setRecordingSaveError(null);
+    const result = await saveRecordingArtifact({ sessionId, recordingUrl, providerRef: recordingRef });
+    if (result.ok) {
+      setRecordingLocal("recorded");
+      setRecordingSaveStatus("saved");
+    } else {
+      setRecordingSaveStatus("error");
+      setRecordingSaveError(
+        result.error === "recording_artifact_required"
+          ? "Add a recording link or provider reference first."
+          : "Couldn't save that recording reference."
+      );
+    }
   };
 
   const toggleCamera = () => {
@@ -386,6 +407,42 @@ export function CradleRoom({
           onPointerMove={onPointerMove}
         />
       </Card>
+
+      {isHost && recordingStatus !== "recording" && (
+        <Card className="mt-4">
+          <p className="text-xs font-bold text-charcoal-teal/60 mb-2">SESSION RECORDING EVIDENCE</p>
+          <p className="text-sm text-charcoal-teal/70 mb-4">
+            Add the Twilio recording composition URL or provider reference when the session recording is ready.
+          </p>
+          <div className="grid sm:grid-cols-2 gap-3">
+            <label className="text-sm font-semibold">
+              Recording link
+              <input
+                value={recordingUrl}
+                onChange={(event) => setRecordingUrl(event.target.value)}
+                placeholder="https://..."
+                className="mt-1 w-full rounded-2xl border-2 border-teal-100 px-4 py-3 outline-none focus:border-teal-700"
+              />
+            </label>
+            <label className="text-sm font-semibold">
+              Provider reference
+              <input
+                value={recordingRef}
+                onChange={(event) => setRecordingRef(event.target.value)}
+                placeholder="Twilio composition / room SID"
+                className="mt-1 w-full rounded-2xl border-2 border-teal-100 px-4 py-3 outline-none focus:border-teal-700"
+              />
+            </label>
+          </div>
+          <div className="flex items-center gap-3 mt-4">
+            <Button variant="outline" onClick={saveRecording} disabled={recordingSaveStatus === "saving"}>
+              {recordingSaveStatus === "saving" ? "Saving..." : "Save recording evidence"}
+            </Button>
+            {recordingSaveStatus === "saved" && <span className="text-sm font-semibold text-sage-600">Saved for parent visibility.</span>}
+            {recordingSaveError && <span className="text-sm font-semibold text-brick-600">{recordingSaveError}</span>}
+          </div>
+        </Card>
+      )}
     </>
   );
 }
