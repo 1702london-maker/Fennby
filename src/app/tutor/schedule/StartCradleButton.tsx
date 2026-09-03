@@ -8,17 +8,26 @@ import { createCradleSession } from "@/features/cradle/actions";
 export function StartCradleButton({ lessonSessionId, sessionType }: { lessonSessionId: string; sessionType: "academic" | "vocational" }) {
   const router = useRouter();
   const [starting, setStarting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const start = async () => {
+    setError(null);
     setStarting(true);
     const result = await createCradleSession({ lessonSessionId, sessionType, peerAnonymityEnabled: false });
     setStarting(false);
-    if (result.ok) router.push(`/cradle/${result.data.sessionId}`);
+    if (result.ok) {
+      router.push(`/cradle/${result.data.sessionId}`);
+      return;
+    }
+    setError(result.error);
   };
 
   return (
-    <Button variant="primary" className="px-4 py-2 text-sm" disabled={starting} onClick={start}>
-      {starting ? "Starting…" : "🎥 Start Cradle session"}
-    </Button>
+    <div className="grid gap-2 justify-items-end">
+      <Button variant="primary" className="px-4 py-2 text-sm" disabled={starting} onClick={start}>
+        {starting ? "Starting..." : "Start Cradle session"}
+      </Button>
+      {error && <p className="max-w-xs text-right text-xs font-semibold text-brick-600">{error}</p>}
+    </div>
   );
 }

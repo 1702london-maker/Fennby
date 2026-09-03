@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import twilio from "twilio";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -18,6 +19,28 @@ if (!supabaseUrl || !serviceRoleKey || !adultPassword) {
 const supabase = createClient(supabaseUrl, serviceRoleKey, {
   auth: { autoRefreshToken: false, persistSession: false },
 });
+
+function getTwilioEnv() {
+  const accountSid = process.env.TWILIO_ACCOUNT_SID;
+  const apiKeySid = process.env.TWILIO_API_KEY_SID;
+  const apiKeySecret = process.env.TWILIO_API_KEY_SECRET;
+  if (!accountSid || !apiKeySid || !apiKeySecret) return null;
+  return { accountSid, apiKeySid, apiKeySecret };
+}
+
+async function ensureTwilioRoom(roomName) {
+  const twilioEnv = getTwilioEnv();
+  if (!twilioEnv) return false;
+  const client = twilio(twilioEnv.apiKeySid, twilioEnv.apiKeySecret, { accountSid: twilioEnv.accountSid });
+  try {
+    await client.video.v1.rooms.create({ uniqueName: roomName, type: "group" });
+    return true;
+  } catch (error) {
+    const message = error instanceof Error ? error.message.toLowerCase() : "";
+    if (message.includes("exists") || message.includes("unique")) return true;
+    throw error;
+  }
+}
 
 async function findUserByEmail(email) {
   let page = 1;
@@ -252,6 +275,9 @@ async function main() {
   if (cradleReadError) throw cradleReadError;
 
   let cradleSessionId = existingCradle?.[0]?.id;
+  const roomName = `cradle-live-qa-${lessonSessionId}`;
+  await ensureTwilioRoom(roomName);
+
   if (!cradleSessionId) {
     const { data, error } = await supabase
       .from("cradle_sessions")
@@ -260,7 +286,7 @@ async function main() {
         session_type: "academic",
         host_id: tutor.id,
         video_provider: "twilio",
-        video_room_sid: `cradle-live-qa-${lessonSessionId}`,
+        video_room_sid: roomName,
         peer_anonymity_enabled: false,
         recording_status: "not_recording",
       })
@@ -268,6 +294,12 @@ async function main() {
       .single();
     if (error || !data) throw error ?? new Error("Cradle insert failed");
     cradleSessionId = data.id;
+  } else {
+    const { error } = await supabase
+      .from("cradle_sessions")
+      .update({ video_room_sid: roomName })
+      .eq("id", cradleSessionId);
+    if (error) throw error;
   }
 
   const participants = [
