@@ -49,6 +49,27 @@ function getBoardTopic(messages: DisplayMessage[]) {
   return "general";
 }
 
+function getLessonSteps(topic: string) {
+  if (topic === "photosynthesis") {
+    return [
+      "Sunlight reaches the leaf.",
+      "Roots bring water up the stem.",
+      "Leaves take in carbon dioxide.",
+      "The plant makes sugar and oxygen.",
+    ];
+  }
+  if (topic === "fractions") {
+    return ["Draw one whole.", "Split it into equal parts.", "Shade the chosen parts.", "Write shaded parts over total parts."];
+  }
+  if (topic === "percentages") {
+    return ["Start with 100 equal parts.", "Shade the parts you need.", "Count the shaded parts.", "Write the answer as percent."];
+  }
+  if (topic === "analogies") {
+    return ["Find the first relationship.", "Say the rule out loud.", "Test the same rule on the options.", "Choose the matching pair."];
+  }
+  return ["Listen to the question.", "Draw the key idea.", "Try one small step.", "Answer out loud."];
+}
+
 function TutorVideo({ speaking, listening, thinking }: { speaking: boolean; listening: boolean; thinking: boolean }) {
   return (
     <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-charcoal-teal via-teal-900 to-coral-600 p-4 text-white">
@@ -82,51 +103,97 @@ function TutorVideo({ speaking, listening, thinking }: { speaking: boolean; list
   );
 }
 
-function LessonWhiteboard({ topic, explanation }: { topic: string; explanation: string }) {
+function LessonWhiteboard({ topic, explanation, step }: { topic: string; explanation: string; step: number }) {
   const commonText = explanation || "Say, Hey Fennby, teach me about photosynthesis, or choose a starter lesson.";
+  const steps = getLessonSteps(topic);
+  const visibleSteps = Math.min(step + 1, steps.length);
+  const progressWidth = `${(visibleSteps / steps.length) * 100}%`;
 
   if (topic === "photosynthesis") {
     return (
-      <svg viewBox="0 0 640 360" className="h-full w-full" role="img" aria-label="Photosynthesis diagram">
+      <div className="grid h-full gap-3">
+      <svg viewBox="0 0 640 360" className="min-h-[18rem] w-full" role="img" aria-label="Photosynthesis diagram">
         <style>{`
-          @keyframes drawLine { from { stroke-dashoffset: 180; } to { stroke-dashoffset: 0; } }
+          @keyframes drawLine { from { stroke-dashoffset: 240; } to { stroke-dashoffset: 0; } }
           @keyframes floatLabel { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
-          .board-draw { stroke-dasharray: 180; animation: drawLine 1.8s ease-out both; }
-          .board-draw-two { stroke-dasharray: 180; animation: drawLine 1.8s ease-out .45s both; }
+          @keyframes writeOn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+          .board-draw { stroke-dasharray: 240; animation: drawLine 1.8s ease-out both; }
+          .board-draw-two { stroke-dasharray: 240; animation: drawLine 1.8s ease-out .45s both; }
           .board-float { animation: floatLabel 2.4s ease-in-out infinite; }
+          .board-write { animation: writeOn .55s ease-out both; }
         `}</style>
         <rect width="640" height="360" rx="26" fill="#F7FBF8" />
+        <text x="42" y="40" fill="#123F3F" fontSize="24" fontWeight="800">Photosynthesis</text>
         <g className="board-float">
           <circle cx="112" cy="82" r="44" fill="#F6C85F" />
         </g>
-        <path className="board-draw" d="M112 150 C112 215 208 218 208 292" stroke="#146B6B" strokeWidth="10" fill="none" strokeLinecap="round" />
+        {step >= 1 && <path className="board-draw" d="M112 150 C112 215 208 218 208 292" stroke="#146B6B" strokeWidth="10" fill="none" strokeLinecap="round" />}
         <ellipse cx="168" cy="178" rx="76" ry="34" fill="#9DBB75" transform="rotate(-16 168 178)" />
         <ellipse cx="255" cy="202" rx="76" ry="34" fill="#5FA777" transform="rotate(18 255 202)" />
-        <path className="board-draw" d="M112 126 L177 161" stroke="#F07A5A" strokeWidth="5" strokeLinecap="round" />
-        <path className="board-draw-two" d="M112 126 L237 184" stroke="#F07A5A" strokeWidth="5" strokeLinecap="round" />
-        <rect x="378" y="54" width="184" height="64" rx="18" fill="#E2F1EF" />
-        <rect x="390" y="154" width="164" height="64" rx="18" fill="#F9E2D7" />
-        <rect x="390" y="256" width="164" height="64" rx="18" fill="#E8F0D5" />
-        <path className="board-draw" d="M378 86 C314 90 300 122 260 174" stroke="#146B6B" strokeWidth="4" fill="none" strokeDasharray="8 8" />
-        <path className="board-draw-two" d="M390 186 C322 184 292 194 255 202" stroke="#D9654F" strokeWidth="4" fill="none" strokeDasharray="8 8" />
-        <path className="board-draw" d="M390 288 C315 288 260 270 208 292" stroke="#6F8D48" strokeWidth="4" fill="none" strokeDasharray="8 8" />
-        <text x="470" y="84" textAnchor="middle" fill="#123F3F" fontSize="20" fontWeight="700">Sunlight</text>
-        <text x="472" y="192" textAnchor="middle" fill="#123F3F" fontSize="18" fontWeight="700">Water + CO2</text>
-        <text x="472" y="294" textAnchor="middle" fill="#123F3F" fontSize="18" fontWeight="700">Sugar + Oxygen</text>
+        {step >= 0 && (
+          <g className="board-write">
+            <rect x="378" y="54" width="184" height="64" rx="18" fill="#E2F1EF" />
+            <path className="board-draw" d="M378 86 C314 90 300 122 260 174" stroke="#146B6B" strokeWidth="4" fill="none" />
+            <text x="470" y="84" textAnchor="middle" fill="#123F3F" fontSize="20" fontWeight="700">Sunlight</text>
+          </g>
+        )}
+        {step >= 2 && (
+          <g className="board-write">
+            <rect x="390" y="154" width="164" height="64" rx="18" fill="#F9E2D7" />
+            <path className="board-draw-two" d="M390 186 C322 184 292 194 255 202" stroke="#D9654F" strokeWidth="4" fill="none" />
+            <text x="472" y="192" textAnchor="middle" fill="#123F3F" fontSize="18" fontWeight="700">Water + CO2</text>
+          </g>
+        )}
+        {step >= 3 && (
+          <g className="board-write">
+            <rect x="390" y="256" width="164" height="64" rx="18" fill="#E8F0D5" />
+            <path className="board-draw" d="M390 288 C315 288 260 270 208 292" stroke="#6F8D48" strokeWidth="4" fill="none" />
+            <text x="472" y="294" textAnchor="middle" fill="#123F3F" fontSize="18" fontWeight="700">Sugar + Oxygen</text>
+          </g>
+        )}
       </svg>
+      <div className="rounded-2xl bg-white p-3">
+        <div className="h-2 overflow-hidden rounded-full bg-teal-100">
+          <div className="h-full rounded-full bg-coral-600 transition-all duration-500" style={{ width: progressWidth }} />
+        </div>
+        <div className="mt-3 grid gap-2 sm:grid-cols-2">
+          {steps.map((item, index) => (
+            <div key={item} className={`rounded-xl px-3 py-2 text-sm font-semibold ${index < visibleSteps ? "bg-teal-100 text-teal-900" : "bg-mist-50 text-charcoal-teal/45"}`}>
+              {item}
+            </div>
+          ))}
+        </div>
+      </div>
+      </div>
     );
   }
 
   if (topic === "fractions") {
     return (
-      <svg viewBox="0 0 640 360" className="h-full w-full" role="img" aria-label="Fraction diagram">
+      <div className="grid h-full gap-3">
+      <svg viewBox="0 0 640 360" className="min-h-[18rem] w-full" role="img" aria-label="Fraction diagram">
+        <style>{`@keyframes writeOn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } } .board-write { animation: writeOn .55s ease-out both; }`}</style>
         <rect width="640" height="360" rx="26" fill="#F7FBF8" />
+        <text x="54" y="54" fill="#123F3F" fontSize="24" fontWeight="800">Fractions</text>
         <circle cx="210" cy="180" r="110" fill="#F6C85F" />
-        <path d="M210 180 L210 70 A110 110 0 0 1 320 180 Z" fill="#F07A5A" />
-        <path d="M210 70 L210 290 M100 180 L320 180" stroke="#123F3F" strokeWidth="5" />
-        <text x="430" y="150" fill="#123F3F" fontSize="32" fontWeight="800">1 out of 4</text>
-        <text x="430" y="198" fill="#146B6B" fontSize="42" fontWeight="800">1/4</text>
+        {step >= 1 && <path className="board-write" d="M210 70 L210 290 M100 180 L320 180" stroke="#123F3F" strokeWidth="5" />}
+        {step >= 2 && <path className="board-write" d="M210 180 L210 70 A110 110 0 0 1 320 180 Z" fill="#F07A5A" />}
+        {step >= 3 && <text className="board-write" x="430" y="150" fill="#123F3F" fontSize="32" fontWeight="800">1 out of 4</text>}
+        {step >= 3 && <text className="board-write" x="430" y="198" fill="#146B6B" fontSize="42" fontWeight="800">1/4</text>}
       </svg>
+      <div className="rounded-2xl bg-white p-3">
+        <div className="h-2 overflow-hidden rounded-full bg-teal-100">
+          <div className="h-full rounded-full bg-coral-600 transition-all duration-500" style={{ width: progressWidth }} />
+        </div>
+        <div className="mt-3 grid gap-2 sm:grid-cols-2">
+          {steps.map((item, index) => (
+            <div key={item} className={`rounded-xl px-3 py-2 text-sm font-semibold ${index < visibleSteps ? "bg-teal-100 text-teal-900" : "bg-mist-50 text-charcoal-teal/45"}`}>
+              {item}
+            </div>
+          ))}
+        </div>
+      </div>
+      </div>
     );
   }
 
@@ -134,10 +201,12 @@ function LessonWhiteboard({ topic, explanation }: { topic: string; explanation: 
     return (
       <svg viewBox="0 0 640 360" className="h-full w-full" role="img" aria-label="Percentage bar diagram">
         <rect width="640" height="360" rx="26" fill="#F7FBF8" />
+        <style>{`@keyframes growBar { from { transform: scaleX(0); } to { transform: scaleX(1); } } .board-grow { transform-origin: 80px 180px; animation: growBar 1s ease-out both; }`}</style>
+        <text x="54" y="68" fill="#123F3F" fontSize="24" fontWeight="800">Percentages</text>
         <rect x="80" y="145" width="480" height="70" rx="18" fill="#E2F1EF" />
-        <rect x="80" y="145" width="192" height="70" rx="18" fill="#F07A5A" />
-        <text x="176" y="190" textAnchor="middle" fill="white" fontSize="24" fontWeight="800">40%</text>
-        <text x="320" y="260" textAnchor="middle" fill="#123F3F" fontSize="24" fontWeight="800">Percent means out of 100</text>
+        {step >= 1 && <rect className="board-grow" x="80" y="145" width="192" height="70" rx="18" fill="#F07A5A" />}
+        {step >= 2 && <text x="176" y="190" textAnchor="middle" fill="white" fontSize="24" fontWeight="800">40%</text>}
+        {step >= 3 && <text x="320" y="260" textAnchor="middle" fill="#123F3F" fontSize="24" fontWeight="800">Percent means out of 100</text>}
       </svg>
     );
   }
@@ -162,6 +231,7 @@ export function AiTutorClient({ wrapUpQuestions }: { wrapUpQuestions: WrapUpQues
   const [handsFree, setHandsFree] = useState(false);
   const [listening, setListening] = useState(false);
   const [speaking, setSpeaking] = useState(false);
+  const [boardStep, setBoardStep] = useState(0);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [ended, setEnded] = useState(false);
@@ -209,6 +279,20 @@ export function AiTutorClient({ wrapUpQuestions }: { wrapUpQuestions: WrapUpQues
       window.speechSynthesis.cancel();
     };
   }, [messages, speakReplies]);
+
+  useEffect(() => {
+    const topic = getBoardTopic(messages);
+    const totalSteps = getLessonSteps(topic).length;
+    if (!latestAssistantMessage(messages)) return;
+    const resetTimer = setTimeout(() => setBoardStep(0), 0);
+    const timer = setInterval(() => {
+      setBoardStep((current) => (current + 1 >= totalSteps ? current : current + 1));
+    }, 1800);
+    return () => {
+      clearTimeout(resetTimer);
+      clearInterval(timer);
+    };
+  }, [messages]);
 
   const send = async (content = draft) => {
     if (!content.trim() || !conversationId) return;
@@ -394,7 +478,7 @@ export function AiTutorClient({ wrapUpQuestions }: { wrapUpQuestions: WrapUpQues
                       {latestAssistantMessage(messages)}
                     </p>
                     <div className="min-h-[15rem] rounded-3xl bg-mist-50 p-2">
-                      <LessonWhiteboard topic={getBoardTopic(messages)} explanation={latestAssistantMessage(messages)} />
+                      <LessonWhiteboard topic={getBoardTopic(messages)} explanation={latestAssistantMessage(messages)} step={boardStep} />
                     </div>
                   </div>
                 ) : (
@@ -406,7 +490,7 @@ export function AiTutorClient({ wrapUpQuestions }: { wrapUpQuestions: WrapUpQues
                       </p>
                     </div>
                     <div className="h-60 rounded-3xl bg-mist-50 p-2">
-                      <LessonWhiteboard topic="photosynthesis" explanation="" />
+                      <LessonWhiteboard topic="photosynthesis" explanation="" step={3} />
                     </div>
                   </div>
                 )}

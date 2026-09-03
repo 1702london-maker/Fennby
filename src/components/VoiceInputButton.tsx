@@ -29,11 +29,15 @@ export function VoiceInputButton({
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
   const onResultRef = useRef(onResult);
   const onListeningChangeRef = useRef(onListeningChange);
+  const enabledRef = useRef(enabled);
+  const autoStartRef = useRef(autoStart);
 
   useEffect(() => {
     onResultRef.current = onResult;
     onListeningChangeRef.current = onListeningChange;
-  }, [onResult, onListeningChange]);
+    enabledRef.current = enabled;
+    autoStartRef.current = autoStart;
+  }, [autoStart, enabled, onResult, onListeningChange]);
 
   useEffect(() => {
     const SpeechRecognitionCtor =
@@ -61,9 +65,10 @@ export function VoiceInputButton({
     recognition.onend = () => {
       setListening(false);
       onListeningChangeRef.current?.(false);
-      if (autoStart && continuous) {
+      if (autoStartRef.current && enabledRef.current && continuous) {
         setTimeout(() => {
           try {
+            if (!enabledRef.current) return;
             recognition.start();
             setListening(true);
             onListeningChangeRef.current?.(true);
@@ -91,6 +96,20 @@ export function VoiceInputButton({
       }
     };
   }, [autoStart, continuous, enabled, interimResults]);
+
+  useEffect(() => {
+    if (enabled) return;
+    try {
+      recognitionRef.current?.abort();
+    } catch {
+      // Some browsers throw if recognition was never started.
+    }
+    const stopTimer = setTimeout(() => {
+      setListening(false);
+      onListeningChangeRef.current?.(false);
+    }, 0);
+    return () => clearTimeout(stopTimer);
+  }, [enabled]);
 
   useEffect(() => {
     if (!autoStart || !enabled || !recognitionRef.current) return;
