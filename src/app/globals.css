@@ -42,6 +42,36 @@ body {
   transition-duration: 0.01ms !important;
 }
 
+.learning-preferences {
+  position: relative;
+  isolation: isolate;
+}
+
+.learning-colour-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  pointer-events: none;
+  background: var(--learning-overlay-colour);
+  mix-blend-mode: multiply;
+}
+
+.learning-preferences[data-colour-overlay]:not([data-colour-overlay="none"]) main,
+.learning-preferences[data-colour-overlay]:not([data-colour-overlay="none"]) section,
+.learning-preferences[data-colour-overlay]:not([data-colour-overlay="none"]) aside {
+  border-color: var(--learning-overlay-border);
+}
+
+.chunked-content p,
+.chunked-content li {
+  max-width: 68ch;
+  line-height: 1.85;
+}
+
+.chunked-content main {
+  row-gap: 1.25rem;
+}
+
 :focus-visible {
   outline: 3px solid #146B6B;
   outline-offset: 2px;
