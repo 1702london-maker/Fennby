@@ -22,6 +22,7 @@ export default async function ChildPracticePage() {
     getRevisionItemsForLearner(learner.id),
     getSubjectsWithAvailableTopics(),
   ]);
+  const subjectsWithTopics = subjects.filter((subject) => topics.some((topic) => topic.subject_key === subject.key));
 
   return (
     <PageShell>
@@ -56,7 +57,7 @@ export default async function ChildPracticePage() {
         <section>
           <h2 className="font-display font-bold text-lg mb-4">All subjects</h2>
           <div className="grid sm:grid-cols-2 gap-4">
-            {subjects.map((s) => {
+            {subjectsWithTopics.map((s) => {
               const subjectTopics = topics.filter((t) => t.subject_key === s.key);
               const firstTopic = subjectTopics[0];
               return (
@@ -73,11 +74,7 @@ export default async function ChildPracticePage() {
                       </a>
                     ))}
                   </div>
-                  {firstTopic ? (
-                    <Button href={`/child/practice/${firstTopic.key}`} variant="outline">Start a quick quiz</Button>
-                  ) : (
-                    <p className="text-xs text-charcoal-teal/50">Practice bank being prepared for this subject.</p>
-                  )}
+                  <Button href={`/child/practice/${firstTopic?.key}`} variant="outline">Start a quick quiz</Button>
                 </Card>
               );
             })}
