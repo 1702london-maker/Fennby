@@ -70,6 +70,37 @@ function getLessonSteps(topic: string) {
   return ["Listen to the question.", "Draw the key idea.", "Try one small step.", "Answer out loud."];
 }
 
+function shortStep(text: string) {
+  const cleaned = text
+    .replace(/\s+/g, " ")
+    .replace(/^(first|then|next|finally|so|now|try)\s*,?\s*/i, "")
+    .trim();
+  if (cleaned.length <= 58) return cleaned;
+  return `${cleaned.slice(0, 55).trim()}...`;
+}
+
+function getDynamicLessonSteps(topic: string, explanation: string) {
+  const sentences = explanation
+    .split(/(?<=[.!?])\s+/)
+    .map((sentence) => shortStep(sentence.replace(/[.!?]+$/, "")))
+    .filter((sentence) => sentence.length > 12 && !/^can you|^what would|^which/i.test(sentence));
+
+  const fallback = getLessonSteps(topic);
+  const unique = Array.from(new Set(sentences));
+  return [...unique, ...fallback].slice(0, 4);
+}
+
+function getBoardTitle(topic: string, request: string) {
+  if (topic === "photosynthesis") return "Plant science";
+  if (topic === "fractions") return "Fractions";
+  if (topic === "percentages") return "Percentages";
+  if (topic === "analogies") return "Analogies";
+  const cleaned = cleanWakePhrase(request).replace(/[?!.]+$/, "").trim();
+  if (!cleaned) return "Live lesson";
+  if (cleaned.length <= 28) return cleaned;
+  return `${cleaned.slice(0, 25).trim()}...`;
+}
+
 function TutorVideo({ speaking, listening, thinking }: { speaking: boolean; listening: boolean; thinking: boolean }) {
   return (
     <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-charcoal-teal via-teal-900 to-coral-600 p-4 text-white">
@@ -131,10 +162,21 @@ function StepStrip({ steps, visibleSteps, step }: { steps: string[]; visibleStep
   );
 }
 
-function LessonWhiteboard({ topic, explanation, step }: { topic: string; explanation: string; step: number }) {
+function LessonWhiteboard({
+  topic,
+  explanation,
+  request,
+  step,
+}: {
+  topic: string;
+  explanation: string;
+  request: string;
+  step: number;
+}) {
   const commonText = explanation || "Tell me what you want to learn, and I will draw the steps as we go.";
-  const steps = getLessonSteps(topic);
+  const steps = explanation ? getDynamicLessonSteps(topic, explanation) : getLessonSteps(topic);
   const visibleSteps = Math.min(step + 1, steps.length);
+  const boardTitle = getBoardTitle(topic, request);
 
   if (topic === "photosynthesis") {
     return (
@@ -156,7 +198,7 @@ function LessonWhiteboard({ topic, explanation, step }: { topic: string; explana
           .board-ray { animation: rayPulse 1.1s ease-in-out infinite; }
         `}</style>
         <rect width="640" height="360" rx="26" fill="#F7FBF8" />
-        <text x="42" y="40" fill="#123F3F" fontSize="24" fontWeight="800">Photosynthesis</text>
+        <text x="42" y="40" fill="#123F3F" fontSize="24" fontWeight="800">{boardTitle}</text>
         <g className="board-float">
           <circle cx="112" cy="82" r="44" fill="#F6C85F" />
         </g>
@@ -211,7 +253,7 @@ function LessonWhiteboard({ topic, explanation, step }: { topic: string; explana
           .board-pencil { animation: pencilMove 1.8s ease-in-out infinite; }
         `}</style>
         <rect width="640" height="360" rx="26" fill="#F7FBF8" />
-        <text x="54" y="54" fill="#123F3F" fontSize="24" fontWeight="800">Fractions</text>
+        <text x="54" y="54" fill="#123F3F" fontSize="24" fontWeight="800">{boardTitle}</text>
         <circle cx="210" cy="180" r="110" fill="#F6C85F" />
         {step >= 1 && <path className="board-write" d="M210 70 L210 290 M100 180 L320 180" stroke="#123F3F" strokeWidth="5" />}
         {step >= 2 && <path className="board-write board-slice" d="M210 180 L210 70 A110 110 0 0 1 320 180 Z" fill="#F07A5A" />}
@@ -237,7 +279,7 @@ function LessonWhiteboard({ topic, explanation, step }: { topic: string; explana
           .board-grow { transform-origin: 80px 180px; animation: growBar 2.2s ease-in-out infinite; }
           .board-count { animation: countPulse 1s ease-in-out infinite; }
         `}</style>
-        <text x="54" y="68" fill="#123F3F" fontSize="24" fontWeight="800">Percentages</text>
+        <text x="54" y="68" fill="#123F3F" fontSize="24" fontWeight="800">{boardTitle}</text>
         <rect x="80" y="145" width="480" height="70" rx="18" fill="#E2F1EF" />
         {step >= 1 && <rect className="board-grow" x="80" y="145" width="192" height="70" rx="18" fill="#F07A5A" />}
         {step >= 2 && <text className="board-count" x="176" y="190" textAnchor="middle" fill="white" fontSize="24" fontWeight="800">40%</text>}
@@ -258,19 +300,22 @@ function LessonWhiteboard({ topic, explanation, step }: { topic: string; explana
           .board-note { transform-box: fill-box; transform-origin: center; animation: notePulse 1.7s ease-in-out infinite; }
         `}</style>
         <rect width="640" height="360" rx="26" fill="#F7FBF8" />
-        <text x="48" y="54" fill="#123F3F" fontSize="24" fontWeight="800">Live lesson board</text>
+        <text x="48" y="54" fill="#123F3F" fontSize="24" fontWeight="800">{boardTitle}</text>
         <path className="board-flow" d="M86 132 C172 82 236 172 322 122 S492 108 548 190" stroke="#146B6B" strokeWidth="6" fill="none" strokeLinecap="round" />
         <g className="board-note">
           <rect x="78" y="118" width="132" height="72" rx="18" fill="#E2F1EF" />
-          <text x="144" y="160" textAnchor="middle" fill="#123F3F" fontSize="18" fontWeight="800">Ask</text>
+        <text x="144" y="150" textAnchor="middle" fill="#123F3F" fontSize="15" fontWeight="800">{steps[0]?.slice(0, 14) ?? "Ask"}</text>
+        <text x="144" y="172" textAnchor="middle" fill="#123F3F" fontSize="15" fontWeight="800">{steps[0]?.slice(14, 28) ?? ""}</text>
         </g>
         <g className="board-note" style={{ animationDelay: "180ms" }}>
           <rect x="256" y="86" width="132" height="72" rx="18" fill="#F9E2D7" />
-          <text x="322" y="128" textAnchor="middle" fill="#123F3F" fontSize="18" fontWeight="800">Draw</text>
+          <text x="322" y="118" textAnchor="middle" fill="#123F3F" fontSize="15" fontWeight="800">{steps[1]?.slice(0, 14) ?? "Draw"}</text>
+          <text x="322" y="140" textAnchor="middle" fill="#123F3F" fontSize="15" fontWeight="800">{steps[1]?.slice(14, 28) ?? ""}</text>
         </g>
         <g className="board-note" style={{ animationDelay: "360ms" }}>
           <rect x="430" y="164" width="132" height="72" rx="18" fill="#E8F0D5" />
-          <text x="496" y="206" textAnchor="middle" fill="#123F3F" fontSize="18" fontWeight="800">Answer</text>
+          <text x="496" y="196" textAnchor="middle" fill="#123F3F" fontSize="15" fontWeight="800">{steps[2]?.slice(0, 14) ?? "Answer"}</text>
+          <text x="496" y="218" textAnchor="middle" fill="#123F3F" fontSize="15" fontWeight="800">{steps[2]?.slice(14, 28) ?? ""}</text>
         </g>
         <g className="board-pointer">
           <circle cx="80" cy="282" r="14" fill="#F07A5A" />
@@ -342,8 +387,9 @@ export function AiTutorClient({ wrapUpQuestions }: { wrapUpQuestions: WrapUpQues
 
   useEffect(() => {
     const topic = getBoardTopic(messages);
-    const totalSteps = getLessonSteps(topic).length;
-    if (!latestAssistantMessage(messages)) return;
+    const reply = latestAssistantMessage(messages);
+    const totalSteps = (reply ? getDynamicLessonSteps(topic, reply) : getLessonSteps(topic)).length;
+    if (!reply) return;
     const resetTimer = setTimeout(() => setBoardStep(0), 0);
     const timer = setInterval(() => {
       setBoardStep((current) => (current + 1 >= totalSteps ? current : current + 1));
@@ -538,7 +584,12 @@ export function AiTutorClient({ wrapUpQuestions }: { wrapUpQuestions: WrapUpQues
                       <div className="pointer-events-none absolute left-4 top-4 z-10 rounded-full bg-coral-600 px-3 py-1 text-xs font-bold text-white shadow-lg">
                         Drawing live
                       </div>
-                      <LessonWhiteboard topic={getBoardTopic(messages)} explanation={latestAssistantMessage(messages)} step={boardStep} />
+                      <LessonWhiteboard
+                        topic={getBoardTopic(messages)}
+                        explanation={latestAssistantMessage(messages)}
+                        request={latestUserMessage(messages)}
+                        step={boardStep}
+                      />
                     </div>
                     <p className="rounded-3xl bg-mist-50 p-5 text-lg leading-relaxed text-charcoal-teal whitespace-pre-wrap">
                       {latestAssistantMessage(messages)}
@@ -550,7 +601,7 @@ export function AiTutorClient({ wrapUpQuestions }: { wrapUpQuestions: WrapUpQues
                       <div className="pointer-events-none absolute left-4 top-4 z-10 rounded-full bg-coral-600 px-3 py-1 text-xs font-bold text-white shadow-lg">
                         Board ready
                       </div>
-                      <LessonWhiteboard topic="general" explanation="" step={0} />
+                      <LessonWhiteboard topic="general" explanation="" request="" step={0} />
                     </div>
                     <div className="text-center lg:text-left">
                       <p className="font-display font-bold text-2xl mb-3">Choose a lesson or ask a question.</p>
