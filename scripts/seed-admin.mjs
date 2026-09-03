@@ -6,6 +6,9 @@ const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const adminEmail = process.env.FENNBY_ADMIN_EMAIL ?? "admin-demo@fennby.test";
 const adminPassword = process.env.FENNBY_ADMIN_PASSWORD ?? "Fennby123!";
 const adminName = process.env.FENNBY_ADMIN_NAME ?? "Fennby Admin Demo";
+const authorityEmail = process.env.FENNBY_AUTHORITY_EMAIL ?? "authority-demo@fennby.test";
+const authorityPassword = process.env.FENNBY_AUTHORITY_PASSWORD ?? "Fennby123!";
+const authorityName = process.env.FENNBY_AUTHORITY_NAME ?? "Fennby Authority Demo";
 
 if (!supabaseUrl || !serviceRoleKey) {
   console.error(
@@ -42,7 +45,7 @@ async function findUserByEmail(email) {
   }
 }
 
-async function createAuthUser() {
+async function createAuthUser({ email, password, fullName, role }) {
   const response = await fetch(`${supabaseUrl}/auth/v1/admin/users`, {
     method: "POST",
     headers: {
@@ -51,10 +54,10 @@ async function createAuthUser() {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      email: adminEmail,
-      password: adminPassword,
+      email,
+      password,
       email_confirm: true,
-      user_metadata: { full_name: adminName, role: "admin" },
+      user_metadata: { full_name: fullName, role },
     }),
   });
 
@@ -65,7 +68,7 @@ async function createAuthUser() {
   return response.json();
 }
 
-async function updateAuthUser(userId) {
+async function updateAuthUser(userId, { email, password, fullName, role }) {
   const response = await fetch(`${supabaseUrl}/auth/v1/admin/users/${userId}`, {
     method: "PUT",
     headers: {
@@ -74,10 +77,10 @@ async function updateAuthUser(userId) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      email: adminEmail,
-      password: adminPassword,
+      email,
+      password,
       email_confirm: true,
-      user_metadata: { full_name: adminName, role: "admin" },
+      user_metadata: { full_name: fullName, role },
     }),
   });
 
@@ -89,14 +92,22 @@ async function updateAuthUser(userId) {
 }
 
 async function main() {
-  const existing = await findUserByEmail(adminEmail);
-  const authUser = existing ? await updateAuthUser(existing.id) : await createAuthUser();
+  const demoUsers = [
+    { email: adminEmail, password: adminPassword, fullName: adminName, role: "admin" },
+    { email: authorityEmail, password: authorityPassword, fullName: authorityName, role: "authority" },
+  ];
+
+  for (const demoUser of demoUsers) {
+    const existing = await findUserByEmail(demoUser.email);
+    const authUser = existing
+      ? await updateAuthUser(existing.id, demoUser)
+      : await createAuthUser(demoUser);
   const userId = authUser.id;
   const { error: profileError } = await supabase.from("profiles").upsert({
     id: userId,
-    role: "admin",
-    full_name: adminName,
-    email: adminEmail,
+      role: demoUser.role,
+      full_name: demoUser.fullName,
+      email: demoUser.email,
     status: "active",
     subscription_status: "active",
     updated_at: new Date().toISOString(),
@@ -104,8 +115,9 @@ async function main() {
 
   if (profileError) throw profileError;
 
-  console.log(`Admin ready: ${adminEmail}`);
-  console.log("Temporary password is set from FENNBY_ADMIN_PASSWORD, or Fennby123! if not provided.");
+    console.log(`${demoUser.role} ready: ${demoUser.email}`);
+  }
+  console.log("Demo passwords are set from role-specific env vars, or Fennby123! if not provided.");
 }
 
 main().catch((error) => {
