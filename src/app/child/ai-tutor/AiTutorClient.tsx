@@ -21,8 +21,8 @@ interface WrapUpQuestion {
 }
 
 const lessonStarters = [
-  "Hey Fennby, teach me about photosynthesis.",
-  "Can you teach me fractions with an example?",
+  "Hey Fennby, teach me something I am stuck on.",
+  "Can you teach me fractions with a drawing?",
   "Help me solve a verbal reasoning analogy.",
   "Explain percentage questions step by step.",
   "Give me a comprehension strategy.",
@@ -103,11 +103,38 @@ function TutorVideo({ speaking, listening, thinking }: { speaking: boolean; list
   );
 }
 
+function StepStrip({ steps, visibleSteps, step }: { steps: string[]; visibleSteps: number; step: number }) {
+  const progressWidth = `${(visibleSteps / steps.length) * 100}%`;
+
+  return (
+    <div className="rounded-2xl bg-white p-3">
+      <div className="h-2 overflow-hidden rounded-full bg-teal-100">
+        <div className="h-full rounded-full bg-coral-600 transition-all duration-500" style={{ width: progressWidth }} />
+      </div>
+      <div className="mt-3 grid gap-2 sm:grid-cols-2">
+        {steps.map((item, index) => (
+          <div
+            key={item}
+            className={`rounded-xl px-3 py-2 text-sm font-semibold transition-all duration-300 ${
+              index === step
+                ? "scale-[1.03] bg-coral-100 text-brick-600 shadow-sm"
+                : index < visibleSteps
+                  ? "bg-teal-100 text-teal-900"
+                  : "bg-mist-50 text-charcoal-teal/45"
+            }`}
+          >
+            {item}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function LessonWhiteboard({ topic, explanation, step }: { topic: string; explanation: string; step: number }) {
-  const commonText = explanation || "Say, Hey Fennby, teach me about photosynthesis, or choose a starter lesson.";
+  const commonText = explanation || "Tell me what you want to learn, and I will draw the steps as we go.";
   const steps = getLessonSteps(topic);
   const visibleSteps = Math.min(step + 1, steps.length);
-  const progressWidth = `${(visibleSteps / steps.length) * 100}%`;
 
   if (topic === "photosynthesis") {
     return (
@@ -166,18 +193,7 @@ function LessonWhiteboard({ topic, explanation, step }: { topic: string; explana
           </g>
         )}
       </svg>
-      <div className="rounded-2xl bg-white p-3">
-        <div className="h-2 overflow-hidden rounded-full bg-teal-100">
-          <div className="h-full rounded-full bg-coral-600 transition-all duration-500" style={{ width: progressWidth }} />
-        </div>
-        <div className="mt-3 grid gap-2 sm:grid-cols-2">
-          {steps.map((item, index) => (
-            <div key={item} className={`rounded-xl px-3 py-2 text-sm font-semibold transition-all duration-300 ${index === step ? "scale-[1.03] bg-coral-100 text-brick-600 shadow-sm" : index < visibleSteps ? "bg-teal-100 text-teal-900" : "bg-mist-50 text-charcoal-teal/45"}`}>
-              {item}
-            </div>
-          ))}
-        </div>
-      </div>
+      <StepStrip steps={steps} visibleSteps={visibleSteps} step={step} />
       </div>
     );
   }
@@ -206,18 +222,7 @@ function LessonWhiteboard({ topic, explanation, step }: { topic: string; explana
           <path d="M477 222 L505 228 L484 246 Z" fill="#F6C85F" />
         </g>
       </svg>
-      <div className="rounded-2xl bg-white p-3">
-        <div className="h-2 overflow-hidden rounded-full bg-teal-100">
-          <div className="h-full rounded-full bg-coral-600 transition-all duration-500" style={{ width: progressWidth }} />
-        </div>
-        <div className="mt-3 grid gap-2 sm:grid-cols-2">
-          {steps.map((item, index) => (
-            <div key={item} className={`rounded-xl px-3 py-2 text-sm font-semibold ${index < visibleSteps ? "bg-teal-100 text-teal-900" : "bg-mist-50 text-charcoal-teal/45"}`}>
-              {item}
-            </div>
-          ))}
-        </div>
-      </div>
+      <StepStrip steps={steps} visibleSteps={visibleSteps} step={step} />
       </div>
     );
   }
@@ -242,13 +247,38 @@ function LessonWhiteboard({ topic, explanation, step }: { topic: string; explana
   }
 
   return (
-    <div className="grid h-full place-items-center p-8 text-center">
-      <div>
-        <div className="mx-auto mb-5 grid h-24 w-24 place-items-center rounded-full bg-teal-100 text-5xl" aria-hidden>
-          👩‍🏫
-        </div>
-        <p className="mx-auto max-w-md text-lg font-semibold leading-relaxed text-charcoal-teal">{commonText}</p>
-      </div>
+    <div className="grid h-full gap-3">
+      <svg viewBox="0 0 640 360" className="min-h-[18rem] w-full" role="img" aria-label="General lesson board">
+        <style>{`
+          @keyframes pointerPath { 0% { transform: translate(0, 0); } 25% { transform: translate(130px, 40px); } 50% { transform: translate(260px, -8px); } 75% { transform: translate(390px, 62px); } 100% { transform: translate(0, 0); } }
+          @keyframes dashFlow { from { stroke-dashoffset: 80; } to { stroke-dashoffset: 0; } }
+          @keyframes notePulse { 0%, 100% { opacity: .75; transform: scale(1); } 50% { opacity: 1; transform: scale(1.04); } }
+          .board-pointer { animation: pointerPath 5s ease-in-out infinite; }
+          .board-flow { stroke-dasharray: 12 10; animation: dashFlow 1.1s linear infinite; }
+          .board-note { transform-box: fill-box; transform-origin: center; animation: notePulse 1.7s ease-in-out infinite; }
+        `}</style>
+        <rect width="640" height="360" rx="26" fill="#F7FBF8" />
+        <text x="48" y="54" fill="#123F3F" fontSize="24" fontWeight="800">Live lesson board</text>
+        <path className="board-flow" d="M86 132 C172 82 236 172 322 122 S492 108 548 190" stroke="#146B6B" strokeWidth="6" fill="none" strokeLinecap="round" />
+        <g className="board-note">
+          <rect x="78" y="118" width="132" height="72" rx="18" fill="#E2F1EF" />
+          <text x="144" y="160" textAnchor="middle" fill="#123F3F" fontSize="18" fontWeight="800">Ask</text>
+        </g>
+        <g className="board-note" style={{ animationDelay: "180ms" }}>
+          <rect x="256" y="86" width="132" height="72" rx="18" fill="#F9E2D7" />
+          <text x="322" y="128" textAnchor="middle" fill="#123F3F" fontSize="18" fontWeight="800">Draw</text>
+        </g>
+        <g className="board-note" style={{ animationDelay: "360ms" }}>
+          <rect x="430" y="164" width="132" height="72" rx="18" fill="#E8F0D5" />
+          <text x="496" y="206" textAnchor="middle" fill="#123F3F" fontSize="18" fontWeight="800">Answer</text>
+        </g>
+        <g className="board-pointer">
+          <circle cx="80" cy="282" r="14" fill="#F07A5A" />
+          <path d="M94 282 L126 270 L112 300 Z" fill="#F07A5A" />
+        </g>
+        <text x="320" y="318" textAnchor="middle" fill="#123F3F" fontSize="20" fontWeight="700">{commonText}</text>
+      </svg>
+      <StepStrip steps={steps} visibleSteps={visibleSteps} step={step} />
     </div>
   );
 }
@@ -461,7 +491,7 @@ export function AiTutorClient({ wrapUpQuestions }: { wrapUpQuestions: WrapUpQues
               />
             </div>
             <p className="mt-3 text-xs text-white/65">
-              Try saying, Hey Fennby, teach me about photosynthesis.
+              Try saying, Hey Fennby, teach me the topic I am stuck on.
             </p>
           </Card>
 
@@ -516,11 +546,11 @@ export function AiTutorClient({ wrapUpQuestions }: { wrapUpQuestions: WrapUpQues
                     <div className="text-center lg:text-left">
                       <p className="font-display font-bold text-2xl mb-3">Choose a lesson or ask a question.</p>
                       <p className="text-charcoal-teal/65 max-w-md">
-                        Say, Hey Fennby, teach me about photosynthesis. The tutor will explain it out loud, draw the idea here, then ask what you think next.
+                        Say, Hey Fennby, then ask for any school topic. The tutor will explain it out loud, draw the idea here, then ask what you think next.
                       </p>
                     </div>
                     <div className="h-60 rounded-3xl bg-mist-50 p-2">
-                      <LessonWhiteboard topic="photosynthesis" explanation="" step={3} />
+                      <LessonWhiteboard topic="general" explanation="" step={0} />
                     </div>
                   </div>
                 )}
