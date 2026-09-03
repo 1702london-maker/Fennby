@@ -117,23 +117,33 @@ function LessonWhiteboard({ topic, explanation, step }: { topic: string; explana
           @keyframes drawLine { from { stroke-dashoffset: 240; } to { stroke-dashoffset: 0; } }
           @keyframes floatLabel { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
           @keyframes writeOn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+          @keyframes dashFlow { from { stroke-dashoffset: 80; } to { stroke-dashoffset: 0; } }
+          @keyframes pulseNode { 0%, 100% { opacity: .7; transform: scale(1); } 50% { opacity: 1; transform: scale(1.08); } }
+          @keyframes rayPulse { 0%, 100% { opacity: .35; } 50% { opacity: 1; } }
           .board-draw { stroke-dasharray: 240; animation: drawLine 1.8s ease-out both; }
           .board-draw-two { stroke-dasharray: 240; animation: drawLine 1.8s ease-out .45s both; }
           .board-float { animation: floatLabel 2.4s ease-in-out infinite; }
           .board-write { animation: writeOn .55s ease-out both; }
+          .board-flow { stroke-dasharray: 12 10; animation: dashFlow 1.2s linear infinite; }
+          .board-node { transform-box: fill-box; transform-origin: center; animation: pulseNode 1.4s ease-in-out infinite; }
+          .board-ray { animation: rayPulse 1.1s ease-in-out infinite; }
         `}</style>
         <rect width="640" height="360" rx="26" fill="#F7FBF8" />
         <text x="42" y="40" fill="#123F3F" fontSize="24" fontWeight="800">Photosynthesis</text>
         <g className="board-float">
           <circle cx="112" cy="82" r="44" fill="#F6C85F" />
         </g>
+        <path className="board-ray" d="M95 132 L68 176 M125 132 L134 180 M150 118 L194 154" stroke="#F6C85F" strokeWidth="8" strokeLinecap="round" />
         {step >= 1 && <path className="board-draw" d="M112 150 C112 215 208 218 208 292" stroke="#146B6B" strokeWidth="10" fill="none" strokeLinecap="round" />}
+        {step >= 1 && <path className="board-flow" d="M112 150 C112 215 208 218 208 292" stroke="#EAF6F4" strokeWidth="5" fill="none" strokeLinecap="round" />}
         <ellipse cx="168" cy="178" rx="76" ry="34" fill="#9DBB75" transform="rotate(-16 168 178)" />
         <ellipse cx="255" cy="202" rx="76" ry="34" fill="#5FA777" transform="rotate(18 255 202)" />
         {step >= 0 && (
           <g className="board-write">
             <rect x="378" y="54" width="184" height="64" rx="18" fill="#E2F1EF" />
             <path className="board-draw" d="M378 86 C314 90 300 122 260 174" stroke="#146B6B" strokeWidth="4" fill="none" />
+            <path className="board-flow" d="M378 86 C314 90 300 122 260 174" stroke="#F07A5A" strokeWidth="3" fill="none" />
+            <circle className="board-node" cx="260" cy="174" r="10" fill="#F07A5A" />
             <text x="470" y="84" textAnchor="middle" fill="#123F3F" fontSize="20" fontWeight="700">Sunlight</text>
           </g>
         )}
@@ -141,6 +151,8 @@ function LessonWhiteboard({ topic, explanation, step }: { topic: string; explana
           <g className="board-write">
             <rect x="390" y="154" width="164" height="64" rx="18" fill="#F9E2D7" />
             <path className="board-draw-two" d="M390 186 C322 184 292 194 255 202" stroke="#D9654F" strokeWidth="4" fill="none" />
+            <path className="board-flow" d="M390 186 C322 184 292 194 255 202" stroke="#146B6B" strokeWidth="3" fill="none" />
+            <circle className="board-node" cx="255" cy="202" r="10" fill="#146B6B" />
             <text x="472" y="192" textAnchor="middle" fill="#123F3F" fontSize="18" fontWeight="700">Water + CO2</text>
           </g>
         )}
@@ -148,6 +160,8 @@ function LessonWhiteboard({ topic, explanation, step }: { topic: string; explana
           <g className="board-write">
             <rect x="390" y="256" width="164" height="64" rx="18" fill="#E8F0D5" />
             <path className="board-draw" d="M390 288 C315 288 260 270 208 292" stroke="#6F8D48" strokeWidth="4" fill="none" />
+            <path className="board-flow" d="M390 288 C315 288 260 270 208 292" stroke="#F07A5A" strokeWidth="3" fill="none" />
+            <circle className="board-node" cx="208" cy="292" r="10" fill="#6F8D48" />
             <text x="472" y="294" textAnchor="middle" fill="#123F3F" fontSize="18" fontWeight="700">Sugar + Oxygen</text>
           </g>
         )}
@@ -158,7 +172,7 @@ function LessonWhiteboard({ topic, explanation, step }: { topic: string; explana
         </div>
         <div className="mt-3 grid gap-2 sm:grid-cols-2">
           {steps.map((item, index) => (
-            <div key={item} className={`rounded-xl px-3 py-2 text-sm font-semibold ${index < visibleSteps ? "bg-teal-100 text-teal-900" : "bg-mist-50 text-charcoal-teal/45"}`}>
+            <div key={item} className={`rounded-xl px-3 py-2 text-sm font-semibold transition-all duration-300 ${index === step ? "scale-[1.03] bg-coral-100 text-brick-600 shadow-sm" : index < visibleSteps ? "bg-teal-100 text-teal-900" : "bg-mist-50 text-charcoal-teal/45"}`}>
               {item}
             </div>
           ))}
@@ -172,14 +186,25 @@ function LessonWhiteboard({ topic, explanation, step }: { topic: string; explana
     return (
       <div className="grid h-full gap-3">
       <svg viewBox="0 0 640 360" className="min-h-[18rem] w-full" role="img" aria-label="Fraction diagram">
-        <style>{`@keyframes writeOn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } } .board-write { animation: writeOn .55s ease-out both; }`}</style>
+        <style>{`
+          @keyframes writeOn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+          @keyframes slicePulse { 0%, 100% { opacity: .75; transform: scale(1); } 50% { opacity: 1; transform: scale(1.04); } }
+          @keyframes pencilMove { 0% { transform: translate(0, 0); } 50% { transform: translate(34px, 18px); } 100% { transform: translate(0, 0); } }
+          .board-write { animation: writeOn .55s ease-out both; }
+          .board-slice { transform-box: fill-box; transform-origin: center; animation: slicePulse 1.3s ease-in-out infinite; }
+          .board-pencil { animation: pencilMove 1.8s ease-in-out infinite; }
+        `}</style>
         <rect width="640" height="360" rx="26" fill="#F7FBF8" />
         <text x="54" y="54" fill="#123F3F" fontSize="24" fontWeight="800">Fractions</text>
         <circle cx="210" cy="180" r="110" fill="#F6C85F" />
         {step >= 1 && <path className="board-write" d="M210 70 L210 290 M100 180 L320 180" stroke="#123F3F" strokeWidth="5" />}
-        {step >= 2 && <path className="board-write" d="M210 180 L210 70 A110 110 0 0 1 320 180 Z" fill="#F07A5A" />}
+        {step >= 2 && <path className="board-write board-slice" d="M210 180 L210 70 A110 110 0 0 1 320 180 Z" fill="#F07A5A" />}
         {step >= 3 && <text className="board-write" x="430" y="150" fill="#123F3F" fontSize="32" fontWeight="800">1 out of 4</text>}
         {step >= 3 && <text className="board-write" x="430" y="198" fill="#146B6B" fontSize="42" fontWeight="800">1/4</text>}
+        <g className="board-pencil">
+          <rect x="390" y="245" width="90" height="14" rx="7" fill="#123F3F" transform="rotate(-18 390 245)" />
+          <path d="M477 222 L505 228 L484 246 Z" fill="#F6C85F" />
+        </g>
       </svg>
       <div className="rounded-2xl bg-white p-3">
         <div className="h-2 overflow-hidden rounded-full bg-teal-100">
@@ -201,11 +226,16 @@ function LessonWhiteboard({ topic, explanation, step }: { topic: string; explana
     return (
       <svg viewBox="0 0 640 360" className="h-full w-full" role="img" aria-label="Percentage bar diagram">
         <rect width="640" height="360" rx="26" fill="#F7FBF8" />
-        <style>{`@keyframes growBar { from { transform: scaleX(0); } to { transform: scaleX(1); } } .board-grow { transform-origin: 80px 180px; animation: growBar 1s ease-out both; }`}</style>
+        <style>{`
+          @keyframes growBar { 0% { transform: scaleX(.05); } 55% { transform: scaleX(1); } 100% { transform: scaleX(.82); } }
+          @keyframes countPulse { 0%, 100% { opacity: .65; } 50% { opacity: 1; } }
+          .board-grow { transform-origin: 80px 180px; animation: growBar 2.2s ease-in-out infinite; }
+          .board-count { animation: countPulse 1s ease-in-out infinite; }
+        `}</style>
         <text x="54" y="68" fill="#123F3F" fontSize="24" fontWeight="800">Percentages</text>
         <rect x="80" y="145" width="480" height="70" rx="18" fill="#E2F1EF" />
         {step >= 1 && <rect className="board-grow" x="80" y="145" width="192" height="70" rx="18" fill="#F07A5A" />}
-        {step >= 2 && <text x="176" y="190" textAnchor="middle" fill="white" fontSize="24" fontWeight="800">40%</text>}
+        {step >= 2 && <text className="board-count" x="176" y="190" textAnchor="middle" fill="white" fontSize="24" fontWeight="800">40%</text>}
         {step >= 3 && <text x="320" y="260" textAnchor="middle" fill="#123F3F" fontSize="24" fontWeight="800">Percent means out of 100</text>}
       </svg>
     );
