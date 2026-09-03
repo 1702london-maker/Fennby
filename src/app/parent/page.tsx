@@ -77,18 +77,23 @@ export default async function ParentDashboard({
             <p className="text-charcoal-teal/70">Welcome back</p>
             <h1 className="font-display font-bold text-3xl">Family dashboard</h1>
           </div>
-          <div className="flex gap-2">
-            {learners.map((l) => (
-              <Link
-                key={l.id}
-                href={`/parent?childId=${l.id}`}
-                className={`flex items-center gap-2 px-4 py-2 rounded-full font-semibold min-h-[44px] transition-colors ${
-                  l.id === child.id ? "bg-teal-900 text-white" : "bg-teal-100 text-teal-900 hover:bg-teal-100/70"
-                }`}
-              >
-                <span aria-hidden>{l.avatar_emoji}</span> {l.preferred_name}
-              </Link>
-            ))}
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex gap-2">
+              {learners.map((l) => (
+                <Link
+                  key={l.id}
+                  href={`/parent?childId=${l.id}`}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-full font-semibold min-h-[44px] transition-colors ${
+                    l.id === child.id ? "bg-teal-900 text-white" : "bg-teal-100 text-teal-900 hover:bg-teal-100/70"
+                  }`}
+                >
+                  <span aria-hidden>{l.avatar_emoji}</span> {l.preferred_name}
+                </Link>
+              ))}
+            </div>
+            <Button href={`/parent/passport/${child.id}`} variant="outline" className="px-4 py-2">
+              Learning Passport
+            </Button>
           </div>
         </div>
 
