@@ -30,7 +30,12 @@ export async function sendEmail({ to, subject, text, replyTo }: SendEmailInput) 
   });
 
   if (!response.ok) {
-    return { ok: false, error: "email_send_failed" as const };
+    return {
+      ok: false,
+      error: "email_send_failed" as const,
+      status: response.status,
+      body: await response.text(),
+    };
   }
 
   return { ok: true, data: await response.json() };

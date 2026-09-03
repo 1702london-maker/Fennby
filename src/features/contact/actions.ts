@@ -26,7 +26,7 @@ export async function submitContactMessage(input: ContactInput): Promise<ActionR
 
   const contactTo = process.env.FENNBY_CONTACT_TO;
   if (contactTo) {
-    await sendEmail({
+    const emailResult = await sendEmail({
       to: contactTo,
       replyTo: parsed.data.email,
       subject: `Fennby contact: ${parsed.data.topic}`,
@@ -38,6 +38,9 @@ export async function submitContactMessage(input: ContactInput): Promise<ActionR
         parsed.data.message,
       ].join("\n"),
     });
+    if (!emailResult.ok) {
+      console.error("Contact email send failed", emailResult);
+    }
   }
 
   return { ok: true, data: null };
