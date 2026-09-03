@@ -16,7 +16,7 @@ export function BillingCheckoutButton() {
     if (!result.ok) {
       setError(
         result.error === "billing_not_configured"
-          ? "Subscriptions aren't switched on for this environment yet — STRIPE_SECRET_KEY and STRIPE_PRICE_ID_FAMILY_SUBSCRIPTION need adding to Vercel's environment variables first."
+          ? "Online subscription checkout is unavailable right now. Please contact Fennby support and we can finish setup for you."
           : result.error
       );
       return;

@@ -23,7 +23,7 @@ export function SittingRegisterButton({ sittingId, learnerId }: { sittingId: str
             setState("error");
             setError(
               result.error === "billing_not_configured"
-                ? "Registered — payment collection isn't switched on in this environment yet."
+                ? "Online payment is unavailable right now. Please contact Fennby support to reserve this sitting."
                 : result.error
             );
             return;

@@ -118,6 +118,37 @@ export async function getAdminReportSummaries() {
   ];
 }
 
+export async function getPlatformSettingsSnapshot() {
+  const supabase = await createClient();
+  const [publishedAssessments, warmupQuestions, openSittings, activeSubscriptions, storageUploads, cradleSessions] = await Promise.all([
+    supabase.from("assessments").select("id", { count: "exact", head: true }).eq("status", "published"),
+    supabase.from("questions").select("id", { count: "exact", head: true }).eq("exam_board", "Fennby Warm-Up V2").eq("status", "published"),
+    supabase.from("mock_exam_sittings").select("id", { count: "exact", head: true }).eq("status", "open"),
+    supabase.from("subscriptions").select("id", { count: "exact", head: true }).eq("status", "active"),
+    supabase.from("homework_help_requests").select("id", { count: "exact", head: true }),
+    supabase.from("cradle_sessions").select("id", { count: "exact", head: true }),
+  ]);
+
+  return {
+    appUrl: process.env.NEXT_PUBLIC_APP_URL ?? process.env.NEXT_PUBLIC_SITE_URL ?? "Not set",
+    publicSupabaseUrl: Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL),
+    publicSupabaseAnon: Boolean(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY),
+    serviceRole: Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY),
+    aiTutorProvider: Boolean(process.env.OPENAI_API_KEY),
+    aiTutorModel: process.env.AI_TUTOR_MODEL ?? "gpt-4o-mini",
+    stripeCheckout: Boolean(process.env.STRIPE_SECRET_KEY),
+    stripeSubscriptions: Boolean(process.env.STRIPE_SECRET_KEY && process.env.STRIPE_PRICE_ID_FAMILY_SUBSCRIPTION),
+    stripeWebhook: Boolean(process.env.STRIPE_WEBHOOK_SECRET),
+    cradleVideo: Boolean(process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_API_KEY_SID && process.env.TWILIO_API_KEY_SECRET),
+    publishedAssessments: publishedAssessments.count ?? 0,
+    warmupQuestions: warmupQuestions.count ?? 0,
+    openSittings: openSittings.count ?? 0,
+    activeSubscriptions: activeSubscriptions.count ?? 0,
+    uploadRecords: storageUploads.count ?? 0,
+    cradleSessions: cradleSessions.count ?? 0,
+  };
+}
+
 export async function getAllUsers() {
   const supabase = await createClient();
   const { data } = await supabase.from("profiles").select("*").order("created_at", { ascending: false });
