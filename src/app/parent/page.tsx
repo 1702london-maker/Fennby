@@ -271,6 +271,26 @@ export default async function ParentDashboard({
             ) : (
               <p className="text-sm text-charcoal-teal/70">No self-study sessions yet — this shows up here the moment {child.preferred_name} uses The Workshop.</p>
             )}
+            <div className="border-t border-teal-100 mt-4 pt-4">
+              <div className="flex items-center justify-between mb-2">
+                <p className="font-display font-bold text-sm">Homework help</p>
+                <span className="text-xs text-charcoal-teal/60">{workshop.homeworkRequests.length} recent</span>
+              </div>
+              {workshop.homeworkRequests.length ? (
+                <div className="space-y-2 text-sm">
+                  {workshop.homeworkRequests.map((request) => (
+                    <div key={request.id} className="flex justify-between items-center gap-3">
+                      <span className="font-semibold capitalize">{request.status.replace("_", " ")}</span>
+                      <span className="text-charcoal-teal/70">
+                        Uploaded {new Date(request.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-charcoal-teal/70">No homework photos submitted yet.</p>
+              )}
+            </div>
           </Card>
         </section>
 
