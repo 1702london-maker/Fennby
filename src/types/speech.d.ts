@@ -4,6 +4,7 @@ interface FennbySpeechAlternative {
   transcript: string;
 }
 interface SpeechRecognitionEvent extends Event {
+  resultIndex: number;
   results: { 0?: FennbySpeechAlternative }[];
 }
 interface SpeechRecognitionInstance extends EventTarget {

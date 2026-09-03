@@ -21,6 +21,7 @@ interface WrapUpQuestion {
 }
 
 const lessonStarters = [
+  "Hey Fennby, teach me about photosynthesis.",
   "Can you teach me fractions with an example?",
   "Help me solve a verbal reasoning analogy.",
   "Explain percentage questions step by step.",
@@ -31,11 +32,93 @@ function latestAssistantMessage(messages: DisplayMessage[]) {
   return [...messages].reverse().find((message) => message.role === "assistant")?.content ?? "";
 }
 
+function latestUserMessage(messages: DisplayMessage[]) {
+  return [...messages].reverse().find((message) => message.role === "user")?.content ?? "";
+}
+
+function cleanWakePhrase(text: string) {
+  return text.replace(/^hey\s+fennby[,\s]*/i, "").trim();
+}
+
+function getBoardTopic(messages: DisplayMessage[]) {
+  const source = `${latestUserMessage(messages)} ${latestAssistantMessage(messages)}`.toLowerCase();
+  if (source.includes("photosynthesis") || source.includes("plant")) return "photosynthesis";
+  if (source.includes("fraction") || source.includes("pizza")) return "fractions";
+  if (source.includes("percent")) return "percentages";
+  if (source.includes("analogy")) return "analogies";
+  return "general";
+}
+
+function LessonWhiteboard({ topic, explanation }: { topic: string; explanation: string }) {
+  const commonText = explanation || "Say, Hey Fennby, teach me about photosynthesis, or choose a starter lesson.";
+
+  if (topic === "photosynthesis") {
+    return (
+      <svg viewBox="0 0 640 360" className="h-full w-full" role="img" aria-label="Photosynthesis diagram">
+        <rect width="640" height="360" rx="26" fill="#F7FBF8" />
+        <circle cx="112" cy="82" r="44" fill="#F6C85F" />
+        <path d="M112 150 C112 215 208 218 208 292" stroke="#146B6B" strokeWidth="10" fill="none" strokeLinecap="round" />
+        <ellipse cx="168" cy="178" rx="76" ry="34" fill="#9DBB75" transform="rotate(-16 168 178)" />
+        <ellipse cx="255" cy="202" rx="76" ry="34" fill="#5FA777" transform="rotate(18 255 202)" />
+        <path d="M112 126 L177 161" stroke="#F07A5A" strokeWidth="5" strokeLinecap="round" />
+        <path d="M112 126 L237 184" stroke="#F07A5A" strokeWidth="5" strokeLinecap="round" />
+        <rect x="378" y="54" width="184" height="64" rx="18" fill="#E2F1EF" />
+        <rect x="390" y="154" width="164" height="64" rx="18" fill="#F9E2D7" />
+        <rect x="390" y="256" width="164" height="64" rx="18" fill="#E8F0D5" />
+        <path d="M378 86 C314 90 300 122 260 174" stroke="#146B6B" strokeWidth="4" fill="none" strokeDasharray="8 8" />
+        <path d="M390 186 C322 184 292 194 255 202" stroke="#D9654F" strokeWidth="4" fill="none" strokeDasharray="8 8" />
+        <path d="M390 288 C315 288 260 270 208 292" stroke="#6F8D48" strokeWidth="4" fill="none" strokeDasharray="8 8" />
+        <text x="470" y="84" textAnchor="middle" fill="#123F3F" fontSize="20" fontWeight="700">Sunlight</text>
+        <text x="472" y="192" textAnchor="middle" fill="#123F3F" fontSize="18" fontWeight="700">Water + CO2</text>
+        <text x="472" y="294" textAnchor="middle" fill="#123F3F" fontSize="18" fontWeight="700">Sugar + Oxygen</text>
+      </svg>
+    );
+  }
+
+  if (topic === "fractions") {
+    return (
+      <svg viewBox="0 0 640 360" className="h-full w-full" role="img" aria-label="Fraction diagram">
+        <rect width="640" height="360" rx="26" fill="#F7FBF8" />
+        <circle cx="210" cy="180" r="110" fill="#F6C85F" />
+        <path d="M210 180 L210 70 A110 110 0 0 1 320 180 Z" fill="#F07A5A" />
+        <path d="M210 70 L210 290 M100 180 L320 180" stroke="#123F3F" strokeWidth="5" />
+        <text x="430" y="150" fill="#123F3F" fontSize="32" fontWeight="800">1 out of 4</text>
+        <text x="430" y="198" fill="#146B6B" fontSize="42" fontWeight="800">1/4</text>
+      </svg>
+    );
+  }
+
+  if (topic === "percentages") {
+    return (
+      <svg viewBox="0 0 640 360" className="h-full w-full" role="img" aria-label="Percentage bar diagram">
+        <rect width="640" height="360" rx="26" fill="#F7FBF8" />
+        <rect x="80" y="145" width="480" height="70" rx="18" fill="#E2F1EF" />
+        <rect x="80" y="145" width="192" height="70" rx="18" fill="#F07A5A" />
+        <text x="176" y="190" textAnchor="middle" fill="white" fontSize="24" fontWeight="800">40%</text>
+        <text x="320" y="260" textAnchor="middle" fill="#123F3F" fontSize="24" fontWeight="800">Percent means out of 100</text>
+      </svg>
+    );
+  }
+
+  return (
+    <div className="grid h-full place-items-center p-8 text-center">
+      <div>
+        <div className="mx-auto mb-5 grid h-24 w-24 place-items-center rounded-full bg-teal-100 text-5xl" aria-hidden>
+          👩‍🏫
+        </div>
+        <p className="mx-auto max-w-md text-lg font-semibold leading-relaxed text-charcoal-teal">{commonText}</p>
+      </div>
+    </div>
+  );
+}
+
 export function AiTutorClient({ wrapUpQuestions }: { wrapUpQuestions: WrapUpQuestion[] }) {
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [messages, setMessages] = useState<DisplayMessage[]>([]);
   const [draft, setDraft] = useState("");
   const [speakReplies, setSpeakReplies] = useState(true);
+  const [handsFree, setHandsFree] = useState(false);
+  const [listening, setListening] = useState(false);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [ended, setEnded] = useState(false);
@@ -90,6 +173,17 @@ export function AiTutorClient({ wrapUpQuestions }: { wrapUpQuestions: WrapUpQues
       return;
     }
     setMessages((m) => [...m, { role: "assistant", content: result.data.reply }]);
+  };
+
+  const handleVoiceLesson = (text: string) => {
+    const heard = text.trim();
+    if (!heard) return;
+    const lessonRequest = cleanWakePhrase(heard);
+    if (handsFree || /^hey\s+fennby/i.test(heard)) {
+      void send(lessonRequest || heard);
+      return;
+    }
+    setDraft((current) => (current ? `${current} ${heard}` : heard));
   };
 
   const startWrapUp = async () => {
@@ -178,7 +272,7 @@ export function AiTutorClient({ wrapUpQuestions }: { wrapUpQuestions: WrapUpQues
             <div className="mt-5 grid gap-2 text-sm text-white/80">
               <p>Safe schoolwork help only</p>
               <p>Parent-visible history</p>
-              <p>Voice input and read-aloud</p>
+              <p>Hands-free voice lessons</p>
             </div>
             <label className="mt-5 flex items-center justify-between gap-3 rounded-2xl bg-white/10 px-4 py-3 text-sm font-semibold">
               <span>Speak replies</span>
@@ -189,6 +283,27 @@ export function AiTutorClient({ wrapUpQuestions }: { wrapUpQuestions: WrapUpQues
                 className="h-5 w-5 accent-coral-500"
               />
             </label>
+            <label className="mt-3 flex items-center justify-between gap-3 rounded-2xl bg-white/10 px-4 py-3 text-sm font-semibold">
+              <span>Hands-free lesson</span>
+              <input
+                type="checkbox"
+                checked={handsFree}
+                onChange={() => setHandsFree((value) => !value)}
+                className="h-5 w-5 accent-coral-500"
+              />
+            </label>
+            <div className="mt-3">
+              <VoiceInputButton
+                label={listening ? "Listening" : "Say Hey Fennby"}
+                autoStart={handsFree}
+                continuous={handsFree}
+                onListeningChange={setListening}
+                onResult={handleVoiceLesson}
+              />
+            </div>
+            <p className="mt-3 text-xs text-white/65">
+              Try saying, Hey Fennby, teach me about photosynthesis.
+            </p>
           </Card>
 
           <Card>
@@ -222,32 +337,31 @@ export function AiTutorClient({ wrapUpQuestions }: { wrapUpQuestions: WrapUpQues
                 <div className="flex items-start justify-between gap-4 mb-6">
                   <div>
                     <p className="text-xs font-bold text-charcoal-teal/50">LESSON BOARD</p>
-                    <h2 className="font-display font-bold text-2xl text-charcoal-teal">Today&apos;s explanation</h2>
+                    <h2 className="font-display font-bold text-2xl text-charcoal-teal">Teaching whiteboard</h2>
                   </div>
                   {latestAssistantMessage(messages) && (
                     <ReadAloudButton text={latestAssistantMessage(messages)} label="Read board" />
                   )}
                 </div>
                 {latestAssistantMessage(messages) ? (
-                  <div className="grid lg:grid-cols-[1fr_12rem] gap-6 items-start">
+                  <div className="grid lg:grid-cols-[1fr_15rem] gap-6 items-start">
                     <p className="text-lg leading-relaxed text-charcoal-teal whitespace-pre-wrap">
                       {latestAssistantMessage(messages)}
                     </p>
-                    <div className="rounded-3xl bg-teal-100 p-4 text-center">
-                      <div className="mx-auto grid h-24 w-24 place-items-center rounded-full bg-white text-5xl" aria-hidden>
-                        👩‍🏫
-                      </div>
-                      <p className="mt-3 text-xs font-bold text-teal-900">VISUAL GUIDE</p>
-                      <p className="text-sm text-charcoal-teal/70">Listen, read, then try one step.</p>
+                    <div className="min-h-[15rem] rounded-3xl bg-mist-50 p-2">
+                      <LessonWhiteboard topic={getBoardTopic(messages)} explanation={latestAssistantMessage(messages)} />
                     </div>
                   </div>
                 ) : (
-                  <div className="grid h-64 place-items-center text-center">
-                    <div>
+                  <div className="grid min-h-64 lg:grid-cols-[1fr_15rem] gap-6 items-center">
+                    <div className="text-center lg:text-left">
                       <p className="font-display font-bold text-2xl mb-3">Choose a lesson or ask a question.</p>
                       <p className="text-charcoal-teal/65 max-w-md">
-                        The board will hold the tutor&apos;s explanation so you can read it, hear it, and come back to it.
+                        Say, Hey Fennby, teach me about photosynthesis. The tutor will explain it out loud, draw the idea here, then ask what you think next.
                       </p>
+                    </div>
+                    <div className="h-60 rounded-3xl bg-mist-50 p-2">
+                      <LessonWhiteboard topic="photosynthesis" explanation="" />
                     </div>
                   </div>
                 )}
@@ -308,7 +422,7 @@ export function AiTutorClient({ wrapUpQuestions }: { wrapUpQuestions: WrapUpQues
                     aria-label="Message"
                     className="min-w-0 flex-1 rounded-full border-2 border-teal-100 px-4 py-3 min-h-[44px] focus:border-teal-700 outline-none"
                   />
-                  <VoiceInputButton onResult={(text) => setDraft((d) => (d ? `${d} ${text}` : text))} />
+                  <VoiceInputButton onResult={handleVoiceLesson} label={handsFree ? "Listening" : "Dictate"} />
                 </div>
                 <Button variant="primary" disabled={sending || !conversationId || !draft.trim()} onClick={() => send()} className="w-full mt-3">
                   {sending ? "Sending..." : "Send to tutor"}

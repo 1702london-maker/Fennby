@@ -9,19 +9,29 @@ import { useEffect, useRef, useState } from "react";
 export function VoiceInputButton({
   onResult,
   label = "Dictate",
+  autoStart = false,
+  continuous = false,
+  interimResults = false,
+  onListeningChange,
 }: {
   onResult: (text: string) => void;
   label?: string;
+  autoStart?: boolean;
+  continuous?: boolean;
+  interimResults?: boolean;
+  onListeningChange?: (listening: boolean) => void;
 }) {
   const [supported, setSupported] = useState(true);
   const [listening, setListening] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
   const onResultRef = useRef(onResult);
+  const onListeningChangeRef = useRef(onListeningChange);
 
   useEffect(() => {
     onResultRef.current = onResult;
-  }, [onResult]);
+    onListeningChangeRef.current = onListeningChange;
+  }, [onResult, onListeningChange]);
 
   useEffect(() => {
     const SpeechRecognitionCtor =
@@ -31,16 +41,36 @@ export function VoiceInputButton({
       return () => clearTimeout(unsupportedTimer);
     }
     const recognition = new SpeechRecognitionCtor();
-    recognition.continuous = false;
-    recognition.interimResults = false;
+    recognition.continuous = continuous;
+    recognition.interimResults = interimResults;
     recognition.lang = "en-GB";
     recognition.onresult = (event) => {
-      const transcript = event.results[0]?.[0]?.transcript ?? "";
+      const transcript = Array.from(event.results)
+        .slice(event.resultIndex)
+        .map((result) => result[0]?.transcript ?? "")
+        .join(" ")
+        .trim();
       if (transcript) onResultRef.current(transcript);
     };
-    recognition.onend = () => setListening(false);
+    recognition.onend = () => {
+      setListening(false);
+      onListeningChangeRef.current?.(false);
+      if (autoStart && continuous) {
+        setTimeout(() => {
+          try {
+            recognition.start();
+            setListening(true);
+            onListeningChangeRef.current?.(true);
+          } catch {
+            setListening(false);
+            onListeningChangeRef.current?.(false);
+          }
+        }, 350);
+      }
+    };
     recognition.onerror = () => {
       setListening(false);
+      onListeningChangeRef.current?.(false);
       setError("Voice dictation could not start. Check microphone permission and try again.");
     };
     recognitionRef.current = recognition;
@@ -54,7 +84,23 @@ export function VoiceInputButton({
         // Some browsers throw if recognition was never started.
       }
     };
-  }, []);
+  }, [autoStart, continuous, interimResults]);
+
+  useEffect(() => {
+    if (!autoStart || !recognitionRef.current) return;
+    const startTimer = setTimeout(() => {
+      try {
+        setError(null);
+        recognitionRef.current?.start();
+        setListening(true);
+        onListeningChangeRef.current?.(true);
+      } catch {
+        setListening(false);
+        onListeningChangeRef.current?.(false);
+      }
+    }, 0);
+    return () => clearTimeout(startTimer);
+  }, [autoStart]);
 
   if (!supported) {
     return (
@@ -77,8 +123,10 @@ export function VoiceInputButton({
             setError(null);
             recognitionRef.current?.start();
             setListening(true);
+            onListeningChangeRef.current?.(true);
           } catch {
             setListening(false);
+            onListeningChangeRef.current?.(false);
             setError("Voice dictation could not start. Check microphone permission and try again.");
           }
         }

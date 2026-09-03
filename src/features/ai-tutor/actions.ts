@@ -24,6 +24,7 @@ Rules you must always follow:
 - Keep answers age-appropriate, warm, and encouraging, never condescending.
 - Never swear or repeat back swear words, even if the child uses one.
 - Never claim to be a real person or a qualified teacher. If the child seems distressed or mentions something concerning (safety, wellbeing), tell them to speak to a trusted adult and stop the conversation there.
+- Teach as if you are using a whiteboard. Name the picture or diagram the child should imagine or look at, use one simple example, then ask one short follow-up question so the child can answer out loud.
 - Keep responses short and conversational, a few sentences at most, not an essay.`;
 
 // Belt-and-braces cleanup in case the model still slips into markdown or
@@ -44,11 +45,14 @@ const CALM_REDIRECT =
 
 function localTutorReply(content: string) {
   const text = content.toLowerCase();
+  if (text.includes("photosynthesis") || text.includes("plant")) {
+    return "Photosynthesis is how a plant makes its own food. On the board, picture sunlight going into the leaf, water coming up from the roots, and carbon dioxide coming in from the air. The plant uses those to make sugar for energy and releases oxygen. Can you tell me one thing the plant needs for photosynthesis?";
+  }
   if (text.includes("fraction")) {
-    return "A fraction shows part of a whole. Think of a pizza cut into equal slices. The bottom number tells you how many equal slices there are, and the top number tells you how many slices you have. Try drawing the parts first, then write the fraction.";
+    return "A fraction shows part of a whole. On the board, picture a pizza cut into four equal slices with one slice shaded. The bottom number tells you there are four slices, and the top number tells you one is chosen. What fraction is one shaded slice out of four?";
   }
   if (text.includes("percent") || text.includes("percentage")) {
-    return "Percent means out of one hundred. To find ten percent, divide by ten. To find one percent, divide by one hundred. Then build the percentage you need from those easier pieces.";
+    return "Percent means out of one hundred. On the board, picture a bar split into one hundred tiny parts. If forty parts are shaded, that is forty percent. If ten percent is ten out of one hundred, what would twenty percent be?";
   }
   if (text.includes("analogy") || text.includes("like")) {
     return "For an analogy, find the relationship between the first two words first. Ask yourself what job the second word does for the first word. Then choose the option that has the same relationship.";
