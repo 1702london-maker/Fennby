@@ -533,24 +533,30 @@ export function AiTutorClient({ wrapUpQuestions }: { wrapUpQuestions: WrapUpQues
                   )}
                 </div>
                 {latestAssistantMessage(messages) ? (
-                  <div className="grid lg:grid-cols-[1fr_15rem] gap-6 items-start">
-                    <p className="text-lg leading-relaxed text-charcoal-teal whitespace-pre-wrap">
-                      {latestAssistantMessage(messages)}
-                    </p>
-                    <div className="min-h-[15rem] rounded-3xl bg-mist-50 p-2">
+                  <div className="grid gap-5">
+                    <div className="relative overflow-hidden rounded-3xl bg-mist-50 p-3">
+                      <div className="pointer-events-none absolute left-4 top-4 z-10 rounded-full bg-coral-600 px-3 py-1 text-xs font-bold text-white shadow-lg">
+                        Drawing live
+                      </div>
                       <LessonWhiteboard topic={getBoardTopic(messages)} explanation={latestAssistantMessage(messages)} step={boardStep} />
                     </div>
+                    <p className="rounded-3xl bg-mist-50 p-5 text-lg leading-relaxed text-charcoal-teal whitespace-pre-wrap">
+                      {latestAssistantMessage(messages)}
+                    </p>
                   </div>
                 ) : (
-                  <div className="grid min-h-64 lg:grid-cols-[1fr_15rem] gap-6 items-center">
+                  <div className="grid min-h-64 gap-6">
+                    <div className="relative overflow-hidden rounded-3xl bg-mist-50 p-3">
+                      <div className="pointer-events-none absolute left-4 top-4 z-10 rounded-full bg-coral-600 px-3 py-1 text-xs font-bold text-white shadow-lg">
+                        Board ready
+                      </div>
+                      <LessonWhiteboard topic="general" explanation="" step={0} />
+                    </div>
                     <div className="text-center lg:text-left">
                       <p className="font-display font-bold text-2xl mb-3">Choose a lesson or ask a question.</p>
                       <p className="text-charcoal-teal/65 max-w-md">
                         Say, Hey Fennby, then ask for any school topic. The tutor will explain it out loud, draw the idea here, then ask what you think next.
                       </p>
-                    </div>
-                    <div className="h-60 rounded-3xl bg-mist-50 p-2">
-                      <LessonWhiteboard topic="general" explanation="" step={0} />
                     </div>
                   </div>
                 )}
