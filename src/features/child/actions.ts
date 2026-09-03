@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { withRole } from "@/lib/auth/withRole";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import type { ActionResult } from "@/lib/action-result";
 import type { Database } from "@/types/database";
 
@@ -100,8 +101,8 @@ export const updateChildLearningPreferences = withRole(
     const learnerId = await getOwnLearnerId(session.id);
     if (!learnerId) return { ok: false, error: "not_found" };
 
-    const supabase = await createClient();
-    const { data: learner } = await supabase
+    const admin = createAdminClient();
+    const { data: learner } = await admin
       .from("learners")
       .select("learning_preferences")
       .eq("id", learnerId)
@@ -109,14 +110,14 @@ export const updateChildLearningPreferences = withRole(
 
     const current = (learner?.learning_preferences ?? {}) as Record<string, unknown>;
     const next = { ...current, ...parsed.data };
-    const { error } = await supabase
+    const { error } = await admin
       .from("learners")
       .update({ learning_preferences: next })
       .eq("id", learnerId);
 
     if (error) return { ok: false, error: "update_failed" };
 
-    await supabase.from("audit_logs").insert({
+    await admin.from("audit_logs").insert({
       actor_id: session.id,
       action: "child_learning_preferences_updated",
       entity: "learners",
