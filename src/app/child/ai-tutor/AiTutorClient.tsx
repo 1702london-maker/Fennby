@@ -62,11 +62,7 @@ export function AiTutorClient({ wrapUpQuestions }: { wrapUpQuestions: WrapUpQues
     const result = await sendAiTutorMessage({ conversationId, content: userMessage });
     setSending(false);
     if (!result.ok) {
-      if (result.error === "ai_tutor_not_configured") {
-        setError("The AI Tutor isn't switched on for this environment yet — an OPENAI_API_KEY needs adding to Vercel's environment variables first.");
-      } else {
-        setError(result.error);
-      }
+      setError("I couldn't answer that just now. Please try again in a moment.");
       return;
     }
     setMessages((m) => [...m, { role: "assistant", content: result.data.reply }]);

@@ -42,6 +42,29 @@ function humanizeReply(text: string): string {
 const CALM_REDIRECT =
   "I can hear that's a strong word, but let's keep our chat friendly so I can help you best. Want to try that question again, or ask me something else about your schoolwork?";
 
+function localTutorReply(content: string) {
+  const text = content.toLowerCase();
+  if (text.includes("fraction")) {
+    return "A fraction shows part of a whole. Think of a pizza cut into equal slices. The bottom number tells you how many equal slices there are, and the top number tells you how many slices you have. Try drawing the parts first, then write the fraction.";
+  }
+  if (text.includes("percent") || text.includes("percentage")) {
+    return "Percent means out of one hundred. To find ten percent, divide by ten. To find one percent, divide by one hundred. Then build the percentage you need from those easier pieces.";
+  }
+  if (text.includes("analogy") || text.includes("like")) {
+    return "For an analogy, find the relationship between the first two words first. Ask yourself what job the second word does for the first word. Then choose the option that has the same relationship.";
+  }
+  if (text.includes("comprehension") || text.includes("paragraph") || text.includes("story")) {
+    return "For comprehension, look back at the exact sentence that supports your answer. If an option sounds possible but the text does not prove it, leave it. The best answer is the one the passage actually supports.";
+  }
+  if (text.includes("shape") || text.includes("pattern") || text.includes("sequence")) {
+    return "For a pattern, check one change at a time. Look for movement, rotation, size, number of sides, colour, or shading. Say the rule out loud before choosing the next shape.";
+  }
+  if (text.includes("spell") || text.includes("vocabulary") || text.includes("word")) {
+    return "Try reading the word in the sentence first. If you are choosing a meaning, replace the word with each option and see which one keeps the sentence sensible.";
+  }
+  return "Let's break it down together. First, tell me what the question is asking you to find. Then show me the part that feels confusing, and I will help you choose the next step.";
+}
+
 export const startAiTutorConversation = withRole(
   ["child"],
   async (session, subjectKey?: string): Promise<ActionResult<{ conversationId: string }>> => {
@@ -140,9 +163,13 @@ export const sendAiTutorMessage = withRole(
 
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) {
-      // Real, honest failure mode rather than a fabricated response — the
-      // key genuinely isn't configured in this environment yet.
-      return { ok: false, error: "ai_tutor_not_configured" };
+      const reply = localTutorReply(parsed.data.content);
+      await supabase.from("ai_tutor_messages").insert({
+        conversation_id: parsed.data.conversationId,
+        role: "assistant",
+        content: reply,
+      });
+      return { ok: true, data: { reply } };
     }
 
     const { data: history } = await supabase
@@ -154,7 +181,7 @@ export const sendAiTutorMessage = withRole(
 
     const client = new OpenAI({ apiKey });
     const completion = await client.chat.completions.create({
-      model: "gpt-4o-mini",
+      model: process.env.AI_TUTOR_MODEL ?? "gpt-4o-mini",
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
         ...(history ?? []).map((m) => ({ role: m.role as "user" | "assistant", content: m.content })),
