@@ -171,6 +171,7 @@ async function main() {
     safeguarding_declaration: true,
     agreement_signed_at: new Date().toISOString(),
     status: "approved",
+    onboarding_state: "verified",
   };
   const { data: existingApplications, error: applicationReadError } = await supabase
     .from("tutor_applications")

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { PageShell } from "@/components/PageShell";
 import { EmptyState } from "@/components/EmptyState";
 import { getSessionProfile } from "@/lib/auth/session";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { getCradleWrapUpQuestions } from "@/features/cradle/actions";
 import { CradleRoom } from "./CradleRoom";
 
@@ -35,14 +35,33 @@ export default async function CradleSessionPage({ params }: { params: Promise<{ 
     );
   }
 
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { data: cradleSession } = await supabase
     .from("cradle_sessions")
-    .select("*")
+    .select(`
+      *,
+      cradle_participants(profile_id, learner_id),
+      lesson_sessions(
+        learner_id,
+        learners(parent_id, auth_id)
+      )
+    `)
     .eq("id", sessionId)
     .maybeSingle();
 
-  if (!cradleSession) {
+  const learner = cradleSession?.lesson_sessions?.learners;
+  const isParticipant = cradleSession?.cradle_participants?.some((participant) => participant.profile_id === session.id);
+  const canViewSession = Boolean(
+    cradleSession &&
+    (
+      cradleSession.host_id === session.id ||
+      isParticipant ||
+      learner?.parent_id === session.id ||
+      learner?.auth_id === session.id
+    )
+  );
+
+  if (!cradleSession || !canViewSession) {
     return (
       <PageShell>
         <main className="max-w-2xl mx-auto px-6 py-16">
