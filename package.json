@@ -8,6 +8,7 @@
     "build": "next build",
     "seed:admin": "node scripts/seed-admin.mjs",
     "seed:balanced-mock": "node scripts/seed-balanced-mock-b.mjs",
+    "seed:varied-warmups": "node scripts/seed-varied-warmups.mjs",
     "start": "next start",
     "lint": "next lint"
   },

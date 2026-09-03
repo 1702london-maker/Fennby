@@ -13,9 +13,37 @@ export type WarmupQuestion = {
 const WARMUP_SIZE = 10;
 const WARMUP_POOL_READ_LIMIT = 1250;
 const RECENT_WARMUP_HISTORY_LIMIT = 300;
+const WARMUP_BANK = "Fennby Warm-Up V2";
 
 function shuffle<T>(items: T[]) {
   return [...items].sort(() => Math.random() - 0.5);
+}
+
+function normalizeWarmupStem(question: WarmupQuestion) {
+  return question.question
+    .replace(/^Warm-up\s+[\w -]+\s+\d+:\s*/i, "")
+    .replace(/\b\d+\b/g, "#")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
+}
+
+function hasUniqueOptions(question: Pick<WarmupQuestion, "options">) {
+  return new Set(question.options.map((option) => option.trim().toLowerCase())).size === question.options.length;
+}
+
+function removeNearDuplicateWarmups(questions: WarmupQuestion[]) {
+  const seen = new Set<string>();
+  const unique: WarmupQuestion[] = [];
+
+  for (const question of shuffle(questions)) {
+    const stem = normalizeWarmupStem(question);
+    if (seen.has(stem)) continue;
+    seen.add(stem);
+    unique.push(question);
+  }
+
+  return unique;
 }
 
 function balanceWarmupPool(questions: WarmupQuestion[]) {
@@ -51,7 +79,14 @@ export async function getMyLearnerProfile() {
 
 export async function getBrainWarmupQuestions(learnerId: string): Promise<WarmupQuestion[]> {
   const supabase = await createClient();
-  const [{ data }, { data: recentAnswers }] = await Promise.all([
+  const [{ data: preferredData }, { data: fallbackData }, { data: recentAnswers }] = await Promise.all([
+    supabase
+      .from("questions")
+      .select("id, subject_key, topic_key, text, options, correct_answer")
+      .eq("status", "published")
+      .eq("type", "multiple_choice")
+      .eq("exam_board", WARMUP_BANK)
+      .limit(WARMUP_POOL_READ_LIMIT),
     supabase
       .from("questions")
       .select("id, subject_key, topic_key, text, options, correct_answer")
@@ -68,8 +103,9 @@ export async function getBrainWarmupQuestions(learnerId: string): Promise<Warmup
   ]);
 
   const recentlySeen = new Set((recentAnswers ?? []).map((answer) => answer.question_id).filter(Boolean));
-  const questions = (data ?? [])
-    .filter((q) => q.options.length >= 2)
+  const sourceQuestions = preferredData?.length ? preferredData : fallbackData ?? [];
+  const questions = sourceQuestions
+    .filter((q) => q.options.length >= 2 && hasUniqueOptions(q))
     .map((q) => ({
       id: q.id,
       subjectKey: q.subject_key ?? "general",
@@ -78,10 +114,11 @@ export async function getBrainWarmupQuestions(learnerId: string): Promise<Warmup
       options: q.options,
       correctAnswer: q.correct_answer,
     }));
-  const unseenQuestions = questions.filter((q) => !recentlySeen.has(q.id));
+  const unseenQuestions = removeNearDuplicateWarmups(questions.filter((q) => !recentlySeen.has(q.id)));
+  const uniqueQuestions = removeNearDuplicateWarmups(questions);
 
   if (unseenQuestions.length >= WARMUP_SIZE) return balanceWarmupPool(unseenQuestions);
-  if (questions.length >= WARMUP_SIZE) return balanceWarmupPool(questions);
+  if (uniqueQuestions.length >= WARMUP_SIZE) return balanceWarmupPool(uniqueQuestions);
 
   return brainTeasers.map((q, index) => ({
     id: `fallback-${index}`,
