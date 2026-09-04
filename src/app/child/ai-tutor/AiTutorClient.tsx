@@ -79,6 +79,26 @@ function shortStep(text: string) {
   return `${cleaned.slice(0, 55).trim()}...`;
 }
 
+function boardLines(text: string | undefined, fallback: string, maxLength = 18) {
+  const words = (text || fallback).replace(/\s+/g, " ").trim().split(" ");
+  const lines: string[] = [];
+  let current = "";
+
+  for (const word of words) {
+    const next = current ? `${current} ${word}` : word;
+    if (next.length <= maxLength) {
+      current = next;
+      continue;
+    }
+    if (current) lines.push(current);
+    current = word.length > maxLength ? `${word.slice(0, maxLength - 1)}...` : word;
+    if (lines.length === 1) break;
+  }
+
+  if (current && lines.length < 2) lines.push(current);
+  return [lines[0] || fallback, lines[1] || ""];
+}
+
 function getDynamicLessonSteps(topic: string, explanation: string) {
   const sentences = explanation
     .split(/(?<=[.!?])\s+/)
@@ -177,6 +197,9 @@ function LessonWhiteboard({
   const steps = explanation ? getDynamicLessonSteps(topic, explanation) : getLessonSteps(topic);
   const visibleSteps = Math.min(step + 1, steps.length);
   const boardTitle = getBoardTitle(topic, request);
+  const firstNote = boardLines(steps[0], "Ask");
+  const secondNote = boardLines(steps[1], "Draw");
+  const thirdNote = boardLines(steps[2], "Answer");
 
   if (topic === "photosynthesis") {
     return (
@@ -304,18 +327,18 @@ function LessonWhiteboard({
         <path className="board-flow" d="M86 132 C172 82 236 172 322 122 S492 108 548 190" stroke="#146B6B" strokeWidth="6" fill="none" strokeLinecap="round" />
         <g className="board-note">
           <rect x="78" y="118" width="132" height="72" rx="18" fill="#E2F1EF" />
-        <text x="144" y="150" textAnchor="middle" fill="#123F3F" fontSize="15" fontWeight="800">{steps[0]?.slice(0, 14) ?? "Ask"}</text>
-        <text x="144" y="172" textAnchor="middle" fill="#123F3F" fontSize="15" fontWeight="800">{steps[0]?.slice(14, 28) ?? ""}</text>
+        <text x="144" y="150" textAnchor="middle" fill="#123F3F" fontSize="15" fontWeight="800">{firstNote[0]}</text>
+        <text x="144" y="172" textAnchor="middle" fill="#123F3F" fontSize="15" fontWeight="800">{firstNote[1]}</text>
         </g>
         <g className="board-note" style={{ animationDelay: "180ms" }}>
           <rect x="256" y="86" width="132" height="72" rx="18" fill="#F9E2D7" />
-          <text x="322" y="118" textAnchor="middle" fill="#123F3F" fontSize="15" fontWeight="800">{steps[1]?.slice(0, 14) ?? "Draw"}</text>
-          <text x="322" y="140" textAnchor="middle" fill="#123F3F" fontSize="15" fontWeight="800">{steps[1]?.slice(14, 28) ?? ""}</text>
+          <text x="322" y="118" textAnchor="middle" fill="#123F3F" fontSize="15" fontWeight="800">{secondNote[0]}</text>
+          <text x="322" y="140" textAnchor="middle" fill="#123F3F" fontSize="15" fontWeight="800">{secondNote[1]}</text>
         </g>
         <g className="board-note" style={{ animationDelay: "360ms" }}>
           <rect x="430" y="164" width="132" height="72" rx="18" fill="#E8F0D5" />
-          <text x="496" y="196" textAnchor="middle" fill="#123F3F" fontSize="15" fontWeight="800">{steps[2]?.slice(0, 14) ?? "Answer"}</text>
-          <text x="496" y="218" textAnchor="middle" fill="#123F3F" fontSize="15" fontWeight="800">{steps[2]?.slice(14, 28) ?? ""}</text>
+          <text x="496" y="196" textAnchor="middle" fill="#123F3F" fontSize="15" fontWeight="800">{thirdNote[0]}</text>
+          <text x="496" y="218" textAnchor="middle" fill="#123F3F" fontSize="15" fontWeight="800">{thirdNote[1]}</text>
         </g>
         <g className="board-pointer">
           <circle cx="80" cy="282" r="14" fill="#F07A5A" />
